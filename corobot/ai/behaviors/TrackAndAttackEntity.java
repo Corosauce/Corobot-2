@@ -9,6 +9,7 @@ import com.corosus.ai.bt.nodes.leaf.LeafNodeBB;
 import com.corosus.entity.IEntity;
 import com.corosus.util.VecUtil;
 
+import corobot.Corobot;
 import corobot.bridge.TargetBridge;
 
 public class TrackAndAttackEntity extends LeafNodeBB {
@@ -20,7 +21,7 @@ public class TrackAndAttackEntity extends LeafNodeBB {
 	@Override
 	public EnumBehaviorState tick() {
 		
-		float attackRange = 2F;
+		float attackRange = 4F;
 		
 		IEntity player = this.getBlackboard().getAgent().getActor();
 		IEntity target = this.getBlackboard().getTargetAttack();
@@ -28,10 +29,14 @@ public class TrackAndAttackEntity extends LeafNodeBB {
 			if (target instanceof TargetBridge) {
 				//Entity targetEnt = ((TargetBridge)target).target;
 				
-				if (player.getLevel().getTicksTotal() % 10 == 0) {
+				//if (player.getLevel().getTicksTotal() % 10 == 0) {
 					if (VecUtil.getDistSqrd(player.getPos(), target.getPos()) > attackRange) {
 						player.setMoveTo(target.getPos());
 					}
+				//}
+				
+				if (VecUtil.getDistSqrd(player.getPos(), target.getPos()) <= attackRange) {
+					Corobot.playerAI.bridgePlayer.attackTargetMelee(target);
 				}
 			}
 		}

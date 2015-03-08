@@ -80,7 +80,7 @@ public class SenseEnvironmentPlayer extends LeafNode {
     	EntityPlayer player = ((PlayerAI)agent.getActor()).bridgePlayer.getPlayer();
     	World world = player.worldObj;
     	
-    	float huntRange = 10;
+    	float huntRange = 100;
     	boolean xRay = false;
     	
     	Entity clEnt = null;
@@ -93,9 +93,9 @@ public class SenseEnvironmentPlayer extends LeafNode {
             Entity ent = (Entity)list.get(j);
             
             if (isEnemy(ent)) {
-            	if ((xRay || player.canEntityBeSeen(ent)) && (ent.posY > ent.posY-3 && ent.posY < ent.posY+8)) {
+            	if ((xRay || player.canEntityBeSeen(ent)) && (player.posY > ent.posY-3 && player.posY < ent.posY+8)) {
             		//if (sanityCheck(ent)/* && ent instanceof EntityPlayer*/) {
-            			float dist = ent.getDistanceToEntity(ent);
+            			float dist = player.getDistanceToEntity(ent);
             			if (dist < closest) {
             				closest = dist;
             				clEnt = ent;

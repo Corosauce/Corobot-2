@@ -5,15 +5,16 @@ import java.util.List;
 
 import javax.vecmath.Vector3f;
 
-import com.corosus.util.VecUtil;
-
-import corobot.ai.PlayerAI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.pathfinding.PathEntity;
-import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.MathHelper;
+
+import com.corosus.entity.IEntity;
+import com.corosus.util.VecUtil;
+
+import corobot.ai.PlayerAI;
 
 public class PlayerBridge {
 
@@ -46,7 +47,7 @@ public class PlayerBridge {
 	}
 	
 	public void tickUpdate() {
-		float speed = 0.2F;
+		float speed = 0.4F;
 		Vector3f moveTo = playerAI.getMvtvec();
 		if (moveTo != null) {
 			float dist = VecUtil.getDistSqrdXZ(moveTo, new Vector3f((float)getPlayer().posX, (float)getPlayer().boundingBox.minY, (float)getPlayer().posZ));
@@ -70,7 +71,7 @@ public class PlayerBridge {
 				}
 			}
 			
-			System.out.println("movement! - " + rX + ", " + rY + ", " + rZ);
+			//System.out.println("movement! - " + rX + ", " + rY + ", " + rZ);
 		}
 	}
 	
@@ -100,6 +101,17 @@ public class PlayerBridge {
 		
 	}
 	
+	public void attackTargetMelee(IEntity ent) {
+		EntityPlayer player = getPlayer();
+		if (ent instanceof TargetBridge) {
+			Minecraft mc = Minecraft.getMinecraft();
+			mc.playerController.attackEntity(player, ((TargetBridge)ent).target);
+			player.swingItem();
+		}
+	}
 	
+	public void attackTargetRanged(IEntity ent) {
+		
+	}
 	
 }
