@@ -1,9 +1,17 @@
 package corobot.ai.profile;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 import com.corosus.ai.AIBTAgent;
+import com.corosus.ai.bt.nodes.tree.Sequence;
 import com.corosus.ai.profile.ProfileBase;
 import com.corosus.entity.IEntity;
 
+import corobot.Corobot;
+import corobot.ai.behaviors.AvoidClosestThreat;
+import corobot.ai.behaviors.JumpForBoredom;
+import corobot.ai.behaviors.RespawnIfDead;
+import corobot.ai.behaviors.StayAboveWater;
 import corobot.ai.behaviors.TrackAndAttackEntity;
 
 public class ProfilePlayer extends ProfileBase {
@@ -16,7 +24,15 @@ public class ProfilePlayer extends ProfileBase {
 	public void init() {
 		super.init();
 		
-		getAgent().getBtTemplate().btAttack.add(new TrackAndAttackEntity(getAgent().getBtTemplate().btAttack, this.getAgent().getBlackboard()));
+		getBtAttack().add(new TrackAndAttackEntity(getBtAttack(), this.getAgent().getBlackboard()));
+
+		getBtSurvive().add(new AvoidClosestThreat(getBtSurvive(), getAgent().getBlackboard()));
+		
+		getAgent().getBtTemplate().btAI.add(new StayAboveWater(getAgent().getBtTemplate().btAI, this.getAgent().getBlackboard()));
+		getAgent().getBtTemplate().btAI.add(new RespawnIfDead(getAgent().getBtTemplate().btAI, this.getAgent().getBlackboard()));
+
+		Sequence tasks = getAgent().getBtTemplate().ordersHandler.getOrders();
+		tasks.add(new JumpForBoredom(tasks, getAgent().getBlackboard()));
 	}
 	
 	@Override
@@ -30,8 +46,25 @@ public class ProfilePlayer extends ProfileBase {
 	}
 	
 	@Override
+	public boolean shouldTrySurvival() {
+		/*System.out.println("temp force survival on");
+		return true;*/
+		EntityPlayer player = Corobot.playerAI.bridgePlayer.getPlayer();
+		if (player.getHealth() < player.getMaxHealth() / 2) return true;
+		return super.shouldTrySurvival();
+	}
+	
+	@Override
 	public boolean isEnemy(IEntity parActor) {
 		return super.isEnemy(parActor);
+	}
+	
+	@Override
+	public boolean canWinScenario(IEntity parActor) {
+
+		Corobot.getPlayerAI().updateCache();
+    	
+    	return true;
 	}
 
 }

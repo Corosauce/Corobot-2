@@ -1,5 +1,6 @@
 package corobot;
 
+import net.minecraft.client.Minecraft;
 import corobot.ai.PlayerAI;
 
 public class Corobot {
@@ -11,7 +12,17 @@ public class Corobot {
 	}
 	
 	public static void tickUpdate() {
-		playerAI.tickUpdate();
+		try {
+			if (!Minecraft.getMinecraft().isGamePaused()) {
+				playerAI.tickUpdate();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	public static PlayerAI getPlayerAI() {
+		return playerAI;
 	}
 	
 }

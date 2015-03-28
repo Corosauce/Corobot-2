@@ -22,21 +22,34 @@ public class TrackAndAttackEntity extends LeafNodeBB {
 	public EnumBehaviorState tick() {
 		
 		float attackRange = 4F;
+		float stopPathRange = 4F;
 		
 		IEntity player = this.getBlackboard().getAgent().getActor();
 		IEntity target = this.getBlackboard().getTargetAttack();
 		if (target != null) {
+			
+			/*System.out.println("try attack - this shouldnt be running");
+			if (true) return EnumBehaviorState.SUCCESS;*/
+			
+			//unused instance check
 			if (target instanceof TargetBridge) {
-				//Entity targetEnt = ((TargetBridge)target).target;
+				Entity targetEnt = ((TargetBridge)target).target;
 				
-				//if (player.getLevel().getTicksTotal() % 10 == 0) {
+				if (player.getLevel().getTicksTotal() % 20 == 0) {
 					if (VecUtil.getDistSqrd(player.getPos(), target.getPos()) > attackRange) {
-						player.setMoveTo(target.getPos());
+						if (targetEnt.onGround || targetEnt.isInWater()) {
+							player.setMoveTo(target.getPos());
+						}
 					}
-				//}
+				}
 				
 				if (VecUtil.getDistSqrd(player.getPos(), target.getPos()) <= attackRange) {
 					Corobot.playerAI.bridgePlayer.attackTargetMelee(target);
+				}
+				
+				//keep distance
+				if (VecUtil.getDistSqrd(player.getPos(), target.getPos()) <= stopPathRange) {
+					getBlackboard().getPath().clearPath();
 				}
 			}
 		}

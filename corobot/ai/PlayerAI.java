@@ -2,6 +2,8 @@ package corobot.ai;
 
 import javax.vecmath.Vector3f;
 
+import net.minecraft.entity.player.EntityPlayer;
+
 import org.lwjgl.input.Keyboard;
 
 import com.corosus.ai.bt.BehaviorNode;
@@ -9,17 +11,22 @@ import com.corosus.ai.path.Path;
 import com.corosus.entity.IEntity;
 import com.corosus.world.IWorld;
 
+import corobot.Corobot;
+import corobot.ai.behaviors.AvoidClosestThreat;
 import corobot.ai.behaviors.JumpForBoredom;
 import corobot.ai.behaviors.OrdersTasks;
 import corobot.ai.profile.ProfilePlayer;
 import corobot.bridge.PlayerBridge;
 import corobot.bridge.WorldBridge;
+import corobot.util.InventoryInfo;
+import corobot.util.UtilPlayer;
 
 public class PlayerAI implements IEntity {
 
 	public AIBTAgentImpl agent;
 	public PlayerBridge bridgePlayer;
 	public WorldBridge bridgeWorld;
+	public InventoryInfo invInfo;
 	
 	public boolean needInit = true;
 	
@@ -33,25 +40,27 @@ public class PlayerAI implements IEntity {
 	}
 	
 	public void init() {
+		
+		invInfo = new InventoryInfo();
+		bridgePlayer = new PlayerBridge(this);
+		bridgeWorld = new WorldBridge(this);
+		
 		needInit = false;
 		agent = new AIBTAgentImpl(this);
+		agent.setTickRate(1);
+		
+		OrdersTasks tasks = new OrdersTasks(null);
+		agent.getBtTemplate().ordersHandler.setOrders(tasks);
+		
 		agent.setProfile(new ProfilePlayer(agent));
 		agent.init();
 		
 		agent.getBtTemplate().btSenses.getChildren().clear();
 		agent.getBtTemplate().btSenses.add(new SenseEnvironmentPlayer(agent.getBtTemplate().btSenses, agent));
 		
-		bridgePlayer = new PlayerBridge(this);
-		bridgeWorld = new WorldBridge(this);
-		
 		//temp - or not?
 		Path path = new Path(agent.getBlackboard());
 		agent.getBlackboard().setPath(path);
-		
-		OrdersTasks tasks = new OrdersTasks(null);
-		agent.getBtTemplate().ordersHandler.setOrders(tasks);
-		
-		tasks.add(new JumpForBoredom(tasks, agent.getBlackboard()));
 	}
 	
 	public void tickUpdate() {
@@ -67,14 +76,26 @@ public class PlayerAI implements IEntity {
 				//System.out.println("try path");
 				
 				//computePath(new Vector3f(0, 64, 0));
-			if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
+			/*if (Keyboard.isKeyDown(Keyboard.KEY_E)) {
 				//computePath(new Vector3f(-37, 65, 215));
 				computePath(new Vector3f(12, 69, 205));
-			}
+			}*/
 				//System.out.println(agent.getBlackboard().getPath().listPathnodes.size());
 			//}
 		}
 		bridgePlayer.tickUpdate();
+	}
+	
+	public void updateCache() {
+		EntityPlayer player = bridgePlayer.getPlayer();
+    	UtilPlayer.updateBestWeaponSlot(player, player.inventory, invInfo);
+    	
+    	updateOptimalItemSlots();
+	}
+	
+	public void updateOptimalItemSlots() {
+		UtilPlayer.optimizeOffensiveInventory();
+		UtilPlayer.optimizeDefensiveInventory();
 	}
 	
 	@Override
@@ -118,6 +139,16 @@ public class PlayerAI implements IEntity {
 	@Override
 	public boolean getIsDead() {
 		return bridgePlayer.getPlayer().isDead;
+	}
+
+	@Override
+	public float getHealthMax() {
+		return bridgePlayer.getPlayer().getMaxHealth();
+	}
+
+	@Override
+	public float getHealthCur() {
+		return bridgePlayer.getPlayer().getHealth();
 	}
 
 }

@@ -94,13 +94,13 @@ public class SenseEnvironmentPlayer extends LeafNode {
             
             if (isEnemy(ent)) {
             	if ((xRay || player.canEntityBeSeen(ent)) && (player.posY > ent.posY-3 && player.posY < ent.posY+8)) {
-            		//if (sanityCheck(ent)/* && ent instanceof EntityPlayer*/) {
+            		if (this.agent.getProfile().canWinScenario(new TargetBridge(ent))/* && ent instanceof EntityPlayer*/) {
             			float dist = player.getDistanceToEntity(ent);
             			if (dist < closest) {
             				closest = dist;
             				clEnt = ent;
             			}
-            		//}
+            		}
             	}
             }
         }

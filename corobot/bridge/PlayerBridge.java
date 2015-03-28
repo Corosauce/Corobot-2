@@ -15,6 +15,7 @@ import com.corosus.entity.IEntity;
 import com.corosus.util.VecUtil;
 
 import corobot.ai.PlayerAI;
+import corobot.util.UtilPlayer;
 
 public class PlayerBridge {
 
@@ -64,9 +65,10 @@ public class PlayerBridge {
 			getPlayer().motionZ = rZ;
 			
 			if (motionY > 0.1) {
-				if (getPlayer().isInWater()) {
+				//moved to StayAboveWater
+				/*if (getPlayer().isInWater()) {
 					getPlayer().motionY += 0.08;
-				} else if (getPlayer().onGround) {
+				} else */if (getPlayer().onGround) {
 					getPlayer().jump();
 				}
 			}
@@ -105,6 +107,7 @@ public class PlayerBridge {
 		EntityPlayer player = getPlayer();
 		if (ent instanceof TargetBridge) {
 			Minecraft mc = Minecraft.getMinecraft();
+			UtilPlayer.switchToMeleeSlot(playerAI);
 			mc.playerController.attackEntity(player, ((TargetBridge)ent).target);
 			player.swingItem();
 		}
