@@ -25,4 +25,8 @@ public class Corobot {
 		return playerAI;
 	}
 	
+	public static void dbg(Object msg) {
+		System.out.println(msg);
+	}
+	
 }

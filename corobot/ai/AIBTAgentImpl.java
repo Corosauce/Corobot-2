@@ -7,6 +7,7 @@ public class AIBTAgentImpl extends AIBTAgent {
 
 	public AIBTAgentImpl(IEntity parActor) {
 		super(parActor);
+		setBlackboard(new BlackboardImpl(this));
 	}
 
 }
