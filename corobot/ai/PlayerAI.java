@@ -143,9 +143,13 @@ public class PlayerAI implements IEntity {
 		precondition.listMachineLocations.add(new MachineLocation(new Vector3f(1, 2, 4), Blocks.crafting_table));*/
 		
 		if (!planGoal.hasPlan() || planGoal.isPlanComplete()) {
-			planGoal.createPlan(PlanRegistry.getPlanPieceByName("harvestWheat"), bb.getWorldMemory());
+			//planGoal.createPlan(PlanRegistry.getPlanPieceByName("harvestWheat"), bb.getWorldMemory());
+			planGoal.createPlan(PlanRegistry.getPlanPieceByName("Wooden Hoe124"), bb.getWorldMemory());
+			
 			//planGoal.createPlan(PlanRegistry.getPlanPieceByName("craftWoodPlanks"), bb.getWorldMemory());
 		}
+		
+		//if (true) return;
 		
 		if (planGoal.getListPlanPieces().size() > 0) {
 			PlanPiece plan = planGoal.getListPlanPieces().get(planGoal.getCurPlanIndex());
@@ -159,7 +163,7 @@ public class PlayerAI implements IEntity {
 		//boolean result = bb.getPlayerMemory().contains(precondition);
 		
 		//System.out.println("plan size: " + goal.getListPlanPieces().size());
-		System.out.println(planGoal);
+		if (planGoal != null) System.out.println(planGoal.getCurPlanIndex() + " - " + planGoal);
 	}
 	
 	public void updateCache() {

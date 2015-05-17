@@ -1,13 +1,16 @@
 package corobot.ai.minigoap.plans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.ContainerChest;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerWorkbench;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.MathHelper;
@@ -35,14 +38,20 @@ public class PlanCraftRecipe extends PlanPiece {
 	private ItemStack itemToCraft;
 	
 	public State state = State.PATHING;
+	public int width = -1;
+	public int height = -1;
+	public List<ItemStack> listRecipeShape = null;
 	
 	public enum State {
 		PATHING, WAITING_ON_GUI, GUI_OPEN;
 	}
 	
-	public PlanCraftRecipe(String planName, IRecipe recipe, List<ItemStack> recipeNeeds) {
+	public PlanCraftRecipe(String planName, IRecipe recipe, List<ItemStack> recipeNeeds, int width, int height) {
 		super(planName);
 		itemToCraft = recipe.getRecipeOutput();
+		this.width = width;
+		this.height = height;
+		this.listRecipeShape = recipeNeeds;
 		this.getEffects().getProperties().add(new ItemEntry(itemToCraft, new InventorySourceSelf()));
 		for (ItemStack stack : recipeNeeds) {
 			if (stack != null) {
@@ -54,13 +63,19 @@ public class PlanCraftRecipe extends PlanPiece {
 	public PlanCraftRecipe(PlanPiece obj) {
 		super(obj);
 		
-		IWorldStateProperty effect = obj.getEffects().getProperties().get(0);
+		PlanCraftRecipe src = (PlanCraftRecipe) obj;
 		
-		//this.getEffects().getProperties().add(obj.getEffects().getProperties().get(0));
+		itemToCraft = src.itemToCraft;
+		width = src.width;
+		height = src.height;
+		listRecipeShape = new ArrayList(src.listRecipeShape);
+		
+		/*IWorldStateProperty effect = obj.getEffects().getProperties().get(0);
+		
 		if (effect instanceof ItemEntry) {
 			ItemEntry entry = (ItemEntry) effect;
 			itemToCraft = entry.getStack();
-		}
+		}*/
 	}
 	
 	@Override
@@ -115,9 +130,61 @@ public class PlanCraftRecipe extends PlanPiece {
 				
 				if (playerEnt.openContainer instanceof ContainerWorkbench) {
 					System.out.println("slot click");
-					UtilContainer.clickSlot(slotInventoryHotbarStart);
+					
+					if (itemToCraft.getItem() == Items.wooden_hoe) {
+						int test = 0;
+					}
+					
+					for (int i = 0; i < listRecipeShape.size(); i++) {
+						ItemStack stack = listRecipeShape.get(i);
+						if (stack != null) {
+							int clickFrom = getFirstSlotContainingItem(playerEnt.openContainer, stack, slotInventoryMainStart, slotInventoryHotbarStart+sizeInventoryHotbar);
+							System.out.println("clickFrom: " + clickFrom);
+							if (clickFrom != -1) {
+								int clickTo = slotCraftMatrixStart;
+								if (width == -1) {
+									//place in first open slot
+									//this might work
+									clickTo = i;
+									System.out.println("clickTo shapeless: " + clickTo);
+								} else {
+									int iOffset = i;
+									//get recipe position from recipe size
+									int xx = (iOffset % width)+1;
+									int yy = ((int)(iOffset / width));
+									
+									System.out.println("xx/yy: " + xx + "/" + yy);
+									
+									//convert to crafting grid size, subtract 1 to reset to undo iOffset, wait no, dont subtract
+									clickTo = (((yy) * 3) + xx);
+									/*xx -= 1;
+									yy -= 1;*/
+									
+									System.out.println("clickTo: " + clickTo);
+									System.out.println("durr");
+								}
+								
+
+								
+								
+								UtilContainer.clickSlot(clickFrom, UtilContainer.mouseLeftClick, UtilContainer.mouse2StepClick);
+								UtilContainer.clickSlot(clickTo, UtilContainer.mouseRightClick, UtilContainer.mouse2StepClick);
+								UtilContainer.clickSlot(clickFrom, UtilContainer.mouseLeftClick, UtilContainer.mouse2StepClick);
+							} else {
+								System.out.println("CRITICAL! failed to find item, did something remove it since plan was made?");
+							}
+						}
+						
+					}
+
+
+					
+					UtilContainer.clickSlot(slotCraftOut, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
+					System.out.println("slot click complete");
+					
+					/*UtilContainer.clickSlot(slotInventoryHotbarStart);
 					UtilContainer.clickSlot(slotInventoryHotbarStart+1);
-					UtilContainer.clickSlot(slotInventoryHotbarStart+2);
+					UtilContainer.clickSlot(slotInventoryHotbarStart+2);*/
 				} else {
 					System.out.println("open gui");
 					UtilContainer.openContainer(x, y, z);
@@ -141,6 +208,21 @@ public class PlanCraftRecipe extends PlanPiece {
 	public boolean isTaskComplete() {
 		//TODO: meta / stacksize
 		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemToCraft.getItem()) > 0;
+	}
+	
+	public static int getFirstSlotContainingItem(Container container, ItemStack itemStack, int findStart, int findEnd) {
+		int index = -1;
+		
+		for (int i = findStart; i < findEnd; i++) {
+			ItemStack stack = (ItemStack) ((Slot)container.inventorySlots.get(i)).getStack();
+			
+			if (UtilInventory.isSame(itemStack, stack)) {
+				index = i;
+				break;
+			}
+		}
+		
+		return index;
 	}
 
 }

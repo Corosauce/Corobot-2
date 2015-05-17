@@ -9,13 +9,13 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
-import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import com.corosus.ai.minigoap.PlanRegistry;
 
 import corobot.ai.minigoap.plans.PlanCraftRecipe;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 
 public class UtilRecipe {
 	
@@ -36,9 +36,18 @@ public class UtilRecipe {
 		List listt = CraftingManager.getInstance().getRecipeList();
 		for (Object obj : CraftingManager.getInstance().getRecipeList()) {
 			IRecipe recipeInt = (IRecipe) obj;
+			int width = -1;
+			int height = -1;
+			
+			/*if (recipeInt.getRecipeOutput().getDisplayName().contains("Bucket")) {
+				int what = 0;
+			}*/
+			
 			List<ItemStack> listRecipeNeeds = new ArrayList<ItemStack>();
 			if (recipeInt instanceof ShapedRecipes) {
 				ShapedRecipes recipe = (ShapedRecipes) recipeInt;
+				width = recipe.recipeWidth;
+				height = recipe.recipeHeight;
 				for (Object objStacks : recipe.recipeItems) {
 					listRecipeNeeds.add((ItemStack) objStacks);
 				}
@@ -49,6 +58,10 @@ public class UtilRecipe {
 				}
 			} else if (recipeInt instanceof ShapedOreRecipe) {
 				ShapedOreRecipe recipe = (ShapedOreRecipe) recipeInt;
+				width = ReflectionHelper.getPrivateValue(ShapedOreRecipe.class, recipe, "width");
+				height = ReflectionHelper.getPrivateValue(ShapedOreRecipe.class, recipe, "height");
+				/*for (int i = 0; i < recipe.getInput().length; i++) {
+					Object objList = recipe.getInput()[i];*/
 				for (Object objList : recipe.getInput()) {
 					if (objList instanceof Collection) {
 						ArrayList list = (ArrayList) objList;
@@ -66,7 +79,7 @@ public class UtilRecipe {
 							}*/
 							//listRecipeNeeds.clear();
 						}
-					} else if (objList instanceof ItemStack){
+					} else /*if (objList instanceof ItemStack)*/{
 						listRecipeNeeds.add((ItemStack) objList);
 					}
 				}
@@ -94,11 +107,11 @@ public class UtilRecipe {
 			
 			if (listRecipeNeeds.size() > 0) {
 				String recipeName = recipeInt.getRecipeOutput().getDisplayName() + recipeCount++;
-				if (recipeName.contains("Oak Wood Planks")) {
+				if (recipeName.contains("Bucket")) {
 					int sdfdf = 0;
 				}
-				System.out.println("adding plan for recipe: " + recipeName + " - " + recipeInt.getRecipeOutput() + " using items " + listRecipeNeeds);
-				PlanRegistry.addPlanPiece(new PlanCraftRecipe(recipeName, recipeInt, listRecipeNeeds));
+				System.out.println("adding plan for recipe: " + recipeName + " - " + width + "x" + height + " - " + recipeInt.getRecipeOutput() + " using items " + listRecipeNeeds);
+				PlanRegistry.addPlanPiece(new PlanCraftRecipe(recipeName, recipeInt, listRecipeNeeds, width, height));
 			}
 		}
 	}

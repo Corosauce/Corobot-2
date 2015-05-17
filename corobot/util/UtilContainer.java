@@ -6,15 +6,19 @@ import net.minecraft.util.Vec3;
 import corobot.Corobot;
 
 public class UtilContainer {
+	
+	public static int mouse2StepClick = 0;
+	public static int mouseShiftClick = 1;
+	
+	public static int mouseLeftClick = 0;
+	public static int mouseRightClick = 1;
 
-	public static void clickSlot(int slot) {
+	public static void clickSlot(int slot, int mouseButton, int clickModifier) {
 		EntityPlayer player = Corobot.playerAI.bridgePlayer.getPlayer();
 		Minecraft mc = Minecraft.getMinecraft();
-		int mouse2StepClick = 0;
-		int mouseShiftClick = 1;
 		
 		if (player.openContainer != null) {
-			mc.playerController.windowClick(player.openContainer.windowId, slot, 0, mouse2StepClick, player);
+			mc.playerController.windowClick(player.openContainer.windowId, slot, mouseButton, clickModifier, player);
 		} else {
 			Corobot.dbg("WARNING: Tried to click slot without an open container");
 		}

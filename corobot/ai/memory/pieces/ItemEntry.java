@@ -1,14 +1,12 @@
 package corobot.ai.memory.pieces;
 
-import java.util.ArrayList;
-import java.util.List;
+import net.minecraft.item.ItemStack;
 
 import com.corosus.ai.minigoap.IWorldStateProperty;
 
 import corobot.Corobot;
 import corobot.ai.memory.pieces.inventory.InventorySource;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
+import corobot.util.UtilInventory;
 
 public class ItemEntry implements IWorldStateProperty {
 
@@ -49,7 +47,8 @@ public class ItemEntry implements IWorldStateProperty {
 				return true;
 			} else {
 				//if (stack.isItemEqual(precond.stack)) {
-				if (stack.getItem() == precond.stack.getItem() && (stack.getItemDamage() == precond.stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || precond.stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)) {
+				//if (stack.getItem() == precond.stack.getItem() && (stack.getItemDamage() == precond.stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || precond.stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)) {
+				if (UtilInventory.isSame(stack, precond.stack)) {
 					if (stack.getMaxStackSize() > 1 && precond.stack.getMaxStackSize() > 1) {
 						if (stack.stackSize >= precond.stack.stackSize) {
 							return true;
