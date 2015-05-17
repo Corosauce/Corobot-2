@@ -24,11 +24,13 @@ import com.corosus.util.VecUtil;
 import com.corosus.world.IWorld;
 
 import corobot.Corobot;
+import corobot.ai.memory.pieces.BlockLocation;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.ResourceLocation;
 import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
 import corobot.util.UtilEnt;
 import corobot.util.UtilInventory;
+import corobot.util.UtilMemory;
 
 public class PlanMineBlock extends PlanPiece {
 
@@ -78,7 +80,7 @@ public class PlanMineBlock extends PlanPiece {
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
 		
-		Blackboard bb = agent.getBlackboard();
+		/*Blackboard bb = agent.getBlackboard();
 		
 		List<IWorldStateProperty> props = bb.getWorldMemory().getProperties();
 		
@@ -92,7 +94,9 @@ public class PlanMineBlock extends PlanPiece {
 					break;
 				}
 			}
-		}
+		}*/
+		
+		BlockLocation loc = UtilMemory.getClosestBlock(block);
 		
 		if (loc != null) {
 			double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());
@@ -123,9 +127,9 @@ public class PlanMineBlock extends PlanPiece {
 					//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
 				}
 			} else {
+				state = State.PATHING;
 				if (world.getTicksTotal() % 40 == 0) {
 					player.setMoveTo(loc.getPos());
-					state = State.PATHING;
 				}
 			}
 			Corobot.dbg("state: " + state);
