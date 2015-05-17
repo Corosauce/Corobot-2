@@ -3,6 +3,7 @@ package corobot.ai.profile;
 import net.minecraft.entity.player.EntityPlayer;
 
 import com.corosus.ai.AIBTAgent;
+import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.tree.Sequence;
 import com.corosus.ai.profile.ProfileBase;
 import com.corosus.entity.IEntity;
@@ -31,8 +32,8 @@ public class ProfilePlayer extends ProfileBase {
 		getAgent().getBtTemplate().btAI.add(new StayAboveWater(getAgent().getBtTemplate().btAI, this.getAgent().getBlackboard()));
 		getAgent().getBtTemplate().btAI.add(new RespawnIfDead(getAgent().getBtTemplate().btAI, this.getAgent().getBlackboard()));
 
-		Sequence tasks = getAgent().getBtTemplate().ordersHandler.getOrders();
-		tasks.add(new JumpForBoredom(tasks, getAgent().getBlackboard()));
+		/*BehaviorNode tasks = getAgent().getBtTemplate().ordersHandler.getOrders();
+		tasks.add(new JumpForBoredom(tasks, getAgent().getBlackboard()));*/
 	}
 	
 	@Override

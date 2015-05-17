@@ -5,6 +5,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
+import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.minigoap.PlanPiece;
 
 import corobot.ai.memory.pieces.ItemEntry;
@@ -21,9 +22,16 @@ public class PlanPlantCrop extends PlanPiece {
 		this.getPreconditions().getProperties().add(new ItemEntry(seedsToUse, new InventorySourceSelf()));
 	}
 	
+	public PlanPlantCrop(PlanPiece obj) {
+		super(obj);
+	}
+	
 	@Override
-	public void tickTask() {
-		super.tickTask();
+	public EnumBehaviorState tick() {
+		
+		
+		
+		return super.tick();
 	}
 
 }

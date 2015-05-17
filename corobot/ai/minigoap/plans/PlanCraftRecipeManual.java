@@ -8,6 +8,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.minigoap.PlanPiece;
 
 import corobot.ai.memory.PlayerMemoryState;
@@ -45,13 +46,15 @@ public class PlanCraftRecipeManual extends PlanPiece {
 	}
 	
 	@Override
-	public void tickTask() {
-		super.tickTask();
+	public EnumBehaviorState tick() {
+		
+		System.out.println("craft recipe manual plan");
 		
 		//move to location of workbench
 		//right click bench
 		//wait for open gui
 		//do gui slot work
+		return super.tick();
 	}
 
 }

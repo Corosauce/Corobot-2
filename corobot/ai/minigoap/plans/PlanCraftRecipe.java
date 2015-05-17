@@ -1,54 +1,72 @@
 package corobot.ai.minigoap.plans;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.ShapedRecipes;
+import net.minecraft.item.crafting.ShapelessRecipes;
 
+import com.corosus.ai.EnumBehaviorState;
+import com.corosus.ai.minigoap.IWorldStateProperty;
 import com.corosus.ai.minigoap.PlanPiece;
 
-import corobot.ai.memory.PlayerMemoryState;
-import corobot.ai.memory.pieces.InventoryCollection;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
 
 public class PlanCraftRecipe extends PlanPiece {
 
 	//example class, realistically there will be a generic craft plan that uses runtime mc data to know how to make a recipe
-	private Item itemToCraft;
+	private ItemStack itemToCraft;
 	
-	public PlanCraftRecipe(String planName, Item itemToCraft) {
+	public PlanCraftRecipe(String planName, IRecipe recipe, List<ItemStack> recipeNeeds) {
 		super(planName);
-		this.itemToCraft = itemToCraft;
+		itemToCraft = recipe.getRecipeOutput();
+		this.getEffects().getProperties().add(new ItemEntry(itemToCraft, new InventorySourceSelf()));
+		for (ItemStack stack : recipeNeeds) {
+			if (stack != null) {
+				this.getPreconditions().getProperties().add(new ItemEntry(stack, new InventorySourceSelf()));
+			}
+		}
+	}
+	
+	public PlanCraftRecipe(PlanPiece obj) {
+		super(obj);
 		
-		/*PlayerMemoryState effect = new PlayerMemoryState();
-		List<ItemStack> stacks = new ArrayList<ItemStack>();
-		stacks.add(new ItemStack(itemToCraft));
+		IWorldStateProperty effect = obj.getEffects().getProperties().get(0);
 		
-		InventoryCollection col = new InventoryCollection(stacks, new InventorySourceSelf());
-		effect.listInventories.add(col);
-		
-		this.setEffects(effect);*/
-		
-		this.getEffects().getProperties().add(new ItemEntry(new ItemStack(itemToCraft), new InventorySourceSelf()));
-		
-		//TEMP, this will be generated from recipe lookup, might need more complex solution, given multiple recipe possibilities for items, eg, different woods used
-		/*this.getPreconditions().getProperties().add(new ItemEntry(new ItemStack(Items.stick, 2), new InventorySourceSelf()));
-		this.getPreconditions().getProperties().add(new ItemEntry(new ItemStack(Blocks.planks, 3), new InventorySourceSelf()));*/
-		this.getPreconditions().getProperties().add(new ItemEntry(new ItemStack(Blocks.log), new InventorySourceSelf()));
+		//this.getEffects().getProperties().add(obj.getEffects().getProperties().get(0));
+		if (effect instanceof ItemEntry) {
+			ItemEntry entry = (ItemEntry) effect;
+			itemToCraft = entry.getStack();
+		}
 	}
 	
 	@Override
-	public void tickTask() {
-		super.tickTask();
+	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement) {
+		super.initTask(piece, effectRequirement);
+		
+		
+		
+	}
+	
+	public ItemStack getItemToCraft() {
+		return itemToCraft;
+	}
+
+	public void setItemToCraft(ItemStack itemToCraft) {
+		this.itemToCraft = itemToCraft;
+	}
+
+	@Override
+	public EnumBehaviorState tick() {
 		
 		//move to location of workbench
 		//right click bench
 		//wait for open gui
 		//do gui slot work
+		
+		return super.tick();
 	}
 
 }
