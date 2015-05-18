@@ -5,6 +5,15 @@ import corobot.ai.PlayerAI;
 
 public class Corobot {
 
+	/**
+	 * Ongoing bugs:
+	 * - still drops workbench contents instead of shift clicking back into inv
+	 * - cant mine without guichat open
+	 * - sometimes gets stuck in main menu
+	 * - keeps mining other tree types but doesnt realize he can use them for crafting
+	 * - !!!!!!!!new items missing from active memory!!!!!!
+	 */
+	
 	public static PlayerAI playerAI;
 	
 	public static void init() {

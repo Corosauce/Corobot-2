@@ -45,7 +45,7 @@ public class SenseEnvironmentPlayer extends LeafNode {
                 blackboard.setTargetAvoidClosest(null);
             }
         }
-
+        
         updateStateFlags();
 		
 		return super.tick();

@@ -2,6 +2,7 @@ package corobot.ai;
 
 import javax.vecmath.Vector3f;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -20,6 +21,7 @@ import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.MachineLocation;
 import corobot.ai.memory.pieces.ResourceLocation;
 import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
+import corobot.ai.minigoap.plans.PlanCraftRecipe;
 import corobot.ai.minigoap.plans.PlanHarvestCrop;
 import corobot.ai.minigoap.plans.PlanMineBlock;
 import corobot.ai.minigoap.plans.PlanPlantCrop;
@@ -55,9 +57,7 @@ public class PlayerAI implements IEntity {
 		
 		PlanRegistry.addPlanPiece(new PlanTillGrass("tillGrass", new ItemStack(Blocks.farmland), new ItemStack(Items.wooden_hoe)));
 		
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCoal", Blocks.coal_ore));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineIron", Blocks.iron_ore));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("chopTallgrass", new ItemStack(Items.wheat_seeds), Blocks.tallgrass));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("chopTallgrass", new ItemStack(Items.wheat_seeds), Blocks.tallgrass, 0, null));
 		
 		/*PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPickaxe", new ItemStack(Items.wooden_pickaxe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks, 3)));
 		PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodHoe", new ItemStack(Items.wooden_hoe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks, 2)));
@@ -65,7 +65,16 @@ public class PlayerAI implements IEntity {
 		
 		PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodSticks", new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks)));*/
 		
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog", Blocks.log));
+		//NEEDS TO KNOW WHAT CAN MINE THEM!
+		//NEEDS TO KNOW THERE ARE 'OR' statements on what pickaxe can be used, like, minimum required
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog0", Blocks.log, 0, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog1", Blocks.log, 1, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog2", Blocks.log, 2, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog3", Blocks.log, 3, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCobble", Blocks.cobblestone, 0, new ItemStack(Items.wooden_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCoal", Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineIron", Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineDiamond", Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
 		//PlanRegistry.addPlanPiece(new PlanMineBlock("minePalm", TCBlockRegistry.planks));
 		//PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPlanks", new ItemStack(Blocks.planks), new ItemStack(Blocks.log)));
 		
@@ -108,7 +117,7 @@ public class PlayerAI implements IEntity {
 		if (bridgePlayer.getPlayer() == null) return;
 		agent.tickUpdate();
 		
-		BehaviorNode.DEBUG = true;
+		BehaviorNode.DEBUG = false;
 		
 		bridgePlayer.tickUpdate();
 		
@@ -121,13 +130,13 @@ public class PlayerAI implements IEntity {
 		stacks.add(new ItemStack(Items.baked_potato, 20));
 		
 		InventoryCollection col = new InventoryCollection(stacks, new InventorySourceSelf());*/
-		bb.getPlayerMemory().getProperties().clear();
-		bb.getPlayerMemory().getProperties().add(new ItemEntry(new ItemStack(Items.stone_pickaxe), new InventorySourceSelf()));
-		bb.getPlayerMemory().getProperties().add(new ItemEntry(new ItemStack(Items.baked_potato, 20), new InventorySourceSelf()));
+		//bb.getPlayerMemory().getProperties().clear();
+		//bb.getPlayerMemory().getProperties().add(new ItemEntry(new ItemStack(Items.stone_pickaxe), new InventorySourceSelf()));
+		//bb.getPlayerMemory().getProperties().add(new ItemEntry(new ItemStack(Items.baked_potato, 20), new InventorySourceSelf()));
 		//bb.getPlayerMemory().getProperties().add(new ItemEntry(new ItemStack(Blocks.log, 20), new InventorySourceSelf()));
 		
-		bb.getPlayerMemory().getProperties().add(new MachineLocation(new Vector3f(-45, 69, 231), Blocks.crafting_table));
-		bb.getPlayerMemory().getProperties().add(new ResourceLocation(new Vector3f(-45, 69, 230), Blocks.log));
+		//bb.getPlayerMemory().getProperties().add(new MachineLocation(new Vector3f(-45, 69, 231), Blocks.crafting_table));
+		//bb.getPlayerMemory().getProperties().add(new ResourceLocation(new Vector3f(-45, 69, 230), Blocks.log));
 		
 		//bb.getPlayerMemory().getProperties().add(new ResourceLocation(new Vector3f(-45, 69, 230), TCBlockRegistry.planks));
 		}
@@ -142,9 +151,19 @@ public class PlayerAI implements IEntity {
 		
 		precondition.listMachineLocations.add(new MachineLocation(new Vector3f(1, 2, 4), Blocks.crafting_table));*/
 		
+		if (Minecraft.getMinecraft().theWorld.getTotalWorldTime() % 40 == 0) {
+			//planGoal.invalidatePlan();
+		}
+		
 		if (!planGoal.hasPlan() || planGoal.isPlanComplete()) {
 			//planGoal.createPlan(PlanRegistry.getPlanPieceByName("harvestWheat"), bb.getWorldMemory());
-			planGoal.createPlan(PlanRegistry.getPlanPieceByName("Wooden Hoe124"), bb.getWorldMemory());
+			//planGoal.createPlan(PlanRegistry.getPlanPieceByName("Wooden Hoe124"), bb.getWorldMemory());
+			PlanPiece endGoal = PlanRegistry.getPlanPieceByNamePartial("diamond pickaxe");
+			if (endGoal instanceof PlanCraftRecipe) {
+				((PlanCraftRecipe) endGoal).setAmountToCraft(64);
+			}
+			planGoal.createPlan(endGoal, bb.getWorldMemory());
+			
 			
 			//planGoal.createPlan(PlanRegistry.getPlanPieceByName("craftWoodPlanks"), bb.getWorldMemory());
 		}
@@ -155,15 +174,17 @@ public class PlayerAI implements IEntity {
 			PlanPiece plan = planGoal.getListPlanPieces().get(planGoal.getCurPlanIndex());
 			agent.getBtTemplate().ordersHandler.setOrders(plan);
 			if (plan.isTaskComplete()) {
+				plan.endTask();
 				System.out.println(planGoal.getCurPlanIndex() + " task complete, moving to next: " + (planGoal.getCurPlanIndex() + 1));
 				planGoal.setCurPlanIndex(planGoal.getCurPlanIndex()+1);
+				//plan = planGoal.getListPlanPieces().get(planGoal.getCurPlanIndex());
 			}
 		}
 		
 		//boolean result = bb.getPlayerMemory().contains(precondition);
 		
 		//System.out.println("plan size: " + goal.getListPlanPieces().size());
-		if (planGoal != null) System.out.println(planGoal.getCurPlanIndex() + " - " + planGoal);
+		//if (planGoal != null) System.out.println(planGoal.getCurPlanIndex() + " - " + planGoal);
 	}
 	
 	public void updateCache() {

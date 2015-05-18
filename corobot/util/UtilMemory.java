@@ -16,7 +16,7 @@ import corobot.ai.memory.pieces.ResourceLocation;
 
 public class UtilMemory {
 
-	public static BlockLocation getClosestBlock(Block block) {
+	public static BlockLocation getClosestBlock(Block block, int meta) {
 		BlockLocation closestLocation = null;
 		double closestDist = 99999;
 		
@@ -31,7 +31,7 @@ public class UtilMemory {
 		for (IWorldStateProperty prop : props) {
 			if (prop instanceof BlockLocation) {
 				
-				if (((BlockLocation)prop).getBlock() == block) {
+				if (((BlockLocation)prop).getBlock() == block && (((BlockLocation)prop).getMeta() == meta || meta == -1)) {
 					double dist = VecUtil.getDistSqrd(player.getPos(), ((BlockLocation) prop).getPos());
 					if (dist < closestDist) {
 						closestDist = dist;

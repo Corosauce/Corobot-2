@@ -11,7 +11,9 @@ import com.corosus.entity.IEntity;
 import corobot.Corobot;
 import corobot.ai.behaviors.AvoidClosestThreat;
 import corobot.ai.behaviors.JumpForBoredom;
+import corobot.ai.behaviors.OpenGUIChatWhenNeeded;
 import corobot.ai.behaviors.RespawnIfDead;
+import corobot.ai.behaviors.ScanEnvironmentForNeededBlocks;
 import corobot.ai.behaviors.StayAboveWater;
 import corobot.ai.behaviors.TrackAndAttackEntity;
 
@@ -29,8 +31,11 @@ public class ProfilePlayer extends ProfileBase {
 
 		getBtSurvive().add(new AvoidClosestThreat(getBtSurvive(), getAgent().getBlackboard()));
 		
-		getAgent().getBtTemplate().btAI.add(new StayAboveWater(getAgent().getBtTemplate().btAI, this.getAgent().getBlackboard()));
-		getAgent().getBtTemplate().btAI.add(new RespawnIfDead(getAgent().getBtTemplate().btAI, this.getAgent().getBlackboard()));
+		getAgent().getBtTemplate().btExtras.add(new StayAboveWater(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		getAgent().getBtTemplate().btExtras.add(new RespawnIfDead(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		getAgent().getBtTemplate().btExtras.add(new OpenGUIChatWhenNeeded(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		
+		getAgent().getBtTemplate().btExtras.add(new ScanEnvironmentForNeededBlocks(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 
 		/*BehaviorNode tasks = getAgent().getBtTemplate().ordersHandler.getOrders();
 		tasks.add(new JumpForBoredom(tasks, getAgent().getBlackboard()));*/

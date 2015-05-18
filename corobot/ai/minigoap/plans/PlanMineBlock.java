@@ -44,41 +44,56 @@ public class PlanMineBlock extends PlanPiece {
 	//- needs a sort of dynamic plan that can pass requirements along to other plans, fuzzy conditions ?
 	
 	public Block block;
+	public int meta;
+	public ItemStack neededTool = null;
 	public State state = State.PATHING;
 	public int countNeeded = 1;
+	public int ticksPickingUp = 0;
+	public int ticksPickingUpMax = 80;
+	public int ticksMining = 0;
+	public int ticksMiningMax = 120;
+	public int ticksPathing = 0;
+	public int ticksPathingMax = 200;
 	
 	public enum State {
 		PATHING, MINING, PICKINGUP;
 	}
 	
-	public PlanMineBlock(String planName, Block block) {
+	public PlanMineBlock(String planName, Block block, int meta, ItemStack tool) {
 		super(planName);
 		this.block = block;
+		this.meta = meta;
+		this.neededTool = tool;
 		this.getEffects().getProperties().add(new ItemEntry(new ItemStack(block), new InventorySourceSelf()));
-		this.getPreconditions().getProperties().add(new ResourceLocation(null, block));
+		this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
 	}
 	
-	public PlanMineBlock(String planName, ItemStack itemReturned, Block block) {
+	public PlanMineBlock(String planName, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
 		super(planName);
 		this.block = block;
+		this.meta = meta;
+		this.neededTool = tool;
 		this.getEffects().getProperties().add(new ItemEntry(itemReturned, new InventorySourceSelf()));
-		this.getPreconditions().getProperties().add(new ResourceLocation(null, block));
+		this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
 	}
 	
 	public PlanMineBlock(PlanPiece obj) {
 		super(obj);
 		block = ((PlanMineBlock)obj).block;
+		meta = ((PlanMineBlock)obj).meta;
+		neededTool = ((PlanMineBlock)obj).neededTool;
 		countNeeded = ((PlanMineBlock)obj).countNeeded;
 	}
 	
 	@Override
 	public EnumBehaviorState tick() {
 		
-		System.out.println("mine block plan");
+		//System.out.println("mine block plan");
 		
 		AIBTAgent agent = Corobot.getPlayerAI().agent;
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
+		Blackboard bb = agent.getBlackboard();
 		
 		/*Blackboard bb = agent.getBlackboard();
 		
@@ -96,11 +111,11 @@ public class PlanMineBlock extends PlanPiece {
 			}
 		}*/
 		
-		BlockLocation loc = UtilMemory.getClosestBlock(block);
+		BlockLocation loc = UtilMemory.getClosestBlock(block, meta);
 		
 		if (loc != null) {
 			double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());
-			if (dist < 3) {
+			if (dist < 5) {
 				//break block
 				//this.playerController.clickBlock(i, j, k, this.objectMouseOver.sideHit);
 				//Corobot.playerAI.bridgePlayer.getPlayer();
@@ -110,13 +125,21 @@ public class PlanMineBlock extends PlanPiece {
 				int z = MathHelper.floor_double(loc.getPos().z);
 				Block block = worldMC.getBlock(x, y, z);
 				if (block == Blocks.air) {
+					bb.getWorldMemory().getProperties().remove(loc);
 					state = State.PICKINGUP;
 					EntityItem closestItem = UtilEnt.getClosestItem(worldMC, player.getPos(), Item.getItemFromBlock(this.block));
 					if (closestItem != null) {
 						if (world.getTicksTotal() % 40 == 0) {
 							player.setMoveTo(new Vector3f((float)closestItem.posX, (float)closestItem.posY, (float)closestItem.posZ));
 						}
+						ticksPickingUp++;
+						if (ticksPickingUp >= ticksPickingUpMax) {
+							Corobot.getPlayerAI().planGoal.invalidatePlan();
+						}
+					} else {
+						Corobot.getPlayerAI().planGoal.invalidatePlan();
 					}
+					
 				} else {
 					state = State.MINING;
 					
@@ -124,17 +147,28 @@ public class PlanMineBlock extends PlanPiece {
 					
 					//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
 					Minecraft.getMinecraft().playerController.onPlayerDamageBlock(x, y, z, 2);
+					Corobot.getPlayerAI().bridgePlayer.getPlayer().swingItem();
 					//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
+					
+					ticksMining++;
+					if (ticksMining >= ticksMiningMax) {
+						Corobot.getPlayerAI().planGoal.invalidatePlan();
+					}
 				}
 			} else {
 				state = State.PATHING;
 				if (world.getTicksTotal() % 40 == 0) {
 					player.setMoveTo(loc.getPos());
 				}
+				ticksPathing++;
+				if (ticksPathing >= ticksPathingMax) {
+					Corobot.getPlayerAI().planGoal.invalidatePlan();
+				}
 			}
-			Corobot.dbg("state: " + state);
+			//Corobot.dbg("state: " + state);
 		} else {
 			System.out.println("cant find block to mine");
+			Corobot.getPlayerAI().planGoal.invalidatePlan();
 		}
 		
 		//get closest mineable log
@@ -150,7 +184,8 @@ public class PlanMineBlock extends PlanPiece {
 	
 	@Override
 	public boolean isTaskComplete() {
-		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, Item.getItemFromBlock(this.block)) >= this.countNeeded;
+		ItemStack stack = new ItemStack(this.block, this.countNeeded);
+		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, stack/*Item.getItemFromBlock(this.block)*/) >= this.countNeeded;
 	}
 
 }

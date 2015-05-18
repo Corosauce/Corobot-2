@@ -5,6 +5,8 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -36,11 +38,21 @@ public class PlanCraftRecipe extends PlanPiece {
 
 	//example class, realistically there will be a generic craft plan that uses runtime mc data to know how to make a recipe
 	private ItemStack itemToCraft;
+	private int amountToCraft = 1;
 	
 	public State state = State.PATHING;
 	public int width = -1;
 	public int height = -1;
 	public List<ItemStack> listRecipeShape = null;
+	
+	public static int sizeCraftGrid = 9;
+	public static int sizeInventoryMain = 27;
+	public static int sizeInventoryHotbar = 9;
+	
+	public static int slotCraftOut = 0;
+	public static int slotCraftMatrixStart = 1;
+	public static int slotInventoryMainStart = 1+sizeCraftGrid;
+	public static int slotInventoryHotbarStart = slotInventoryMainStart+sizeInventoryMain;
 	
 	public enum State {
 		PATHING, WAITING_ON_GUI, GUI_OPEN;
@@ -66,6 +78,7 @@ public class PlanCraftRecipe extends PlanPiece {
 		PlanCraftRecipe src = (PlanCraftRecipe) obj;
 		
 		itemToCraft = src.itemToCraft;
+		amountToCraft = src.amountToCraft;
 		width = src.width;
 		height = src.height;
 		listRecipeShape = new ArrayList(src.listRecipeShape);
@@ -86,6 +99,14 @@ public class PlanCraftRecipe extends PlanPiece {
 		
 	}
 	
+	public int getAmountToCraft() {
+		return amountToCraft;
+	}
+
+	public void setAmountToCraft(int amountToCraft) {
+		this.amountToCraft = amountToCraft;
+	}
+
 	public ItemStack getItemToCraft() {
 		return itemToCraft;
 	}
@@ -102,21 +123,14 @@ public class PlanCraftRecipe extends PlanPiece {
 		//wait for open gui
 		//do gui slot work
 		
-		int sizeCraftGrid = 9;
-		int sizeInventoryMain = 27;
-		int sizeInventoryHotbar = 9;
 		
-		int slotCraftOut = 0;
-		int slotCraftMatrixStart = 1;
-		int slotInventoryMainStart = 1+sizeCraftGrid;
-		int slotInventoryHotbarStart = slotInventoryMainStart+sizeInventoryMain;
 		
 		AIBTAgent agent = Corobot.getPlayerAI().agent;
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
 		EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
 		
-		BlockLocation loc = UtilMemory.getClosestBlock(Blocks.crafting_table);
+		BlockLocation loc = UtilMemory.getClosestBlock(Blocks.crafting_table, -1);
 		
 		if (loc != null) {
 			double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());
@@ -172,6 +186,8 @@ public class PlanCraftRecipe extends PlanPiece {
 								UtilContainer.clickSlot(clickFrom, UtilContainer.mouseLeftClick, UtilContainer.mouse2StepClick);
 							} else {
 								System.out.println("CRITICAL! failed to find item, did something remove it since plan was made?");
+								Corobot.getPlayerAI().planGoal.invalidatePlan();
+								endTask();
 							}
 						}
 						
@@ -196,9 +212,11 @@ public class PlanCraftRecipe extends PlanPiece {
 					player.setMoveTo(loc.getPos());
 				}
 			}
-			Corobot.dbg("state: " + state);
+			//Corobot.dbg("state: " + state);
 		} else {
 			System.out.println("cant find crafting table");
+			Corobot.getPlayerAI().planGoal.invalidatePlan();
+			endTask();
 		}
 		
 		return super.tick();
@@ -206,8 +224,7 @@ public class PlanCraftRecipe extends PlanPiece {
 	
 	@Override
 	public boolean isTaskComplete() {
-		//TODO: meta / stacksize
-		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemToCraft.getItem()) > 0;
+		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemToCraft) >= amountToCraft;
 	}
 	
 	public static int getFirstSlotContainingItem(Container container, ItemStack itemStack, int findStart, int findEnd) {
@@ -223,6 +240,23 @@ public class PlanCraftRecipe extends PlanPiece {
 		}
 		
 		return index;
+	}
+	
+	@Override
+	public boolean canPlanBeUsedMultipleTimes() {
+		return false;
+	}
+	
+	@Override
+	public void endTask() {
+		for (int i = 0; i < 9; i++) {
+			UtilContainer.clickSlot(slotCraftMatrixStart+i, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
+		}
+		EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
+		if (Minecraft.getMinecraft().currentScreen instanceof GuiContainer) {
+			((GuiContainer)Minecraft.getMinecraft().currentScreen).inventorySlots.onContainerClosed(playerEnt);
+		}
+		Minecraft.getMinecraft().displayGuiScreen(new GuiChat(""));
 	}
 
 }

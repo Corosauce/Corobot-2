@@ -7,11 +7,11 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class UtilInventory {
 
-	public static int getItemCount(IInventory inv, Item itemToFind) {
+	public static int getItemCount(IInventory inv, ItemStack itemToFind) {
 		int curCount = 0;
 		for (int i = 0; i < inv.getSizeInventory(); i++) {
 			ItemStack stack = inv.getStackInSlot(i);
-			if (stack != null && stack.getItem() == itemToFind) {
+			if (stack != null && stack.getItem() == itemToFind.getItem() && stack.getItemDamage() == itemToFind.getItemDamage()) {
 				curCount += stack.stackSize;
 			}
 		}

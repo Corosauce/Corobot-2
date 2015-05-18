@@ -12,4 +12,7 @@ public class ResourceLocation extends BlockLocation {
 		super(pos, block);
 	}
 
+	public ResourceLocation(Vector3f pos, Block block, int meta) {
+		super(pos, block, meta);
+	}
 }
