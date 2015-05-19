@@ -8,6 +8,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemTool;
 
 public class UtilPlayer {
 
@@ -59,6 +60,41 @@ public class UtilPlayer {
 		
 		invInfo.bestMeleeSlot = bestSlot;
 		invInfo.bestMeleeDamage = bestDamage;
+	}
+	
+	public static int getBestToolSlot(Class toolClass, EntityPlayer player, IInventory sourceInventory) {
+		float bestDamage = 0;
+		int bestSlot = -1;
+		
+		ItemStack itemstack = player.inventory.getCurrentItem();
+		if (itemstack != null) player.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers());
+		
+		//System.out.println("FIND BEST WEAPON START");
+		
+		for (int i = 0; i < sourceInventory.getSizeInventory(); i++) {
+			ItemStack slotStack = sourceInventory.getStackInSlot(i);
+			
+			if (slotStack != null) {
+				
+				if (toolClass.isAssignableFrom(slotStack.getItem().getClass()) && slotStack.getItem() instanceof ItemTool) {
+					ItemTool tool = (ItemTool) slotStack.getItem();
+					
+					float speed = tool.func_150913_i().getEfficiencyOnProperMaterial();
+					
+					if (speed > bestDamage) {
+						bestDamage = speed;
+						bestSlot = i;
+					}
+				}
+			}
+		}
+		
+		//test
+		//System.out.println("best slot: " + bestSlot + " - dmg: " + bestDamage);
+		
+		return bestSlot;
+		//invInfo.bestMeleeSlot = bestSlot;
+		//invInfo.bestMeleeDamage = bestDamage;
 	}
 	
 	public static void switchToMeleeSlot(PlayerAI playerAI) {

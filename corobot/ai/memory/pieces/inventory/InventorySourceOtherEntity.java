@@ -10,4 +10,9 @@ public class InventorySourceOtherEntity extends InventorySource {
 		this.entityID = entityID;
 	}
 	
+	@Override
+	public Object getHash() {
+		return entityID.toString();
+	}
+	
 }

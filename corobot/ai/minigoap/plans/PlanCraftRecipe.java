@@ -27,6 +27,7 @@ import com.corosus.util.VecUtil;
 import com.corosus.world.IWorld;
 
 import corobot.Corobot;
+import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
@@ -185,7 +186,7 @@ public class PlanCraftRecipe extends PlanPiece {
 								UtilContainer.clickSlot(clickTo, UtilContainer.mouseRightClick, UtilContainer.mouse2StepClick);
 								UtilContainer.clickSlot(clickFrom, UtilContainer.mouseLeftClick, UtilContainer.mouse2StepClick);
 							} else {
-								System.out.println("CRITICAL! failed to find item, did something remove it since plan was made?");
+								System.out.println("CRITICAL! failed to find item " + stack + ", did something remove it since plan was made?");
 								Corobot.getPlayerAI().planGoal.invalidatePlan();
 								endTask();
 							}
@@ -197,6 +198,7 @@ public class PlanCraftRecipe extends PlanPiece {
 					
 					UtilContainer.clickSlot(slotCraftOut, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
 					System.out.println("slot click complete");
+					endTask();
 					
 					/*UtilContainer.clickSlot(slotInventoryHotbarStart);
 					UtilContainer.clickSlot(slotInventoryHotbarStart+1);
@@ -257,6 +259,8 @@ public class PlanCraftRecipe extends PlanPiece {
 			((GuiContainer)Minecraft.getMinecraft().currentScreen).inventorySlots.onContainerClosed(playerEnt);
 		}
 		Minecraft.getMinecraft().displayGuiScreen(new GuiChat(""));
+		AIBTAgent agent = Corobot.getPlayerAI().agent;
+		HelperInventory.updateCache(agent.getBlackboard().getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
 	}
 
 }

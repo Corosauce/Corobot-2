@@ -8,6 +8,7 @@ import com.corosus.ai.minigoap.IWorldStateProperty;
 import corobot.ai.memory.pieces.inventory.InventorySource;
 import net.minecraft.item.ItemStack;
 
+@Deprecated
 public class InventoryCollection implements IWorldStateProperty {
 
 	//possibly not quite usable.... needs to be broken down more for goap PlanPiece
@@ -39,7 +40,6 @@ public class InventoryCollection implements IWorldStateProperty {
 
 	@Override
 	public boolean canEffectSatisfyPrecondition(IWorldStateProperty precondition) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	

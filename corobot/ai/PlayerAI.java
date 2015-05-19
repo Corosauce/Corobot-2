@@ -16,7 +16,9 @@ import com.corosus.ai.path.Path;
 import com.corosus.entity.IEntity;
 import com.corosus.world.IWorld;
 
+import corobot.Corobot;
 import corobot.ai.behaviors.OrdersTasks;
+import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.MachineLocation;
 import corobot.ai.memory.pieces.ResourceLocation;
@@ -72,13 +74,15 @@ public class PlayerAI implements IEntity {
 		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog2", Blocks.log, 2, null));
 		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog3", Blocks.log, 3, null));
 		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCobble", Blocks.cobblestone, 0, new ItemStack(Items.wooden_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCoal", Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineIron", Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineDiamond", Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineStone", new ItemStack(Blocks.cobblestone), Blocks.stone, 0, new ItemStack(Items.wooden_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCoal", new ItemStack(Items.coal), Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineIron", /*new ItemStack(Items.iron_ingot), */Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineDiamond", new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
 		//PlanRegistry.addPlanPiece(new PlanMineBlock("minePalm", TCBlockRegistry.planks));
 		//PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPlanks", new ItemStack(Blocks.planks), new ItemStack(Blocks.log)));
 		
 		UtilRecipe.addRecipePlans();
+		UtilFurnace.addFurnacePlans();
 	}
 	
 	public static void setNodeDBG(BehaviorNode node) {
@@ -150,6 +154,8 @@ public class PlayerAI implements IEntity {
 		precondition.listInventories.add(col);
 		
 		precondition.listMachineLocations.add(new MachineLocation(new Vector3f(1, 2, 4), Blocks.crafting_table));*/
+		
+		HelperInventory.updateCache(agent.getBlackboard().getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
 		
 		if (Minecraft.getMinecraft().theWorld.getTotalWorldTime() % 40 == 0) {
 			//planGoal.invalidatePlan();
@@ -227,7 +233,6 @@ public class PlayerAI implements IEntity {
 
 	@Override
 	public void setMoveTo(Vector3f parMoveTo) {
-		// TODO Auto-generated method stub
 		//this is called when a pathless movement is used
 		computePath(parMoveTo);
 	}

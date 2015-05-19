@@ -105,13 +105,23 @@ public class UtilRecipe {
 				System.out.println("not handling: " + recipeInt);
 			}
 			
+			
+			
 			if (listRecipeNeeds.size() > 0) {
+				
 				String recipeName = recipeInt.getRecipeOutput().getDisplayName() + recipeCount++;
-				if (recipeName.contains("Bucket")) {
-					int sdfdf = 0;
+				
+				if (recipeName.contains("Block of ")) {
+					System.out.println("Skipping recipe " + recipeName);
+					//continue;
+				} else {
+				
+					if (recipeName.contains("Bucket")) {
+						int sdfdf = 0;
+					}
+					System.out.println("adding plan for recipe: " + recipeName + " - " + width + "x" + height + " - " + recipeInt.getRecipeOutput() + " using items " + listRecipeNeeds);
+					PlanRegistry.addPlanPiece(new PlanCraftRecipe(recipeName, recipeInt, listRecipeNeeds, width, height));
 				}
-				System.out.println("adding plan for recipe: " + recipeName + " - " + width + "x" + height + " - " + recipeInt.getRecipeOutput() + " using items " + listRecipeNeeds);
-				PlanRegistry.addPlanPiece(new PlanCraftRecipe(recipeName, recipeInt, listRecipeNeeds, width, height));
 			}
 		}
 	}

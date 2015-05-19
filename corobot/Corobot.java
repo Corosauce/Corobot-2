@@ -12,6 +12,9 @@ public class Corobot {
 	 * - sometimes gets stuck in main menu
 	 * - keeps mining other tree types but doesnt realize he can use them for crafting
 	 * - !!!!!!!!new items missing from active memory!!!!!!
+	 * -- fixed i think
+	 * - needs furnace for iron ore to iron, etc
+	 * - he wouldnt pickup the cobblestone, why? he picks up logs
 	 */
 	
 	public static PlayerAI playerAI;
@@ -23,7 +26,7 @@ public class Corobot {
 	public static void tickUpdate() {
 		try {
 			if (!Minecraft.getMinecraft().isGamePaused()) {
-				playerAI.tickUpdate();
+				//playerAI.tickUpdate();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();

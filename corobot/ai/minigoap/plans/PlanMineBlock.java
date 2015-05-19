@@ -7,8 +7,10 @@ import javax.vecmath.Vector3f;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
@@ -24,6 +26,8 @@ import com.corosus.util.VecUtil;
 import com.corosus.world.IWorld;
 
 import corobot.Corobot;
+import corobot.ai.memory.helper.HelperBlock;
+import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.ResourceLocation;
@@ -31,6 +35,7 @@ import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
 import corobot.util.UtilEnt;
 import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
+import corobot.util.UtilPlayer;
 
 public class PlanMineBlock extends PlanPiece {
 
@@ -64,8 +69,15 @@ public class PlanMineBlock extends PlanPiece {
 		this.block = block;
 		this.meta = meta;
 		this.neededTool = tool;
+		
+		if (neededTool != null) {
+			this.getPreconditions().getProperties().add(new ItemEntry(neededTool, new InventorySourceSelf()));
+		}
+		
 		this.getEffects().getProperties().add(new ItemEntry(new ItemStack(block), new InventorySourceSelf()));
 		this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
+		
+		
 	}
 	
 	public PlanMineBlock(String planName, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
@@ -73,6 +85,11 @@ public class PlanMineBlock extends PlanPiece {
 		this.block = block;
 		this.meta = meta;
 		this.neededTool = tool;
+		
+		if (neededTool != null) {
+			this.getPreconditions().getProperties().add(new ItemEntry(neededTool, new InventorySourceSelf()));
+		}
+		
 		this.getEffects().getProperties().add(new ItemEntry(itemReturned, new InventorySourceSelf()));
 		this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
 	}
@@ -125,18 +142,25 @@ public class PlanMineBlock extends PlanPiece {
 				int z = MathHelper.floor_double(loc.getPos().z);
 				Block block = worldMC.getBlock(x, y, z);
 				if (block == Blocks.air) {
-					bb.getWorldMemory().getProperties().remove(loc);
+					
+					HelperBlock.removeEntry(bb.getWorldMemory(), loc);
+					
 					state = State.PICKINGUP;
 					EntityItem closestItem = UtilEnt.getClosestItem(worldMC, player.getPos(), Item.getItemFromBlock(this.block));
 					if (closestItem != null) {
 						if (world.getTicksTotal() % 40 == 0) {
 							player.setMoveTo(new Vector3f((float)closestItem.posX, (float)closestItem.posY, (float)closestItem.posZ));
 						}
-						ticksPickingUp++;
-						if (ticksPickingUp >= ticksPickingUpMax) {
-							Corobot.getPlayerAI().planGoal.invalidatePlan();
-						}
+						
 					} else {
+						HelperInventory.updateCache(bb.getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
+						//it either cant find anything or it picked it up, so just assume its going to be complete or find next needed block
+						state = State.PATHING;
+						//Corobot.getPlayerAI().planGoal.invalidatePlan();
+					}
+					
+					ticksPickingUp++;
+					if (ticksPickingUp >= ticksPickingUpMax) {
 						Corobot.getPlayerAI().planGoal.invalidatePlan();
 					}
 					
@@ -146,6 +170,10 @@ public class PlanMineBlock extends PlanPiece {
 					//this code only works if i open gui chat, why? aim?
 					
 					//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
+					EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
+					//TODO: make this adapt to other tools
+					//TODO: something to transfer best tool to hotbar if its not in hotbar
+					playerEnt.inventory.currentItem = UtilPlayer.getBestToolSlot(ItemPickaxe.class, playerEnt, playerEnt.inventory);
 					Minecraft.getMinecraft().playerController.onPlayerDamageBlock(x, y, z, 2);
 					Corobot.getPlayerAI().bridgePlayer.getPlayer().swingItem();
 					//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
