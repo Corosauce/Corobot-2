@@ -49,6 +49,7 @@ public class PlanMineBlock extends PlanPiece {
 	//- needs a sort of dynamic plan that can pass requirements along to other plans, fuzzy conditions ?
 	
 	public Block block;
+	public ItemStack droppedItem = null;
 	public int meta;
 	public ItemStack neededTool = null;
 	public State state = State.PATHING;
@@ -69,6 +70,7 @@ public class PlanMineBlock extends PlanPiece {
 		this.block = block;
 		this.meta = meta;
 		this.neededTool = tool;
+		this.droppedItem = new ItemStack(block);
 		
 		if (neededTool != null) {
 			this.getPreconditions().getProperties().add(new ItemEntry(neededTool, new InventorySourceSelf()));
@@ -85,6 +87,7 @@ public class PlanMineBlock extends PlanPiece {
 		this.block = block;
 		this.meta = meta;
 		this.neededTool = tool;
+		this.droppedItem = itemReturned;
 		
 		if (neededTool != null) {
 			this.getPreconditions().getProperties().add(new ItemEntry(neededTool, new InventorySourceSelf()));
@@ -100,6 +103,7 @@ public class PlanMineBlock extends PlanPiece {
 		meta = ((PlanMineBlock)obj).meta;
 		neededTool = ((PlanMineBlock)obj).neededTool;
 		countNeeded = ((PlanMineBlock)obj).countNeeded;
+		droppedItem = ((PlanMineBlock)obj).droppedItem;
 	}
 	
 	@Override
@@ -111,6 +115,7 @@ public class PlanMineBlock extends PlanPiece {
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
 		Blackboard bb = agent.getBlackboard();
+		World worldMC = Minecraft.getMinecraft().theWorld;
 		
 		/*Blackboard bb = agent.getBlackboard();
 		
@@ -128,75 +133,84 @@ public class PlanMineBlock extends PlanPiece {
 			}
 		}*/
 		
-		BlockLocation loc = UtilMemory.getClosestBlock(block, meta);
+		if (state == State.PICKINGUP) {
+			
+			EntityItem closestItem = UtilEnt.getClosestItem(worldMC, player.getPos(), this.droppedItem.getItem());
+			if (closestItem != null) {
+				if (world.getTicksTotal() % 40 == 0) {
+					player.setMoveTo(new Vector3f((float)closestItem.posX, (float)closestItem.posY, (float)closestItem.posZ));
+				}
+				
+			} else {
+				HelperInventory.updateCache(bb.getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
+				//it either cant find anything or it picked it up, so just assume its going to be complete or find next needed block
+				state = State.PATHING;
+				//Corobot.getPlayerAI().planGoal.invalidatePlan();
+			}
+			
+			ticksPickingUp++;
+			if (ticksPickingUp >= ticksPickingUpMax) {
+				ticksPickingUp = 0;
+				Corobot.getPlayerAI().planGoal.invalidatePlan();
+			}
+		} else {
 		
-		if (loc != null) {
-			double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());
-			if (dist < 5) {
-				//break block
-				//this.playerController.clickBlock(i, j, k, this.objectMouseOver.sideHit);
-				//Corobot.playerAI.bridgePlayer.getPlayer();
-				World worldMC = Minecraft.getMinecraft().theWorld;
-				int x = MathHelper.floor_double(loc.getPos().x);
-				int y = MathHelper.floor_double(loc.getPos().y);
-				int z = MathHelper.floor_double(loc.getPos().z);
-				Block block = worldMC.getBlock(x, y, z);
-				if (block == Blocks.air) {
+			BlockLocation loc = UtilMemory.getClosestBlock(block, meta);
+			
+			if (loc != null) {
+				double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());
+				if (dist < 5) {
+					//break block
+					//this.playerController.clickBlock(i, j, k, this.objectMouseOver.sideHit);
+					//Corobot.playerAI.bridgePlayer.getPlayer();
 					
-					HelperBlock.removeEntry(bb.getWorldMemory(), loc);
-					
-					state = State.PICKINGUP;
-					EntityItem closestItem = UtilEnt.getClosestItem(worldMC, player.getPos(), Item.getItemFromBlock(this.block));
-					if (closestItem != null) {
-						if (world.getTicksTotal() % 40 == 0) {
-							player.setMoveTo(new Vector3f((float)closestItem.posX, (float)closestItem.posY, (float)closestItem.posZ));
-						}
+					int x = MathHelper.floor_double(loc.getPos().x);
+					int y = MathHelper.floor_double(loc.getPos().y);
+					int z = MathHelper.floor_double(loc.getPos().z);
+					Block block = worldMC.getBlock(x, y, z);
+					if (block == Blocks.air) {
+						
+						HelperBlock.removeEntry(bb.getWorldMemory(), loc);
+						
+						state = State.PICKINGUP;
 						
 					} else {
-						HelperInventory.updateCache(bb.getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
-						//it either cant find anything or it picked it up, so just assume its going to be complete or find next needed block
-						state = State.PATHING;
-						//Corobot.getPlayerAI().planGoal.invalidatePlan();
+						state = State.MINING;
+						
+						//this code only works if i open gui chat, why? aim?
+						
+						//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
+						EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
+						//TODO: make this adapt to other tools
+						//TODO: something to transfer best tool to hotbar if its not in hotbar
+						int bestSlot = UtilPlayer.getBestToolSlot(ItemPickaxe.class, playerEnt, playerEnt.inventory);
+						if (bestSlot != -1) {
+							playerEnt.inventory.currentItem = bestSlot;
+						}
+						Minecraft.getMinecraft().playerController.onPlayerDamageBlock(x, y, z, 2);
+						Corobot.getPlayerAI().bridgePlayer.getPlayer().swingItem();
+						//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
+						
+						ticksMining++;
+						if (ticksMining >= ticksMiningMax) {
+							Corobot.getPlayerAI().planGoal.invalidatePlan();
+						}
 					}
-					
-					ticksPickingUp++;
-					if (ticksPickingUp >= ticksPickingUpMax) {
-						Corobot.getPlayerAI().planGoal.invalidatePlan();
-					}
-					
 				} else {
-					state = State.MINING;
-					
-					//this code only works if i open gui chat, why? aim?
-					
-					//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
-					EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
-					//TODO: make this adapt to other tools
-					//TODO: something to transfer best tool to hotbar if its not in hotbar
-					playerEnt.inventory.currentItem = UtilPlayer.getBestToolSlot(ItemPickaxe.class, playerEnt, playerEnt.inventory);
-					Minecraft.getMinecraft().playerController.onPlayerDamageBlock(x, y, z, 2);
-					Corobot.getPlayerAI().bridgePlayer.getPlayer().swingItem();
-					//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
-					
-					ticksMining++;
-					if (ticksMining >= ticksMiningMax) {
+					state = State.PATHING;
+					if (world.getTicksTotal() % 40 == 0) {
+						player.setMoveTo(loc.getPos());
+					}
+					ticksPathing++;
+					if (ticksPathing >= ticksPathingMax) {
 						Corobot.getPlayerAI().planGoal.invalidatePlan();
 					}
 				}
+				//Corobot.dbg("state: " + state);
 			} else {
-				state = State.PATHING;
-				if (world.getTicksTotal() % 40 == 0) {
-					player.setMoveTo(loc.getPos());
-				}
-				ticksPathing++;
-				if (ticksPathing >= ticksPathingMax) {
-					Corobot.getPlayerAI().planGoal.invalidatePlan();
-				}
+				System.out.println("cant find block to mine");
+				Corobot.getPlayerAI().planGoal.invalidatePlan();
 			}
-			//Corobot.dbg("state: " + state);
-		} else {
-			System.out.println("cant find block to mine");
-			Corobot.getPlayerAI().planGoal.invalidatePlan();
 		}
 		
 		//get closest mineable log

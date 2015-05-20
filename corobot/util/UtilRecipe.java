@@ -109,18 +109,29 @@ public class UtilRecipe {
 			
 			if (listRecipeNeeds.size() > 0) {
 				
-				String recipeName = recipeInt.getRecipeOutput().getDisplayName() + recipeCount++;
+				String recipeName = "Craft " + recipeInt.getRecipeOutput().getDisplayName() + recipeCount++;
+				
+				boolean cancelRegister = false;
 				
 				if (recipeName.contains("Block of ")) {
-					System.out.println("Skipping recipe " + recipeName);
-					//continue;
-				} else {
+					cancelRegister = true;
+				}
+				
+				for (ItemStack stack : listRecipeNeeds) {
+					if (stack != null && stack.getDisplayName().contains("Block of ")) {
+						cancelRegister = true;
+					}
+				}
+				
+				if (!cancelRegister) {
 				
 					if (recipeName.contains("Bucket")) {
 						int sdfdf = 0;
 					}
 					System.out.println("adding plan for recipe: " + recipeName + " - " + width + "x" + height + " - " + recipeInt.getRecipeOutput() + " using items " + listRecipeNeeds);
 					PlanRegistry.addPlanPiece(new PlanCraftRecipe(recipeName, recipeInt, listRecipeNeeds, width, height));
+				} else {
+					System.out.println("Skipping recipe " + recipeName);
 				}
 			}
 		}

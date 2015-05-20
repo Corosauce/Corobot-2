@@ -19,10 +19,6 @@ import com.corosus.world.IWorld;
 import corobot.Corobot;
 import corobot.ai.behaviors.OrdersTasks;
 import corobot.ai.memory.helper.HelperInventory;
-import corobot.ai.memory.pieces.ItemEntry;
-import corobot.ai.memory.pieces.MachineLocation;
-import corobot.ai.memory.pieces.ResourceLocation;
-import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
 import corobot.ai.minigoap.plans.PlanCraftRecipe;
 import corobot.ai.minigoap.plans.PlanHarvestCrop;
 import corobot.ai.minigoap.plans.PlanMineBlock;
@@ -32,6 +28,7 @@ import corobot.ai.profile.ProfilePlayer;
 import corobot.bridge.PlayerBridge;
 import corobot.bridge.WorldBridge;
 import corobot.util.InventoryInfo;
+import corobot.util.UtilFurnace;
 import corobot.util.UtilPlayer;
 import corobot.util.UtilRecipe;
 

@@ -44,7 +44,7 @@ public class ScanEnvironmentForNeededBlocks extends LeafNodeBB {
 		World worldMC = Minecraft.getMinecraft().theWorld;
 		
 		int range = 10;
-		int rangeY = 5;
+		int rangeY = 2;
 		
 		if (worldMC.getTotalWorldTime() % 20 == 0) {
 			for (int x = -range; x < range; x++) {

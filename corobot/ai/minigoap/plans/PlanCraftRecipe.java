@@ -37,7 +37,6 @@ import corobot.util.UtilMemory;
 
 public class PlanCraftRecipe extends PlanPiece {
 
-	//example class, realistically there will be a generic craft plan that uses runtime mc data to know how to make a recipe
 	private ItemStack itemToCraft;
 	private int amountToCraft = 1;
 	
@@ -124,7 +123,8 @@ public class PlanCraftRecipe extends PlanPiece {
 		//wait for open gui
 		//do gui slot work
 		
-		
+		//trying to fix weird order of execution bug...
+		if (isTaskComplete()) return EnumBehaviorState.SUCCESS;
 		
 		AIBTAgent agent = Corobot.getPlayerAI().agent;
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
