@@ -1,4 +1,4 @@
-package corobot.ai.behaviors;
+package corobot.ai.behaviors.misc;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
@@ -35,6 +35,12 @@ public class RespawnIfDead extends LeafNodeBB {
     			respawnTimer = 0;
     			mc.thePlayer.respawnPlayer();
 	        	mc.displayGuiScreen(new GuiChat(""));
+	        	mc.thePlayer.sendChatMessage("/time set 14000");
+	        	mc.thePlayer.sendChatMessage("/give Corosus iron_sword");
+	        	mc.thePlayer.sendChatMessage("/give Corosus porkchop 64");
+	        	mc.thePlayer.sendChatMessage("/give Corosus porkchop 64");
+	        	mc.ingameGUI.getChatGUI().clearChatMessages();
+	        	
     		}
             //mc.displayGuiScreen((GuiScreen)null);
         }

@@ -61,7 +61,7 @@ public class ScanEnvironmentForNeededBlocks extends LeafNodeBB {
 							if (!HelperBlock.lookupBlocks.containsKey(hash)) {
 								IWorldStateProperty prop = new ResourceLocation(new Vector3f(xx, yy, zz), block, meta);
 								HelperBlock.addEntry(this.getBlackboard().getWorldMemory(), hash, prop);
-								System.out.println("adding " + block + " - " + HelperBlock.lookupBlocks.size());
+								//System.out.println("adding " + block + " - " + HelperBlock.lookupBlocks.size());
 							}
 						} else if (HelperBlock.listMachines.contains(block)) {
 							int hash = HelperBlock.makeHash(xx, yy, zz);

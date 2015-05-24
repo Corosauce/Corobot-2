@@ -19,6 +19,7 @@ import com.corosus.world.IWorld;
 import corobot.Corobot;
 import corobot.ai.behaviors.OrdersTasks;
 import corobot.ai.memory.helper.HelperInventory;
+import corobot.ai.memory.helper.HelperItemUsing;
 import corobot.ai.minigoap.plans.PlanCraftRecipe;
 import corobot.ai.minigoap.plans.PlanHarvestCrop;
 import corobot.ai.minigoap.plans.PlanMineBlock;
@@ -45,6 +46,8 @@ public class PlayerAI implements IEntity {
 	
 	//for now, lets do a temp wire in of PlanGoal into OrdersHandler
 	public PlanGoal planGoal = new PlanGoal();
+	
+	public boolean useGOAP = false;
 	
 	public PlayerAI() {
 		
@@ -117,10 +120,19 @@ public class PlayerAI implements IEntity {
 		if (needInit) init();
 		if (bridgePlayer.getPlayer() == null) return;
 		agent.tickUpdate();
+		HelperItemUsing.tickUsageUpdate();
 		
-		BehaviorNode.DEBUG = false;
+		BehaviorNode.DEBUG = true;
 		
 		bridgePlayer.tickUpdate();
+		
+		if (useGOAP) {
+			updateGOAP();
+		}
+	}
+	
+	public void updateGOAP() {
+
 		
 		//test stuff
 		BlackboardImpl bb = (BlackboardImpl) agent.getBlackboard();

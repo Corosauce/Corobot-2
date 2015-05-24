@@ -9,13 +9,17 @@ import com.corosus.ai.profile.ProfileBase;
 import com.corosus.entity.IEntity;
 
 import corobot.Corobot;
-import corobot.ai.behaviors.AvoidClosestThreat;
-import corobot.ai.behaviors.JumpForBoredom;
-import corobot.ai.behaviors.OpenGUIChatWhenNeeded;
-import corobot.ai.behaviors.RespawnIfDead;
 import corobot.ai.behaviors.ScanEnvironmentForNeededBlocks;
 import corobot.ai.behaviors.StayAboveWater;
-import corobot.ai.behaviors.TrackAndAttackEntity;
+import corobot.ai.behaviors.combat.AvoidClosestThreat;
+import corobot.ai.behaviors.combat.TrackAndAttackEntity;
+import corobot.ai.behaviors.misc.IdleWander;
+import corobot.ai.behaviors.misc.JumpForBoredom;
+import corobot.ai.behaviors.misc.OpenGUIChatWhenNeeded;
+import corobot.ai.behaviors.misc.RespawnIfDead;
+import corobot.ai.behaviors.survival.EatWhenNeeded;
+import corobot.ai.memory.helper.HelperItemUsing;
+import corobot.ai.memory.helper.HelperItemUsing.ItemUse;
 
 public class ProfilePlayer extends ProfileBase {
 
@@ -31,12 +35,17 @@ public class ProfilePlayer extends ProfileBase {
 
 		getBtSurvive().add(new AvoidClosestThreat(getBtSurvive(), getAgent().getBlackboard()));
 		
+		getBtIdle().add(new IdleWander(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		
 		getAgent().getBtTemplate().btExtras.add(new StayAboveWater(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 		getAgent().getBtTemplate().btExtras.add(new RespawnIfDead(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 		getAgent().getBtTemplate().btExtras.add(new OpenGUIChatWhenNeeded(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 		
 		getAgent().getBtTemplate().btExtras.add(new ScanEnvironmentForNeededBlocks(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		getAgent().getBtTemplate().btExtras.add(new EatWhenNeeded(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 
+		
+		
 		/*BehaviorNode tasks = getAgent().getBtTemplate().ordersHandler.getOrders();
 		tasks.add(new JumpForBoredom(tasks, getAgent().getBlackboard()));*/
 	}
@@ -57,6 +66,7 @@ public class ProfilePlayer extends ProfileBase {
 		return true;*/
 		EntityPlayer player = Corobot.playerAI.bridgePlayer.getPlayer();
 		if (player.getHealth() < player.getMaxHealth() / 2) return true;
+		if (HelperItemUsing.isUsing(ItemUse.FOOD)) return true;
 		return super.shouldTrySurvival();
 	}
 	

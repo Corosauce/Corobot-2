@@ -153,7 +153,7 @@ public class c_Job_Player extends JobBase {
         return false;
 	}
 	
-	public void fleeFrom(Entity fleeFrom, boolean lifeAtRisk) {
+	public void wander(Entity fleeFrom, boolean lifeAtRisk) {
 		//ent field rerouting!
 		EntityLiving ent = c_AIP.i.player;
 		/*this.faceEntity(fleeFrom, 180F, 180F);

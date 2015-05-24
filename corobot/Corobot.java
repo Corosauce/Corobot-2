@@ -30,8 +30,15 @@ public class Corobot {
 	 * - 3 wood needed to craft pickaxe, got into a broken state when he only had 2, planner only sees need for 1, crafting needs 3
 	 * -- i think this is issue because its 3 itemstacks of wood each with 1 stacksize,
 	 * - how to solve this?
+	 * -- when building plan, pass preconditions to plan
+	 * --- planmineblock will then find real amount needed from the block its to get, and set the needed amount to that
+	 * ---- mineblock then mines till it has that many
 	 * 
 	 * 
+	 * 
+	 * todo:
+	 * - improve combat survival
+	 * -- avoidance
 	 * 
 	 */
 	
@@ -44,7 +51,7 @@ public class Corobot {
 	public static void tickUpdate() {
 		try {
 			if (!Minecraft.getMinecraft().isGamePaused()) {
-				//playerAI.tickUpdate();
+				playerAI.tickUpdate();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();

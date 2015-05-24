@@ -69,7 +69,8 @@ public class SenseEnvironmentPlayer extends LeafNode {
         blackboard.shouldFollowOrders().set(hasOrders && blackboard.getAgent().getProfile().shouldFollowOrders());
 
         //Check if should be fighting state
-        blackboard.isFighting().set(!blackboard.shouldTrySurvival().get() && blackboard.getTargetAttack() != null);
+        blackboard.isFighting().set(/*!blackboard.shouldTrySurvival().get() && */blackboard.getTargetAttack() != null);
+        //blackboard.isFighting().set(false);
     }
 
     public boolean safetyCheck() {

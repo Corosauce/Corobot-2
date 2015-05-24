@@ -1,4 +1,4 @@
-package corobot.ai.behaviors;
+package corobot.ai.behaviors.combat;
 
 import javax.vecmath.Vector3f;
 
@@ -18,6 +18,8 @@ import com.corosus.entity.IEntity;
 
 import corobot.Corobot;
 import corobot.c_AIP;
+import corobot.ai.memory.helper.HelperPath;
+import corobot.ai.memory.helper.HelperPath.Repaths;
 import corobot.bridge.TargetBridge;
 
 public class AvoidClosestThreat extends LeafNodeBB {
@@ -54,6 +56,9 @@ public class AvoidClosestThreat extends LeafNodeBB {
 		
 		//ent field rerouting!
 		EntityLivingBase ent = Corobot.getPlayerAI().bridgePlayer.getPlayer();
+		
+		
+		
 		/*this.faceEntity(fleeFrom, 180F, 180F);
 		//this.rotationYaw += 180;
 		
@@ -65,20 +70,22 @@ public class AvoidClosestThreat extends LeafNodeBB {
         rotationYaw = updateRotation2(rotationYaw, f3, 360F);*/
 		
 		double d = fleeFrom.posX - ent.posX;
-        double d1;
-        for (d1 = fleeFrom.posZ - ent.posZ; d * d + d1 * d1 < 0.0001D; d1 = (Math.random() - Math.random()) * 0.01D)
+        double d1 = fleeFrom.posZ - ent.posZ;
+        /*for (; d * d + d1 * d1 < 0.0001D; d1 = (Math.random() - Math.random()) * 0.01D)
         {
             d = (Math.random() - Math.random()) * 0.01D;
-        }
+        }*/
         float f = MathHelper.sqrt_double(d * d + d1 * d1);
 
         //knockBack(entity, i, d, d1);
         
         float yaw = (float)((Math.atan2(d1, d) * 180D) / 3.1415927410125732D)/* - ent.rotationYaw*/;
 		
-		float look = ent.worldObj.rand.nextInt(15)-7;
+        int randAngleRange = 15;
+        
+		//float look = 0;//ent.worldObj.rand.nextInt(randAngleRange)-randAngleRange/2;
         //int height = 10;
-        double dist = ent.worldObj.rand.nextInt(2)+4;
+        double dist = ent.worldObj.rand.nextInt(2)+8;
         
         //dist adjuster
         if (fleeFrom instanceof EntityCreeper) {
@@ -91,12 +98,17 @@ public class AvoidClosestThreat extends LeafNodeBB {
         	dist = 20;
         }
         
+        double distFromTarg = ent.getDistanceToEntity(fleeFrom);
+        if (distFromTarg > dist) {
+			return;
+		}
+        
         float pitch = ent.rotationPitch;
         pitch = 0;
         
-        int gatherX = (int)(ent.posX + ((double)(-Math.sin((yaw+look) / 180.0F * 3.1415927F) * Math.cos(pitch / 180.0F * 3.1415927F)) * dist));
+        int gatherX = 0;//(int)(ent.posX + ((double)(-Math.sin((yaw+look) / 180.0F * 3.1415927F) * Math.cos(pitch / 180.0F * 3.1415927F)) * dist));
         int gatherY = (int)(ent.posY-0.5 + (double)(-MathHelper.sin(pitch / 180.0F * 3.1415927F) * dist) - 0D); //center.posY - 0D;
-        int gatherZ = (int)(ent.posZ + ((double)(Math.cos((yaw+look) / 180.0F * 3.1415927F) * Math.cos(pitch / 180.0F * 3.1415927F)) * dist));
+        int gatherZ = 0;//(int)(ent.posZ + ((double)(Math.cos((yaw+look) / 180.0F * 3.1415927F) * Math.cos(pitch / 180.0F * 3.1415927F)) * dist));
         
         gatherX = (int)(ent.posX - (d / f * dist));
         gatherZ = (int)(ent.posZ - (d1 / f * dist));
@@ -109,7 +121,7 @@ public class AvoidClosestThreat extends LeafNodeBB {
         int finalY = gatherY;
         
         while (offset < 10) {
-        	if (id != Blocks.air && id2 == Blocks.air) {
+        	if ((id != Blocks.air && id != Blocks.tallgrass) && id2 == Blocks.air) {
         		finalY += offset;
         		break;
         	}
@@ -118,7 +130,7 @@ public class AvoidClosestThreat extends LeafNodeBB {
         	id = ent.worldObj.getBlock(gatherX, gatherY-offset, gatherZ);
         	id2 = ent.worldObj.getBlock(gatherX, gatherY-offset+1, gatherZ);
         	
-        	if (id != Blocks.air && id2 == Blocks.air) {
+        	if ((id != Blocks.air && id != Blocks.tallgrass) && id2 == Blocks.air) {
         		finalY -= offset;
         		break;
         	}
@@ -133,9 +145,21 @@ public class AvoidClosestThreat extends LeafNodeBB {
         if (offset < 10) {
         	//System.out.println("flee");
         	//if (c_AIP.i.pathToEntity == null) {
-        	if (ent.worldObj.getTotalWorldTime() % 20 == 0) {
-        		if (ent.onGround) {
-        			player.setMoveTo(new Vector3f(gatherX, finalY, gatherZ));
+        	//if (ent.worldObj.getTotalWorldTime() % 10 == 0) {
+        	if (HelperPath.pathNow(Repaths.FLEE)) {
+        		
+        		if (ent.onGround || ent.isInWater()) {
+        			Block what = ent.worldObj.getBlock(gatherX, finalY, gatherZ);
+        			if (what != Blocks.water) {
+        				player.setMoveTo(new Vector3f(gatherX, finalY+1, gatherZ));
+        				HelperPath.pathed(Repaths.FLEE);
+        				Block what2 = ent.worldObj.getBlock(gatherX, finalY+1, gatherZ);
+        			} else {
+        				player.setMoveTo(new Vector3f(gatherX, finalY+1, gatherZ));
+        				HelperPath.pathed(Repaths.FLEE);
+        				Block what2 = ent.worldObj.getBlock(gatherX, finalY+1, gatherZ);
+        				System.out.println("final flee block: " + what2);
+        			}
         		}
         	}
         		//c_AIP.i.walkTo(ent, gatherX, finalY, gatherZ, maxPFRange , 600, -1);

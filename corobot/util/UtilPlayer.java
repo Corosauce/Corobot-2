@@ -1,14 +1,15 @@
 package corobot.util;
 
-import corobot.c_AIP;
-import corobot.ai.PlayerAI;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
+import corobot.ai.PlayerAI;
 
 public class UtilPlayer {
 
@@ -67,7 +68,7 @@ public class UtilPlayer {
 		int bestSlot = -1;
 		
 		ItemStack itemstack = player.inventory.getCurrentItem();
-		if (itemstack != null) player.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers());
+		//if (itemstack != null) player.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers());
 		
 		//System.out.println("FIND BEST WEAPON START");
 		
@@ -80,6 +81,45 @@ public class UtilPlayer {
 					ItemTool tool = (ItemTool) slotStack.getItem();
 					
 					float speed = tool.func_150913_i().getEfficiencyOnProperMaterial();
+					
+					if (speed > bestDamage) {
+						bestDamage = speed;
+						bestSlot = i;
+					}
+				}
+			}
+		}
+		
+		//test
+		//System.out.println("best slot: " + bestSlot + " - dmg: " + bestDamage);
+		
+		return bestSlot;
+		//invInfo.bestMeleeSlot = bestSlot;
+		//invInfo.bestMeleeDamage = bestDamage;
+	}
+	
+	public static int getBestFoodSlot(EntityPlayer player, IInventory sourceInventory) {
+		return getBestFoodSlot(player, sourceInventory, false);
+	}
+	
+	public static int getBestFoodSlot(EntityPlayer player, IInventory sourceInventory, boolean hotBarOnly) {
+		float bestDamage = 0;
+		int bestSlot = -1;
+		
+		ItemStack itemstack = player.inventory.getCurrentItem();
+		if (itemstack != null) player.getAttributeMap().removeAttributeModifiers(itemstack.getAttributeModifiers());
+		
+		//System.out.println("FIND BEST WEAPON START");
+		
+		for (int i = 0; i < (hotBarOnly ? 10 : sourceInventory.getSizeInventory()); i++) {
+			ItemStack slotStack = sourceInventory.getStackInSlot(i);
+			
+			if (slotStack != null) {
+				
+				if (slotStack.getItem() instanceof ItemFood && slotStack.getItem() != Items.rotten_flesh) {
+					ItemFood tool = (ItemFood) slotStack.getItem();
+					
+					float speed = tool.func_150905_g(slotStack);
 					
 					if (speed > bestDamage) {
 						bestDamage = speed;
