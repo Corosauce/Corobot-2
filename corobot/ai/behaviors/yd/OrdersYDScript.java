@@ -2,10 +2,17 @@ package corobot.ai.behaviors.yd;
 
 import javax.vecmath.Vector3f;
 
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.tree.Sequence;
+
+import corobot.ai.behaviors.misc.JumpForBoredom;
+import corobot.ai.behaviors.misc.RightClickBlock;
 
 public class OrdersYDScript extends Sequence {
 
@@ -48,8 +55,17 @@ public class OrdersYDScript extends Sequence {
 		
 		//what about pvp? scan for differently colored names?
 		
-		//coords
+		//add(new RightClickBlock(this, getBlackboard(), posKitArcher));
+		//add(new JumpForBoredom(this, getBlackboard()));
+		//add(new RightClickBlock(this, getBlackboard(), posTeamBlueJoin));
+		//maybe add a 'sense teleport' behavior here? if it jumps right to RightClickBlock, its pathing will fail eventually, causing a FAILURE return
 		
+		//replace with basic moveto behavior
+		add(new RightClickBlock(this, getBlackboard(), posOresMiddle));
+		PlanSearchMineBlock plan = new PlanSearchMineBlock("findDiamonds", getBlackboard(), new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.diamond_pickaxe));
+		plan.countNeeded = 5;
+		add(plan);
+		add(new RightClickBlock(this, getBlackboard(), posTeamBlueChest));
 	}
 
 	@Override

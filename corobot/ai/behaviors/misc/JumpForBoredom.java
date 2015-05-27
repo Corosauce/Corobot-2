@@ -23,7 +23,7 @@ public class JumpForBoredom extends LeafNode {
 		
 		PlayerAI playerAI = (PlayerAI) this.getBlackboard().getAgent().getActor();
 		EntityPlayer player = playerAI.bridgePlayer.getPlayer();
-		//if (player.onGround) player.jump();
+		if (player.onGround) player.jump();
 		
 		return super.tick();
 	}

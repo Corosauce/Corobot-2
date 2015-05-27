@@ -1,4 +1,4 @@
-package corobot.ai.minigoap.plans;
+package corobot.ai.behaviors.yd;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
 import corobot.util.UtilPlayer;
 
-public class PlanMineBlock extends PlanPiece {
+public class PlanSearchMineBlock extends PlanPiece {
 
 	//should be close to location be a precondition?
 	
@@ -59,13 +59,13 @@ public class PlanMineBlock extends PlanPiece {
 	public int ticksMining = 0;
 	public int ticksMiningMax = 120;
 	public int ticksPathing = 0;
-	public int ticksPathingMax = 200;
+	public int ticksPathingMax = 300;
 	
 	public enum State {
 		PATHING, MINING, PICKINGUP;
 	}
 	
-	public PlanMineBlock(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool) {
+	public PlanSearchMineBlock(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool) {
 		super(planName, blackboard);
 		this.block = block;
 		this.meta = meta;
@@ -82,7 +82,7 @@ public class PlanMineBlock extends PlanPiece {
 		
 	}
 	
-	public PlanMineBlock(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
+	public PlanSearchMineBlock(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
 		super(planName, blackboard);
 		this.block = block;
 		this.meta = meta;
@@ -97,13 +97,13 @@ public class PlanMineBlock extends PlanPiece {
 		this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
 	}
 	
-	public PlanMineBlock(PlanPiece obj) {
+	public PlanSearchMineBlock(PlanPiece obj) {
 		super(obj, obj.getBlackboard());
-		block = ((PlanMineBlock)obj).block;
-		meta = ((PlanMineBlock)obj).meta;
-		neededTool = ((PlanMineBlock)obj).neededTool;
-		countNeeded = ((PlanMineBlock)obj).countNeeded;
-		droppedItem = ((PlanMineBlock)obj).droppedItem;
+		block = ((PlanSearchMineBlock)obj).block;
+		meta = ((PlanSearchMineBlock)obj).meta;
+		neededTool = ((PlanSearchMineBlock)obj).neededTool;
+		countNeeded = ((PlanSearchMineBlock)obj).countNeeded;
+		droppedItem = ((PlanSearchMineBlock)obj).droppedItem;
 	}
 	
 	@Override
@@ -142,17 +142,17 @@ public class PlanMineBlock extends PlanPiece {
 				}
 				
 			} else {
+				ticksPickingUp = 0;
 				HelperInventory.updateCache(bb.getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
 				//it either cant find anything or it picked it up, so just assume its going to be complete or find next needed block
 				state = State.PATHING;
 				//Corobot.getPlayerAI().planGoal.invalidatePlan();
 			}
 			
-			//TODO: THIS NEEDS A RELIABLE WAY TO RESET (to know when item is picked up)
 			ticksPickingUp++;
 			if (ticksPickingUp >= ticksPickingUpMax) {
 				ticksPickingUp = 0;
-				Corobot.getPlayerAI().planGoal.invalidatePlan();
+				return fail();
 			}
 		} else {
 		
@@ -195,7 +195,7 @@ public class PlanMineBlock extends PlanPiece {
 						
 						ticksMining++;
 						if (ticksMining >= ticksMiningMax) {
-							Corobot.getPlayerAI().planGoal.invalidatePlan();
+							return fail();
 						}
 					}
 				} else {
@@ -205,25 +205,29 @@ public class PlanMineBlock extends PlanPiece {
 					}
 					ticksPathing++;
 					if (ticksPathing >= ticksPathingMax) {
-						Corobot.getPlayerAI().planGoal.invalidatePlan();
+						return fail();
 					}
 				}
 				//Corobot.dbg("state: " + state);
 			} else {
 				System.out.println("cant find block to mine");
-				Corobot.getPlayerAI().planGoal.invalidatePlan();
+				//return fail();
 			}
 		}
-		
-		//get closest mineable log
-		//path to near location
-		//mining sequence
-		//search for item drop to grab
-		//mine another if unable to grab
-		//confirm grabbed log
-		//complete
-		
-		return super.tick();
+
+		//TODO: see Corobot.java notes on refactor for return states
+		if (isTaskComplete()) {
+			return super.tick();
+		} else {
+			return EnumBehaviorState.RUNNING;
+		}
+	}
+	
+	//TODO: see Corobot.java notes on refactor for return states
+	public EnumBehaviorState fail() {
+		ticksPathing = 0;
+		Corobot.getPlayerAI().planGoal.invalidatePlan();
+		return EnumBehaviorState.FAILURE;
 	}
 	
 	@Override

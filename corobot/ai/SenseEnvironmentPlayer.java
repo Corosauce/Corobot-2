@@ -79,7 +79,7 @@ public class SenseEnvironmentPlayer extends LeafNode {
     	EntityPlayer player = ((PlayerAI)agent.getActor()).bridgePlayer.getPlayer();
     	World world = player.worldObj;
     	
-    	float huntRange = 20;
+    	float huntRange = 8;
     	boolean xRay = false;
     	
     	Entity clEnt = null;

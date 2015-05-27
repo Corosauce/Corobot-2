@@ -39,6 +39,18 @@ public class Corobot {
 	 * todo:
 	 * - improve combat survival
 	 * -- avoidance
+	 * - behaviors have a lot of missing resets, like pathing resets on complete or fail, etc
+	 * 
+	 * potential refactors:
+	 * - I think GOAP plans should be sequences that use non goap behaviors as subtasks
+	 * -- so you can mix and match things better, less recoding, easier to make thing nav to a point etc
+	 * -- this idea came up while using non goap stuff for YDScript
+	 * --- GOAP plans and non GOAP plans need return value compatibility
+	 * ---- currently all GOAP plans just return SUCCESS which is not good
+	 * 
+	 * - why do GOAP plans use isComplete? why not use check for return value of SUCCESS?
+	 * -- would solve above compatibility issue if they did
+	 * -- additionally, replace 'Corobot.getPlayerAI().planGoal.invalidatePlan();' with FAILURE return, and make parent class then call invalidatePlan if FAILURE
 	 * 
 	 */
 	

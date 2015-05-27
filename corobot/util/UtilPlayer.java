@@ -111,6 +111,17 @@ public class UtilPlayer {
 		return -1;
 	}
 	
+	public static int getEmptySlot(EntityPlayer player, IInventory sourceInventory, boolean hotBarOnly) {
+		for (int i = 0; i < (hotBarOnly ? 10 : sourceInventory.getSizeInventory()); i++) {
+			ItemStack slotStack = sourceInventory.getStackInSlot(i);
+			
+			if (slotStack == null) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	public static int getBestFoodSlot(EntityPlayer player, IInventory sourceInventory) {
 		return getBestFoodSlot(player, sourceInventory, false);
 	}

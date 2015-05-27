@@ -7,6 +7,7 @@ import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.tree.Sequence;
 import com.corosus.ai.profile.ProfileBase;
 import com.corosus.entity.IEntity;
+import com.sun.org.apache.xerces.internal.impl.dv.xs.YearDV;
 
 import corobot.Corobot;
 import corobot.ai.behaviors.ScanEnvironmentForNeededBlocks;
@@ -20,6 +21,7 @@ import corobot.ai.behaviors.misc.MasterPlanSequence;
 import corobot.ai.behaviors.misc.OpenGUIChatWhenNeeded;
 import corobot.ai.behaviors.misc.RespawnIfDead;
 import corobot.ai.behaviors.survival.EatWhenNeeded;
+import corobot.ai.behaviors.yd.OrdersYDScript;
 import corobot.ai.memory.helper.HelperItemUsing;
 import corobot.ai.memory.helper.HelperItemUsing.ItemUse;
 
@@ -33,12 +35,14 @@ public class ProfilePlayer extends ProfileBase {
 	public void init() {
 		super.init();
 		
+		boolean ydMode = true;
+		
 		getBtAttack().add(new TrackAndAttackEntity(getBtAttack(), this.getAgent().getBlackboard()));
 
 		getBtSurvive().add(new AvoidClosestThreat(getBtSurvive(), getAgent().getBlackboard()));
 		
 		//getBtIdle().add(new IdleWander(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
-		getBtIdle().add(new BuildHouse(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		if (!ydMode) getBtIdle().add(new BuildHouse(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 		
 		getAgent().getBtTemplate().btExtras.add(new StayAboveWater(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 		getAgent().getBtTemplate().btExtras.add(new RespawnIfDead(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
@@ -47,8 +51,14 @@ public class ProfilePlayer extends ProfileBase {
 		getAgent().getBtTemplate().btExtras.add(new ScanEnvironmentForNeededBlocks(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 		getAgent().getBtTemplate().btExtras.add(new EatWhenNeeded(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 
+		
+		
 		//TODO: make it a SequenceBB, also make SequenceBB or refactor all to be using those
-		getAgent().getBtTemplate().btExtras.add(new MasterPlanSequence(getAgent().getBtTemplate().btExtras, getAgent().getBlackboard()));
+		if (ydMode) {
+			getAgent().getBtTemplate().ordersHandler.setOrders(new OrdersYDScript(getAgent().getBtTemplate().btExtras, getAgent().getBlackboard()));
+		} else {
+			getAgent().getBtTemplate().ordersHandler.setOrders(new MasterPlanSequence(getAgent().getBtTemplate().btExtras, getAgent().getBlackboard()));
+		}
 		
 		/*BehaviorNode tasks = getAgent().getBtTemplate().ordersHandler.getOrders();
 		tasks.add(new JumpForBoredom(tasks, getAgent().getBlackboard()));*/

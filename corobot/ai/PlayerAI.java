@@ -109,6 +109,7 @@ public class PlayerAI implements IEntity {
 		agent = new AIBTAgentImpl(this);
 		agent.setTickRate(1);
 		
+		//this should be relocated
 		OrdersTasks tasks = new OrdersTasks(null, agent.getBlackboard());
 		agent.getBtTemplate().ordersHandler.setOrders(tasks);
 		
