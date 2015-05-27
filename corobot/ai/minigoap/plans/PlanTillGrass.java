@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 
+import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.minigoap.PlanPiece;
 
@@ -13,15 +14,15 @@ import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
 
 public class PlanTillGrass extends PlanPiece {
 	
-	public PlanTillGrass(String planName, ItemStack stackEffect, ItemStack stackPrecond) {
-		super(planName);
+	public PlanTillGrass(String planName, Blackboard blackboard, ItemStack stackEffect, ItemStack stackPrecond) {
+		super(planName, blackboard);
 		
 		this.getEffects().getProperties().add(new ItemEntry(stackEffect, new InventorySourceSelf()));
 		this.getPreconditions().getProperties().add(new ItemEntry(stackPrecond, new InventorySourceSelf()));
 	}
 	
 	public PlanTillGrass(PlanPiece obj) {
-		super(obj);
+		super(obj, obj.getBlackboard());
 	}
 	
 	@Override

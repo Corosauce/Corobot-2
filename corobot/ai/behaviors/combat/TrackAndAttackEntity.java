@@ -5,7 +5,7 @@ import net.minecraft.entity.Entity;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.leaf.LeafNodeBB;
+import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.entity.IEntity;
 import com.corosus.util.VecUtil;
 
@@ -16,7 +16,7 @@ import corobot.ai.memory.helper.HelperPath.Repaths;
 import corobot.bridge.TargetBridge;
 import corobot.util.UtilEnt;
 
-public class TrackAndAttackEntity extends LeafNodeBB {
+public class TrackAndAttackEntity extends LeafNode {
 	
 	public TrackAndAttackEntity(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);

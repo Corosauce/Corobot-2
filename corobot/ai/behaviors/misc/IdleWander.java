@@ -13,14 +13,14 @@ import net.minecraft.util.MathHelper;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.leaf.LeafNodeBB;
+import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.entity.IEntity;
 
 import corobot.Corobot;
 import corobot.c_AIP;
 import corobot.bridge.TargetBridge;
 
-public class IdleWander extends LeafNodeBB {
+public class IdleWander extends LeafNode {
 	
 	public IdleWander(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);

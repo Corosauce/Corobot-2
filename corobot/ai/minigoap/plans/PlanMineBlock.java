@@ -65,8 +65,8 @@ public class PlanMineBlock extends PlanPiece {
 		PATHING, MINING, PICKINGUP;
 	}
 	
-	public PlanMineBlock(String planName, Block block, int meta, ItemStack tool) {
-		super(planName);
+	public PlanMineBlock(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool) {
+		super(planName, blackboard);
 		this.block = block;
 		this.meta = meta;
 		this.neededTool = tool;
@@ -82,8 +82,8 @@ public class PlanMineBlock extends PlanPiece {
 		
 	}
 	
-	public PlanMineBlock(String planName, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
-		super(planName);
+	public PlanMineBlock(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
+		super(planName, blackboard);
 		this.block = block;
 		this.meta = meta;
 		this.neededTool = tool;
@@ -98,7 +98,7 @@ public class PlanMineBlock extends PlanPiece {
 	}
 	
 	public PlanMineBlock(PlanPiece obj) {
-		super(obj);
+		super(obj, obj.getBlackboard());
 		block = ((PlanMineBlock)obj).block;
 		meta = ((PlanMineBlock)obj).meta;
 		neededTool = ((PlanMineBlock)obj).neededTool;

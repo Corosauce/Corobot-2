@@ -19,30 +19,28 @@ import corobot.bridge.TargetBridge;
 public class SenseEnvironmentPlayer extends LeafNode {
 
 	private AIBTAgent agent;
-    private Blackboard blackboard;
 
-	public SenseEnvironmentPlayer(BehaviorNode parParent, AIBTAgent parAgent) {
-		super(parParent);
-		blackboard = parAgent.getBlackboard();
-		agent = parAgent;
+	public SenseEnvironmentPlayer(BehaviorNode parParent, Blackboard blackboard) {
+		super(parParent, blackboard);
+		agent = blackboard.getAgent();
 	}
 
 	@Override
 	public EnumBehaviorState tick() {
 
         //Target attack maintenance
-        IEntity target = blackboard.getTargetAttack();
+        IEntity target = getBlackboard().getTargetAttack();
         if (target != null) {
             if (target.getIsDead()) {
-                blackboard.setTargetAttack(null);
+                getBlackboard().setTargetAttack(null);
             }
         }
 
         //Target avoid maintenance
-        target = blackboard.getTargetAvoidClosest();
+        target = getBlackboard().getTargetAvoidClosest();
         if (target != null) {
             if (target.getIsDead()) {
-                blackboard.setTargetAvoidClosest(null);
+                getBlackboard().setTargetAvoidClosest(null);
             }
         }
         
@@ -58,30 +56,30 @@ public class SenseEnvironmentPlayer extends LeafNode {
     	
         //Safety checking
         if (!safetyCheck()) {
-            blackboard.shouldTrySurvival().set(true);
+            getBlackboard().shouldTrySurvival().set(true);
         } else {
-            blackboard.shouldTrySurvival().set(false);
+            getBlackboard().shouldTrySurvival().set(false);
         }
 
-        boolean hasOrders = blackboard.getAgent().getBtTemplate().ordersHandler.hasOrders();
+        boolean hasOrders = getBlackboard().getAgent().getBtTemplate().ordersHandler.hasOrders();
 
         //Check for active orders
-        blackboard.shouldFollowOrders().set(hasOrders && blackboard.getAgent().getProfile().shouldFollowOrders());
+        getBlackboard().shouldFollowOrders().set(hasOrders && getBlackboard().getAgent().getProfile().shouldFollowOrders());
 
         //Check if should be fighting state
-        blackboard.isFighting().set(/*!blackboard.shouldTrySurvival().get() && */blackboard.getTargetAttack() != null);
-        //blackboard.isFighting().set(false);
+        getBlackboard().isFighting().set(/*!getBlackboard().shouldTrySurvival().get() && */getBlackboard().getTargetAttack() != null);
+        //getBlackboard().isFighting().set(false);
     }
 
     public boolean safetyCheck() {
-        return !blackboard.getAgent().getProfile().shouldTrySurvival();
+        return !getBlackboard().getAgent().getProfile().shouldTrySurvival();
     }
     
     public void senseEnemiesToAttack() {
     	EntityPlayer player = ((PlayerAI)agent.getActor()).bridgePlayer.getPlayer();
     	World world = player.worldObj;
     	
-    	float huntRange = 100;
+    	float huntRange = 20;
     	boolean xRay = false;
     	
     	Entity clEnt = null;
@@ -107,11 +105,11 @@ public class SenseEnvironmentPlayer extends LeafNode {
         }
         
         if (clEnt != null) {
-        	IEntity ent = this.blackboard.getTargetAttack();
+        	IEntity ent = this.getBlackboard().getTargetAttack();
         	if (ent instanceof TargetBridge) {
         		((TargetBridge) ent).cleanup();
         	}
-        	this.blackboard.setTargetAttack(new TargetBridge(clEnt));
+        	this.getBlackboard().setTargetAttack(new TargetBridge(clEnt));
         }
     }
     

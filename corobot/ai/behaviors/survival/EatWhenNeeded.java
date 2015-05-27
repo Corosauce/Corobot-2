@@ -5,7 +5,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.leaf.LeafNodeBB;
+import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.entity.IEntity;
 
 import corobot.ai.PlayerAI;
@@ -14,7 +14,7 @@ import corobot.ai.memory.helper.HelperItemUsing;
 import corobot.ai.memory.helper.HelperItemUsing.ItemUse;
 import corobot.util.UtilPlayer;
 
-public class EatWhenNeeded extends LeafNodeBB {
+public class EatWhenNeeded extends LeafNode {
 
 	
 	

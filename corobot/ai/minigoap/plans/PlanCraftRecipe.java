@@ -19,6 +19,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 import com.corosus.ai.AIBTAgent;
+import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.minigoap.IWorldStateProperty;
 import com.corosus.ai.minigoap.PlanPiece;
@@ -58,8 +59,8 @@ public class PlanCraftRecipe extends PlanPiece {
 		PATHING, WAITING_ON_GUI, GUI_OPEN;
 	}
 	
-	public PlanCraftRecipe(String planName, IRecipe recipe, List<ItemStack> recipeNeeds, int width, int height) {
-		super(planName);
+	public PlanCraftRecipe(String planName, Blackboard blackboard, IRecipe recipe, List<ItemStack> recipeNeeds, int width, int height) {
+		super(planName, blackboard);
 		itemToCraft = recipe.getRecipeOutput();
 		this.width = width;
 		this.height = height;
@@ -73,7 +74,7 @@ public class PlanCraftRecipe extends PlanPiece {
 	}
 	
 	public PlanCraftRecipe(PlanPiece obj) {
-		super(obj);
+		super(obj, obj.getBlackboard());
 		
 		PlanCraftRecipe src = (PlanCraftRecipe) obj;
 		

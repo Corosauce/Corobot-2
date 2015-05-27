@@ -20,6 +20,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 import com.corosus.ai.AIBTAgent;
+import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.minigoap.IWorldStateProperty;
 import com.corosus.ai.minigoap.PlanPiece;
@@ -62,8 +63,8 @@ public class PlanSmeltRecipe extends PlanPiece {
 		PATHING, WAITING_ON_GUI, GUI_OPEN, WAITING_ON_SMELT;
 	}
 	
-	public PlanSmeltRecipe(String planName, ItemStack itemFrom, ItemStack itemTo) {
-		super(planName);
+	public PlanSmeltRecipe(String planName, Blackboard blackboard, ItemStack itemFrom, ItemStack itemTo) {
+		super(planName, blackboard);
 		this.itemFrom = itemFrom;
 		this.itemTo = itemTo;
 		this.getEffects().getProperties().add(new ItemEntry(itemTo, new InventorySourceSelf()));
@@ -74,7 +75,7 @@ public class PlanSmeltRecipe extends PlanPiece {
 	}
 	
 	public PlanSmeltRecipe(PlanPiece obj) {
-		super(obj);
+		super(obj, obj.getBlackboard());
 		
 		PlanSmeltRecipe src = (PlanSmeltRecipe) obj;
 		

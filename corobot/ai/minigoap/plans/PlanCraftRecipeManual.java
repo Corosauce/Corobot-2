@@ -1,18 +1,11 @@
 package corobot.ai.minigoap.plans;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.minigoap.PlanPiece;
 
-import corobot.ai.memory.PlayerMemoryState;
-import corobot.ai.memory.pieces.InventoryCollection;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
 
@@ -21,8 +14,8 @@ public class PlanCraftRecipeManual extends PlanPiece {
 	//example class, realistically there will be a generic craft plan that uses runtime mc data to know how to make a recipe
 	//private Item itemToCraft;
 	
-	public PlanCraftRecipeManual(String planName, ItemStack itemToCraft, ItemStack... itemsNeededToCraft) {
-		super(planName);
+	public PlanCraftRecipeManual(String planName, Blackboard blackboard, ItemStack itemToCraft, ItemStack... itemsNeededToCraft) {
+		super(planName, blackboard);
 		//this.itemToCraft = itemToCraft;
 		
 		/*PlayerMemoryState effect = new PlayerMemoryState();

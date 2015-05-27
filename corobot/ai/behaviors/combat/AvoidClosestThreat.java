@@ -5,24 +5,26 @@ import javax.vecmath.Vector3f;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityBlaze;
 import net.minecraft.entity.monster.EntityCreeper;
+import net.minecraft.entity.monster.EntityGhast;
 import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.monster.EntityWitch;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.leaf.LeafNodeBB;
+import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.entity.IEntity;
 
 import corobot.Corobot;
-import corobot.c_AIP;
 import corobot.ai.memory.helper.HelperPath;
 import corobot.ai.memory.helper.HelperPath.Repaths;
 import corobot.bridge.TargetBridge;
 
-public class AvoidClosestThreat extends LeafNodeBB {
+public class AvoidClosestThreat extends LeafNode {
 	
 	public AvoidClosestThreat(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
@@ -90,7 +92,7 @@ public class AvoidClosestThreat extends LeafNodeBB {
         //dist adjuster
         if (fleeFrom instanceof EntityCreeper) {
         	dist = ent.worldObj.rand.nextInt(8)+8;
-        } else if (fleeFrom instanceof EntitySkeleton) {
+        } else if (fleeFrom instanceof EntitySkeleton || fleeFrom instanceof EntityWitch || fleeFrom instanceof EntityBlaze || fleeFrom instanceof EntityGhast) {
         	dist = ent.worldObj.rand.nextInt(8)+16;
         }
         

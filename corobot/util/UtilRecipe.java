@@ -14,6 +14,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import com.corosus.ai.minigoap.PlanRegistry;
 
+import corobot.Corobot;
 import corobot.ai.minigoap.plans.PlanCraftRecipe;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 
@@ -129,7 +130,7 @@ public class UtilRecipe {
 						int sdfdf = 0;
 					}
 					System.out.println("adding plan for recipe: " + recipeName + " - " + width + "x" + height + " - " + recipeInt.getRecipeOutput() + " using items " + listRecipeNeeds);
-					PlanRegistry.addPlanPiece(new PlanCraftRecipe(recipeName, recipeInt, listRecipeNeeds, width, height));
+					PlanRegistry.addPlanPiece(new PlanCraftRecipe(recipeName, Corobot.getPlayerAI().agent.getBlackboard(), recipeInt, listRecipeNeeds, width, height));
 				} else {
 					System.out.println("Skipping recipe " + recipeName);
 				}

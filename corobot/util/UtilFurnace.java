@@ -17,6 +17,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import com.corosus.ai.minigoap.PlanRegistry;
 
+import corobot.Corobot;
 import corobot.ai.minigoap.plans.PlanCraftRecipe;
 import corobot.ai.minigoap.plans.PlanSmeltRecipe;
 import cpw.mods.fml.relauncher.ReflectionHelper;
@@ -44,7 +45,7 @@ public class UtilFurnace {
 			ItemStack stackFrom = (ItemStack) entry.getKey();
 			ItemStack stackTo = (ItemStack) entry.getValue();
 			System.out.println("adding plan for smelting: " + stackFrom.getDisplayName() + " -> " + stackTo.getDisplayName() + recipeCount);
-			PlanRegistry.addPlanPiece(new PlanSmeltRecipe("Smelt " + stackTo.getDisplayName() + recipeCount, stackFrom, stackTo));
+			PlanRegistry.addPlanPiece(new PlanSmeltRecipe("Smelt " + stackTo.getDisplayName() + recipeCount, Corobot.getPlayerAI().agent.getBlackboard(), stackFrom, stackTo));
 			recipeCount++;
 		}
 	}

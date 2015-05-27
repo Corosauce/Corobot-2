@@ -8,12 +8,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.leaf.LeafNodeBB;
+import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.entity.IEntity;
 
 import corobot.ai.PlayerAI;
 
-public class RespawnIfDead extends LeafNodeBB {
+public class RespawnIfDead extends LeafNode {
 
 	private int respawnTimer;
 

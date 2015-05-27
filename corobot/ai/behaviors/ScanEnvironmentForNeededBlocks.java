@@ -17,7 +17,7 @@ import com.corosus.ai.AIBTAgent;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.leaf.LeafNodeBB;
+import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.ai.minigoap.IWorldStateProperty;
 import com.corosus.entity.IEntity;
 import com.corosus.world.IWorld;
@@ -27,7 +27,7 @@ import corobot.ai.memory.helper.HelperBlock;
 import corobot.ai.memory.pieces.MachineLocation;
 import corobot.ai.memory.pieces.ResourceLocation;
 
-public class ScanEnvironmentForNeededBlocks extends LeafNodeBB {
+public class ScanEnvironmentForNeededBlocks extends LeafNode {
 
 	
 	

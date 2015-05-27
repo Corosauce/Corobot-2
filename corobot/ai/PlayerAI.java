@@ -8,6 +8,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
+import com.corosus.ai.Blackboard;
 import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.minigoap.PlanGoal;
 import com.corosus.ai.minigoap.PlanPiece;
@@ -50,16 +51,29 @@ public class PlayerAI implements IEntity {
 	public boolean useGOAP = false;
 	
 	public PlayerAI() {
+	}
+	
+	public static void setNodeDBG(BehaviorNode node) {
+		if (node != lastNodeRun) {
+			System.out.println("running node: " + node);
+		}
+		lastNodeRun = node;
+	}
+	
+	public void initGOAP() {
+
 		
 		//need a way to mark 'has farmland'
 		
-		PlanRegistry.addPlanPiece(new PlanHarvestCrop("harvestWheat", new ItemStack(Items.wheat), new ItemStack(Blocks.wheat)));
+		Blackboard bb = Corobot.getPlayerAI().agent.getBlackboard(); 
 		
-		PlanRegistry.addPlanPiece(new PlanPlantCrop("plantWheat", Blocks.wheat, new ItemStack(Items.wheat_seeds)));
+		PlanRegistry.addPlanPiece(new PlanHarvestCrop("harvestWheat", bb, new ItemStack(Items.wheat), new ItemStack(Blocks.wheat)));
 		
-		PlanRegistry.addPlanPiece(new PlanTillGrass("tillGrass", new ItemStack(Blocks.farmland), new ItemStack(Items.wooden_hoe)));
+		PlanRegistry.addPlanPiece(new PlanPlantCrop("plantWheat", bb, Blocks.wheat, new ItemStack(Items.wheat_seeds)));
 		
-		PlanRegistry.addPlanPiece(new PlanMineBlock("chopTallgrass", new ItemStack(Items.wheat_seeds), Blocks.tallgrass, 0, null));
+		PlanRegistry.addPlanPiece(new PlanTillGrass("tillGrass", bb, new ItemStack(Blocks.farmland), new ItemStack(Items.wooden_hoe)));
+		
+		PlanRegistry.addPlanPiece(new PlanMineBlock("chopTallgrass", bb, new ItemStack(Items.wheat_seeds), Blocks.tallgrass, 0, null));
 		
 		/*PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPickaxe", new ItemStack(Items.wooden_pickaxe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks, 3)));
 		PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodHoe", new ItemStack(Items.wooden_hoe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks, 2)));
@@ -69,27 +83,20 @@ public class PlayerAI implements IEntity {
 		
 		//NEEDS TO KNOW WHAT CAN MINE THEM!
 		//NEEDS TO KNOW THERE ARE 'OR' statements on what pickaxe can be used, like, minimum required
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog0", Blocks.log, 0, null));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog1", Blocks.log, 1, null));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog2", Blocks.log, 2, null));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog3", Blocks.log, 3, null));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCobble", Blocks.cobblestone, 0, new ItemStack(Items.wooden_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineStone", new ItemStack(Blocks.cobblestone), Blocks.stone, 0, new ItemStack(Items.wooden_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCoal", new ItemStack(Items.coal), Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineIron", /*new ItemStack(Items.iron_ingot), */Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineDiamond", new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog0", bb, Blocks.log, 0, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog1", bb, Blocks.log, 1, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog2", bb, Blocks.log, 2, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog3", bb, Blocks.log, 3, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCobble", bb, Blocks.cobblestone, 0, new ItemStack(Items.wooden_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineStone", bb, new ItemStack(Blocks.cobblestone), Blocks.stone, 0, new ItemStack(Items.wooden_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCoal", bb, new ItemStack(Items.coal), Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineIron", bb, /*new ItemStack(Items.iron_ingot), */Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlock("mineDiamond", bb, new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
 		//PlanRegistry.addPlanPiece(new PlanMineBlock("minePalm", TCBlockRegistry.planks));
 		//PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPlanks", new ItemStack(Blocks.planks), new ItemStack(Blocks.log)));
 		
 		UtilRecipe.addRecipePlans();
 		UtilFurnace.addFurnacePlans();
-	}
-	
-	public static void setNodeDBG(BehaviorNode node) {
-		if (node != lastNodeRun) {
-			System.out.println("running node: " + node);
-		}
-		lastNodeRun = node;
 	}
 	
 	public void init() {
@@ -102,18 +109,20 @@ public class PlayerAI implements IEntity {
 		agent = new AIBTAgentImpl(this);
 		agent.setTickRate(1);
 		
-		OrdersTasks tasks = new OrdersTasks(null);
+		OrdersTasks tasks = new OrdersTasks(null, agent.getBlackboard());
 		agent.getBtTemplate().ordersHandler.setOrders(tasks);
 		
 		agent.setProfile(new ProfilePlayer(agent));
 		agent.init();
 		
 		agent.getBtTemplate().btSenses.getChildren().clear();
-		agent.getBtTemplate().btSenses.add(new SenseEnvironmentPlayer(agent.getBtTemplate().btSenses, agent));
+		agent.getBtTemplate().btSenses.add(new SenseEnvironmentPlayer(agent.getBtTemplate().btSenses, agent.getBlackboard()));
 		
 		//temp - or not?
 		Path path = new Path(agent.getBlackboard());
 		agent.getBlackboard().setPath(path);
+		
+		initGOAP();
 	}
 	
 	public void tickUpdate() {

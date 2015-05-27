@@ -5,11 +5,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.leaf.LeafNodeBB;
+import com.corosus.ai.bt.nodes.leaf.LeafNode;
 
 import corobot.ai.PlayerAI;
 
-public class HomeBuildAndRepair extends LeafNodeBB {
+public class HomeBuildAndRepair extends LeafNode {
 
 	private int respawnTimer;
 

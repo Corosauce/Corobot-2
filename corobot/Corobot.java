@@ -51,7 +51,7 @@ public class Corobot {
 	public static void tickUpdate() {
 		try {
 			if (!Minecraft.getMinecraft().isGamePaused()) {
-				playerAI.tickUpdate();
+				//playerAI.tickUpdate();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
