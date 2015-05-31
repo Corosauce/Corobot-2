@@ -28,6 +28,8 @@ import com.corosus.world.IWorld;
 import corobot.Corobot;
 import corobot.ai.memory.helper.HelperBlock;
 import corobot.ai.memory.helper.HelperInventory;
+import corobot.ai.memory.helper.HelperItemUsing;
+import corobot.ai.memory.helper.HelperItemUsing.ItemUse;
 import corobot.ai.memory.pieces.BlockLocation;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.ResourceLocation;
@@ -152,7 +154,8 @@ public class PlanSearchMineBlock extends PlanPiece {
 			ticksPickingUp++;
 			if (ticksPickingUp >= ticksPickingUpMax) {
 				ticksPickingUp = 0;
-				return fail();
+				//return fail();
+				state = State.PATHING;
 			}
 		} else {
 		
@@ -185,17 +188,19 @@ public class PlanSearchMineBlock extends PlanPiece {
 						EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
 						//TODO: make this adapt to other tools
 						//TODO: something to transfer best tool to hotbar if its not in hotbar
-						int bestSlot = UtilPlayer.getBestToolSlot(ItemPickaxe.class, playerEnt, playerEnt.inventory);
-						if (bestSlot != -1) {
-							playerEnt.inventory.currentItem = bestSlot;
-						}
-						Minecraft.getMinecraft().playerController.onPlayerDamageBlock(x, y, z, 2);
-						Corobot.getPlayerAI().bridgePlayer.getPlayer().swingItem();
-						//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
-						
-						ticksMining++;
-						if (ticksMining >= ticksMiningMax) {
-							return fail();
+						if (!HelperItemUsing.isUsing(ItemUse.FOOD)) {
+							int bestSlot = UtilPlayer.getBestToolSlot(ItemPickaxe.class, playerEnt, playerEnt.inventory);
+							if (bestSlot != -1) {
+								playerEnt.inventory.currentItem = bestSlot;
+							}
+							Minecraft.getMinecraft().playerController.onPlayerDamageBlock(x, y, z, 2);
+							Corobot.getPlayerAI().bridgePlayer.getPlayer().swingItem();
+							//Minecraft.getMinecraft().playerController.clickBlock(x, y, z, 2);
+							
+							ticksMining++;
+							if (ticksMining >= ticksMiningMax) {
+								return fail();
+							}
 						}
 					}
 				} else {
@@ -217,20 +222,23 @@ public class PlanSearchMineBlock extends PlanPiece {
 
 		//TODO: see Corobot.java notes on refactor for return states
 		if (isTaskComplete()) {
-			return super.tick();
+			return EnumBehaviorState.SUCCESS;
 		} else {
 			return EnumBehaviorState.RUNNING;
 		}
 	}
 	
-	//TODO: see Corobot.java notes on refactor for return states
 	public EnumBehaviorState fail() {
-		ticksPathing = 0;
-		Corobot.getPlayerAI().planGoal.invalidatePlan();
+		//Corobot.getPlayerAI().planGoal.invalidatePlan();
 		return EnumBehaviorState.FAILURE;
 	}
 	
 	@Override
+	public void reset() {
+		super.reset();
+		ticksPathing = 0;
+	}
+	
 	public boolean isTaskComplete() {
 		//ItemStack stack = new ItemStack(this.block, this.countNeeded);
 		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, droppedItem/*Item.getItemFromBlock(this.block)*/) >= this.countNeeded;

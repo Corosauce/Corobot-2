@@ -102,21 +102,26 @@ public class BuildHouse extends LeafNode {
 				
 				ticksPathing++;
 				if (ticksPathing >= ticksPathingMax) {
-					Corobot.getPlayerAI().planGoal.invalidatePlan();
+					return EnumBehaviorState.FAILURE;
+					//Corobot.getPlayerAI().planGoal.invalidatePlan();
 				}
 			}
 			//Corobot.dbg("state: " + state);
 		} else {
 			Corobot.dbg("house complete!");
 			state = State.COMPLETE;
+			return EnumBehaviorState.SUCCESS;
 		}
 		
-		return super.tick();
+		if (isTaskComplete()) {
+			return EnumBehaviorState.SUCCESS;
+		} else {
+			return EnumBehaviorState.RUNNING;
+		}
 	}
 	
-	/*@Override
 	public boolean isTaskComplete() {
 		return state == State.COMPLETE;
-	}*/
+	}
 
 }

@@ -7,6 +7,8 @@ public class Corobot {
 
 	/**
 	 * Ongoing bugs:
+	 * - NEED A DELAY BETWEEN GUI OPEN AND SLOT USE, OTHERWISE SLOT USAGE FAILS ON FIRST CLICK OR MORE
+	 * -- thread.sleep(50) helps this, but we should do a better latency friendly solution
 	 * t still drops workbench contents instead of shift clicking back into inv
 	 * -- maybe fixed
 	 * - cant mine without guichat open
@@ -63,7 +65,7 @@ public class Corobot {
 	public static void tickUpdate() {
 		try {
 			if (!Minecraft.getMinecraft().isGamePaused()) {
-				//playerAI.tickUpdate();
+				playerAI.tickUpdate();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();

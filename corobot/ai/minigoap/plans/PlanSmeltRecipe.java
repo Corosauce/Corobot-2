@@ -111,13 +111,6 @@ public class PlanSmeltRecipe extends PlanPiece {
 	@Override
 	public EnumBehaviorState tick() {
 		
-		//move to location of workbench
-		//right click bench
-		//wait for open gui
-		//do gui slot work
-		
-		
-		
 		AIBTAgent agent = Corobot.getPlayerAI().agent;
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
@@ -187,8 +180,8 @@ public class PlanSmeltRecipe extends PlanPiece {
 									//UtilContainer.clickSlot(slotSmeltFuel, UtilContainer.mouseLeftClick, UtilContainer.mouse2StepClick);
 								} else {
 									System.out.println("cant find coal for fuel, error");
-									Corobot.getPlayerAI().planGoal.invalidatePlan();
-									endTask();
+									//Corobot.getPlayerAI().planGoal.invalidatePlan();
+									return EnumBehaviorState.FAILURE;
 								}
 							}
 							
@@ -200,8 +193,8 @@ public class PlanSmeltRecipe extends PlanPiece {
 							state = State.WAITING_ON_SMELT;
 						} else {
 							System.out.println("cant find itemFrom to smelt, error");
-							Corobot.getPlayerAI().planGoal.invalidatePlan();
-							endTask();
+							//Corobot.getPlayerAI().planGoal.invalidatePlan();
+							return EnumBehaviorState.FAILURE;
 						}
 					} else if (state == State.WAITING_ON_SMELT) {
 						//check for smelted stuff, then switch to gui open, at which point isComplete might be true and end this class
@@ -222,8 +215,8 @@ public class PlanSmeltRecipe extends PlanPiece {
 							ItemStack stackCheck = furnaceContainer.getSlot(slotSmeltIn).getStack();
 							if (stackCheck == null) {
 								System.out.println("CRITICAL! item actively smelting missing for some reason");
-								Corobot.getPlayerAI().planGoal.invalidatePlan();
-								endTask();
+								//Corobot.getPlayerAI().planGoal.invalidatePlan();
+								return EnumBehaviorState.FAILURE;
 							}
 						}
 					}
@@ -242,14 +235,13 @@ public class PlanSmeltRecipe extends PlanPiece {
 			//Corobot.dbg("state: " + state);
 		} else {
 			System.out.println("cant find crafting table");
-			Corobot.getPlayerAI().planGoal.invalidatePlan();
-			endTask();
+			//Corobot.getPlayerAI().planGoal.invalidatePlan();
+			return EnumBehaviorState.FAILURE;
 		}
 		
 		return super.tick();
 	}
 	
-	@Override
 	public boolean isTaskComplete() {
 		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemTo) >= amountToSmelt;
 	}
@@ -275,7 +267,8 @@ public class PlanSmeltRecipe extends PlanPiece {
 	}
 	
 	@Override
-	public void endTask() {
+	public void reset() {
+		super.reset();
 		/*for (int i = 0; i < 9; i++) {
 			UtilContainer.clickSlot(slotCraftMatrixStart+i, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
 		}*/

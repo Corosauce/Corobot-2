@@ -188,8 +188,8 @@ public class PlanCraftRecipe extends PlanPiece {
 								UtilContainer.clickSlot(clickFrom, UtilContainer.mouseLeftClick, UtilContainer.mouse2StepClick);
 							} else {
 								System.out.println("CRITICAL! failed to find item " + stack + ", did something remove it since plan was made?");
-								Corobot.getPlayerAI().planGoal.invalidatePlan();
-								endTask();
+								//Corobot.getPlayerAI().planGoal.invalidatePlan();
+								return EnumBehaviorState.FAILURE;
 							}
 						}
 						
@@ -199,7 +199,7 @@ public class PlanCraftRecipe extends PlanPiece {
 					
 					UtilContainer.clickSlot(slotCraftOut, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
 					System.out.println("slot click complete");
-					endTask();
+					return EnumBehaviorState.SUCCESS;
 					
 					/*UtilContainer.clickSlot(slotInventoryHotbarStart);
 					UtilContainer.clickSlot(slotInventoryHotbarStart+1);
@@ -218,17 +218,22 @@ public class PlanCraftRecipe extends PlanPiece {
 			//Corobot.dbg("state: " + state);
 		} else {
 			System.out.println("cant find crafting table");
-			Corobot.getPlayerAI().planGoal.invalidatePlan();
-			endTask();
+			//Corobot.getPlayerAI().planGoal.invalidatePlan();
+			return EnumBehaviorState.FAILURE;
 		}
 		
-		return super.tick();
+		if (isTaskComplete()) {
+			return EnumBehaviorState.SUCCESS;
+		} else {
+			return EnumBehaviorState.RUNNING;
+		}
 	}
 	
-	@Override
 	public boolean isTaskComplete() {
 		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemToCraft) >= amountToCraft;
 	}
+	
+	
 	
 	public static int getFirstSlotContainingItem(Container container, ItemStack itemStack, int findStart, int findEnd) {
 		int index = -1;
@@ -251,7 +256,8 @@ public class PlanCraftRecipe extends PlanPiece {
 	}
 	
 	@Override
-	public void endTask() {
+	public void reset() {
+		super.reset();
 		for (int i = 0; i < 9; i++) {
 			UtilContainer.clickSlot(slotCraftMatrixStart+i, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
 		}

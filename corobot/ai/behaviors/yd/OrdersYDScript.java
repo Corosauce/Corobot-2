@@ -1,5 +1,8 @@
 package corobot.ai.behaviors.yd;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.vecmath.Vector3f;
 
 import net.minecraft.init.Blocks;
@@ -11,7 +14,6 @@ import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.tree.Sequence;
 
-import corobot.ai.behaviors.misc.JumpForBoredom;
 import corobot.ai.behaviors.misc.RightClickBlock;
 
 public class OrdersYDScript extends Sequence {
@@ -61,11 +63,15 @@ public class OrdersYDScript extends Sequence {
 		//maybe add a 'sense teleport' behavior here? if it jumps right to RightClickBlock, its pathing will fail eventually, causing a FAILURE return
 		
 		//replace with basic moveto behavior
-		add(new RightClickBlock(this, getBlackboard(), posOresMiddle));
+		add(new PlanMoveToPos("moveTo", getBlackboard(), posOresMiddle));
 		PlanSearchMineBlock plan = new PlanSearchMineBlock("findDiamonds", getBlackboard(), new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.diamond_pickaxe));
 		plan.countNeeded = 5;
 		add(plan);
-		add(new RightClickBlock(this, getBlackboard(), posTeamBlueChest));
+		//add(new RightClickBlock(this, getBlackboard(), posTeamBlueChest));
+		List<ItemStack> listStacks = new ArrayList<ItemStack>();
+		listStacks.add(new ItemStack(Items.diamond, 5));
+		//add(new PlanTranferToAndFromChest("dropOffToChest", getBlackboard(), posTeamBlueChest, listStacks, listStacks));
+		add(new PlanTranferToAndFromChest("dropOffToChest", getBlackboard(), posTeamBlueChest, null, listStacks));
 	}
 
 	@Override

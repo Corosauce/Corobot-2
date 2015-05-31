@@ -1,9 +1,11 @@
-package corobot.ai.behaviors.misc;
+package corobot.ai.behaviors;
 
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.tree.Sequence;
+
+import corobot.ai.minigoap.GoapSequence;
 
 public class MasterPlanSequence extends Sequence {
 	
@@ -33,10 +35,30 @@ public class MasterPlanSequence extends Sequence {
 	 * - break tallgrass for seeds?
 	 * 
 	 * 
+	 * 
+	 * GOAP for:
+	 * - making items
+	 * -- pathing
+	 * -- gui using
+	 * -- inventory management
+	 * -- mining
+	 * 
+	 * adjust GOAP for:
+	 * - populating a behavior sequence
+	 * - using enum return vals to determine if success, running, failed, interrupted
+	 * 
+	 * 
+	 * 
+	 * 
 	 */
 	
 	public MasterPlanSequence(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
+		
+		GoapSequence goap = new GoapSequence(parParent, blackboard, "diamond pickaxe");
+		goap.createPlan();
+		goap.setCreatedPlan();
+		this.getChildren().add(goap);
 		
 	}
 

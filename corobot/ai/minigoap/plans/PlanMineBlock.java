@@ -152,7 +152,10 @@ public class PlanMineBlock extends PlanPiece {
 			ticksPickingUp++;
 			if (ticksPickingUp >= ticksPickingUpMax) {
 				ticksPickingUp = 0;
-				Corobot.getPlayerAI().planGoal.invalidatePlan();
+				//instead of invalidate, just move on to next block if there is one
+				//Corobot.getPlayerAI().planGoal.invalidatePlan();
+				//return EnumBehaviorState.FAILURE;
+				state = State.PATHING;
 			}
 		} else {
 		
@@ -195,7 +198,8 @@ public class PlanMineBlock extends PlanPiece {
 						
 						ticksMining++;
 						if (ticksMining >= ticksMiningMax) {
-							Corobot.getPlayerAI().planGoal.invalidatePlan();
+							//Corobot.getPlayerAI().planGoal.invalidatePlan();
+							return EnumBehaviorState.FAILURE;
 						}
 					}
 				} else {
@@ -205,31 +209,35 @@ public class PlanMineBlock extends PlanPiece {
 					}
 					ticksPathing++;
 					if (ticksPathing >= ticksPathingMax) {
-						Corobot.getPlayerAI().planGoal.invalidatePlan();
+						//Corobot.getPlayerAI().planGoal.invalidatePlan();
+						return EnumBehaviorState.FAILURE;
 					}
 				}
 				//Corobot.dbg("state: " + state);
 			} else {
 				System.out.println("cant find block to mine");
-				Corobot.getPlayerAI().planGoal.invalidatePlan();
+				//Corobot.getPlayerAI().planGoal.invalidatePlan();
+				return EnumBehaviorState.FAILURE;
 			}
 		}
 		
-		//get closest mineable log
-		//path to near location
-		//mining sequence
-		//search for item drop to grab
-		//mine another if unable to grab
-		//confirm grabbed log
-		//complete
-		
-		return super.tick();
+		if (isTaskComplete()) {
+			return EnumBehaviorState.SUCCESS;
+		} else {
+			return EnumBehaviorState.RUNNING;
+		}
+	}
+	
+	public boolean isTaskComplete() {
+		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, droppedItem/*Item.getItemFromBlock(this.block)*/) >= this.countNeeded;
 	}
 	
 	@Override
-	public boolean isTaskComplete() {
-		//ItemStack stack = new ItemStack(this.block, this.countNeeded);
-		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, droppedItem/*Item.getItemFromBlock(this.block)*/) >= this.countNeeded;
+	public void reset() {
+		super.reset();
+		this.ticksMining = 0;
+		this.ticksPathing = 0;
+		this.ticksPickingUp = 0;
 	}
 
 }

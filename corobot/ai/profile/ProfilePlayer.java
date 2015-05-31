@@ -10,6 +10,7 @@ import com.corosus.entity.IEntity;
 import com.sun.org.apache.xerces.internal.impl.dv.xs.YearDV;
 
 import corobot.Corobot;
+import corobot.ai.behaviors.MasterPlanSequence;
 import corobot.ai.behaviors.ScanEnvironmentForNeededBlocks;
 import corobot.ai.behaviors.StayAboveWater;
 import corobot.ai.behaviors.combat.AvoidClosestThreat;
@@ -17,7 +18,6 @@ import corobot.ai.behaviors.combat.TrackAndAttackEntity;
 import corobot.ai.behaviors.misc.BuildHouse;
 import corobot.ai.behaviors.misc.IdleWander;
 import corobot.ai.behaviors.misc.JumpForBoredom;
-import corobot.ai.behaviors.misc.MasterPlanSequence;
 import corobot.ai.behaviors.misc.OpenGUIChatWhenNeeded;
 import corobot.ai.behaviors.misc.RespawnIfDead;
 import corobot.ai.behaviors.survival.EatWhenNeeded;
@@ -41,8 +41,14 @@ public class ProfilePlayer extends ProfileBase {
 
 		getBtSurvive().add(new AvoidClosestThreat(getBtSurvive(), getAgent().getBlackboard()));
 		
-		//getBtIdle().add(new IdleWander(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
-		if (!ydMode) getBtIdle().add(new BuildHouse(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		
+		if (!ydMode) {
+			//BuildHouse will probably get moved to MasterPlanSequence
+			//but it also needs to be able to get called if house is detected broken, so it needs to interrupt the sequence chain... hmm
+			//getBtIdle().add(new IdleWander(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+			//getBtIdle().add(new BuildHouse(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+			
+		}
 		
 		getAgent().getBtTemplate().btExtras.add(new StayAboveWater(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 		getAgent().getBtTemplate().btExtras.add(new RespawnIfDead(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
@@ -52,8 +58,9 @@ public class ProfilePlayer extends ProfileBase {
 		getAgent().getBtTemplate().btExtras.add(new EatWhenNeeded(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 
 		
-		
-		//TODO: make it a SequenceBB, also make SequenceBB or refactor all to be using those
+		//this makes sense for YD, but not so much for MasterPlanSequence since it will use GOAP
+		//UNLESS goap use is a sub sequence within MasterPlanSequence
+		//i guess we should plan out more how MasterPlanSequence will work its magic first
 		if (ydMode) {
 			getAgent().getBtTemplate().ordersHandler.setOrders(new OrdersYDScript(getAgent().getBtTemplate().btExtras, getAgent().getBlackboard()));
 		} else {

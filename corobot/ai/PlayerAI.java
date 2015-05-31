@@ -45,9 +45,6 @@ public class PlayerAI implements IEntity {
 	
 	public static BehaviorNode lastNodeRun;
 	
-	//for now, lets do a temp wire in of PlanGoal into OrdersHandler
-	public PlanGoal planGoal = new PlanGoal();
-	
 	public boolean useGOAP = false;
 	
 	public PlayerAI() {
@@ -108,6 +105,8 @@ public class PlayerAI implements IEntity {
 		needInit = false;
 		agent = new AIBTAgentImpl(this);
 		agent.setTickRate(1);
+
+		initGOAP();
 		
 		//this should be relocated
 		OrdersTasks tasks = new OrdersTasks(null, agent.getBlackboard());
@@ -122,8 +121,6 @@ public class PlayerAI implements IEntity {
 		//temp - or not?
 		Path path = new Path(agent.getBlackboard());
 		agent.getBlackboard().setPath(path);
-		
-		initGOAP();
 	}
 	
 	public void tickUpdate() {
@@ -180,7 +177,7 @@ public class PlayerAI implements IEntity {
 			//planGoal.invalidatePlan();
 		}
 		
-		if (!planGoal.hasPlan() || planGoal.isPlanComplete()) {
+		/*if (!planGoal.hasPlan() || planGoal.isPlanComplete()) {
 			//planGoal.createPlan(PlanRegistry.getPlanPieceByName("harvestWheat"), bb.getWorldMemory());
 			//planGoal.createPlan(PlanRegistry.getPlanPieceByName("Wooden Hoe124"), bb.getWorldMemory());
 			PlanPiece endGoal = PlanRegistry.getPlanPieceByNamePartial("diamond pickaxe");
@@ -191,11 +188,11 @@ public class PlayerAI implements IEntity {
 			
 			
 			//planGoal.createPlan(PlanRegistry.getPlanPieceByName("craftWoodPlanks"), bb.getWorldMemory());
-		}
+		}*/
 		
 		//if (true) return;
 		
-		if (planGoal.getListPlanPieces().size() > 0) {
+		/*if (planGoal.getListPlanPieces().size() > 0) {
 			PlanPiece plan = planGoal.getListPlanPieces().get(planGoal.getCurPlanIndex());
 			agent.getBtTemplate().ordersHandler.setOrders(plan);
 			if (plan.isTaskComplete()) {
@@ -204,7 +201,7 @@ public class PlayerAI implements IEntity {
 				planGoal.setCurPlanIndex(planGoal.getCurPlanIndex()+1);
 				//plan = planGoal.getListPlanPieces().get(planGoal.getCurPlanIndex());
 			}
-		}
+		}*/
 		
 		//boolean result = bb.getPlayerMemory().contains(precondition);
 		
