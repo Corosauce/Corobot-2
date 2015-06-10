@@ -32,6 +32,7 @@ import corobot.Corobot;
 import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
 import corobot.util.UtilContainer;
+import corobot.util.UtilEnt;
 import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
 
@@ -69,6 +70,8 @@ public class PlanMoveToPos extends PlanPiece {
 		IEntity player = Corobot.getPlayerAI();
 		EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
 		
+		
+		
 		double dist = VecUtil.getDistSqrd(player.getPos(), pos);
 		if (dist < 3) {
 			
@@ -79,6 +82,14 @@ public class PlanMoveToPos extends PlanPiece {
 			if (world.getTicksTotal() % 40 == 0) {
 				player.setMoveTo(pos);
 			}
+			
+			boolean alwaysLook = true;
+			int lookSpeed = 5;
+			if (alwaysLook) {
+				UtilEnt.facePos(Corobot.playerAI.bridgePlayer.getPlayer(), pos, lookSpeed, 90);
+				Corobot.playerAI.bridgePlayer.getPlayer().rotationPitch += 30;
+			}
+			
 			ticksPathing++;
 			if (ticksPathing >= ticksPathingMax) {
 				return EnumBehaviorState.FAILURE;

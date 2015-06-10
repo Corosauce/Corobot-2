@@ -1,6 +1,9 @@
 package corobot;
 
 import net.minecraft.client.Minecraft;
+
+import org.lwjgl.input.Keyboard;
+
 import corobot.ai.PlayerAI;
 
 public class Corobot {
@@ -58,14 +61,28 @@ public class Corobot {
 	
 	public static PlayerAI playerAI;
 	
+	public static boolean isKeyDownPause = false;
+	public static boolean isBotActive = true;
+	
 	public static void init() {
 		playerAI = new PlayerAI();
 	}
 	
 	public static void tickUpdate() {
 		try {
+			
+			if (Keyboard.isKeyDown(Keyboard.KEY_PAUSE)) {
+				if (!isKeyDownPause) {
+					isBotActive = !isBotActive;
+					System.out.println("bot is " + (isBotActive ? "active" : "inactive"));
+				}
+				isKeyDownPause = true;
+			} else {
+				isKeyDownPause = false;
+			}
+			
 			if (!Minecraft.getMinecraft().isGamePaused()) {
-				playerAI.tickUpdate();
+				if (isBotActive) playerAI.tickUpdate();
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();

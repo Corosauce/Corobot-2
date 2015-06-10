@@ -39,7 +39,8 @@ public class RespawnIfDead extends LeafNode {
 	        	mc.thePlayer.sendChatMessage("/give Corosus iron_sword");
 	        	mc.thePlayer.sendChatMessage("/give Corosus porkchop 64");
 	        	mc.thePlayer.sendChatMessage("/give Corosus porkchop 64");
-	        	mc.ingameGUI.getChatGUI().clearChatMessages();
+	        	//dont clear, we need to track what killed us from chat
+	        	//mc.ingameGUI.getChatGUI().clearChatMessages();
 	        	
     		}
             //mc.displayGuiScreen((GuiScreen)null);

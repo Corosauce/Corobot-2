@@ -129,7 +129,7 @@ public class PlayerAI implements IEntity {
 		agent.tickUpdate();
 		HelperItemUsing.tickUsageUpdate();
 		
-		BehaviorNode.DEBUG = true;
+		BehaviorNode.DEBUG = false;
 		
 		bridgePlayer.tickUpdate();
 		

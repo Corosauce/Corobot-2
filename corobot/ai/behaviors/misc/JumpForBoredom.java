@@ -12,10 +12,15 @@ import corobot.ai.PlayerAI;
 
 public class JumpForBoredom extends LeafNode {
 
-	
+	public int delay = 0;
 	
 	public JumpForBoredom(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
+	}
+	
+	public JumpForBoredom(BehaviorNode parParent, Blackboard blackboard, int delay) {
+		super(parParent, blackboard);
+		this.delay = delay;
 	}
 
 	@Override
@@ -25,7 +30,12 @@ public class JumpForBoredom extends LeafNode {
 		EntityPlayer player = playerAI.bridgePlayer.getPlayer();
 		if (player.onGround) player.jump();
 		
-		return super.tick();
+		if (delay > 0) {
+			delay--;
+			return EnumBehaviorState.RUNNING;
+		} else {
+			return super.tick();
+		}
 	}
 
 }

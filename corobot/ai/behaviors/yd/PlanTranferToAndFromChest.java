@@ -32,6 +32,7 @@ import corobot.Corobot;
 import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
 import corobot.util.UtilContainer;
+import corobot.util.UtilEnt;
 import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
 
@@ -146,6 +147,14 @@ public class PlanTranferToAndFromChest extends PlanPiece {
 				if (world.getTicksTotal() % 40 == 0) {
 					player.setMoveTo(posChest);
 				}
+				
+				boolean alwaysLook = true;
+				int lookSpeed = 5;
+				if (alwaysLook) {
+					UtilEnt.facePos(Corobot.playerAI.bridgePlayer.getPlayer(), posChest, lookSpeed, 90);
+					Corobot.playerAI.bridgePlayer.getPlayer().rotationPitch += 30;
+				}
+				
 				ticksPathing++;
 				if (ticksPathing >= ticksPathingMax) {
 					return EnumBehaviorState.FAILURE;

@@ -3,21 +3,15 @@ package corobot.ai.profile;
 import net.minecraft.entity.player.EntityPlayer;
 
 import com.corosus.ai.AIBTAgent;
-import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.tree.Sequence;
 import com.corosus.ai.profile.ProfileBase;
 import com.corosus.entity.IEntity;
-import com.sun.org.apache.xerces.internal.impl.dv.xs.YearDV;
 
 import corobot.Corobot;
-import corobot.ai.behaviors.MasterPlanSequence;
 import corobot.ai.behaviors.ScanEnvironmentForNeededBlocks;
 import corobot.ai.behaviors.StayAboveWater;
 import corobot.ai.behaviors.combat.AvoidClosestThreat;
 import corobot.ai.behaviors.combat.TrackAndAttackEntity;
-import corobot.ai.behaviors.misc.BuildHouse;
-import corobot.ai.behaviors.misc.IdleWander;
-import corobot.ai.behaviors.misc.JumpForBoredom;
+import corobot.ai.behaviors.misc.EventlessStateTracker;
 import corobot.ai.behaviors.misc.OpenGUIChatWhenNeeded;
 import corobot.ai.behaviors.misc.RespawnIfDead;
 import corobot.ai.behaviors.survival.EatWhenNeeded;
@@ -35,7 +29,7 @@ public class ProfilePlayer extends ProfileBase {
 	public void init() {
 		super.init();
 		
-		boolean ydMode = true;
+		boolean ydMode = false;
 		
 		getBtAttack().add(new TrackAndAttackEntity(getBtAttack(), this.getAgent().getBlackboard()));
 
@@ -56,6 +50,8 @@ public class ProfilePlayer extends ProfileBase {
 		
 		getAgent().getBtTemplate().btExtras.add(new ScanEnvironmentForNeededBlocks(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 		getAgent().getBtTemplate().btExtras.add(new EatWhenNeeded(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		getAgent().getBtTemplate().btExtras.add(new EventlessStateTracker(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+		
 
 		
 		//this makes sense for YD, but not so much for MasterPlanSequence since it will use GOAP

@@ -5,6 +5,7 @@ import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.tree.Sequence;
 
+import corobot.ai.behaviors.misc.BuildHouse;
 import corobot.ai.minigoap.GoapSequence;
 
 public class MasterPlanSequence extends Sequence {
@@ -55,9 +56,12 @@ public class MasterPlanSequence extends Sequence {
 	public MasterPlanSequence(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 		
+		this.getChildren().add(new BuildHouse(this, blackboard));
+		
 		GoapSequence goap = new GoapSequence(parParent, blackboard, "diamond pickaxe");
 		goap.createPlan();
 		goap.setCreatedPlan();
+		
 		this.getChildren().add(goap);
 		
 	}

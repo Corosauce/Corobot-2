@@ -78,7 +78,7 @@ public class RightClickBlock extends LeafNode {
 				Block block = worldMC.getBlock(x, y, z);
 				
 				EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
-				int bestSlot = UtilPlayer.getEmptySlot(playerEnt, playerEnt.inventory, true);
+				int bestSlot = UtilPlayer.getSlotToRightClickWith(playerEnt, playerEnt.inventory, true);
 				if (bestSlot != -1) {
 					playerEnt.inventory.currentItem = bestSlot;
 					ItemStack stack = playerEnt.getCurrentEquippedItem();

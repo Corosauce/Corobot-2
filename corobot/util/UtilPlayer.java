@@ -8,6 +8,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import corobot.ai.PlayerAI;
 
@@ -116,6 +117,17 @@ public class UtilPlayer {
 			ItemStack slotStack = sourceInventory.getStackInSlot(i);
 			
 			if (slotStack == null) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public static int getSlotToRightClickWith(EntityPlayer player, IInventory sourceInventory, boolean hotBarOnly) {
+		for (int i = 0; i < (hotBarOnly ? 10 : sourceInventory.getSizeInventory()); i++) {
+			ItemStack slotStack = sourceInventory.getStackInSlot(i);
+			
+			if (slotStack == null || slotStack.getItem() instanceof ItemSword || slotStack.getItem() instanceof ItemTool || slotStack.getItem() instanceof ItemFood) {
 				return i;
 			}
 		}

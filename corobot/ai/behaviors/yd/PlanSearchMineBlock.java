@@ -34,6 +34,7 @@ import corobot.ai.memory.pieces.BlockLocation;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.ResourceLocation;
 import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
+import corobot.bridge.TargetBridge;
 import corobot.util.UtilEnt;
 import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
@@ -118,6 +119,9 @@ public class PlanSearchMineBlock extends PlanPiece {
 		IEntity player = Corobot.getPlayerAI();
 		Blackboard bb = agent.getBlackboard();
 		World worldMC = Minecraft.getMinecraft().theWorld;
+		
+		boolean alwaysLook = true;
+		int lookSpeed = 5;
 		
 		/*Blackboard bb = agent.getBlackboard();
 		
@@ -213,9 +217,16 @@ public class PlanSearchMineBlock extends PlanPiece {
 						return fail();
 					}
 				}
+				
+				if (alwaysLook) {
+					UtilEnt.facePos(Corobot.playerAI.bridgePlayer.getPlayer(), loc.getPos(), lookSpeed, 90);
+					Corobot.playerAI.bridgePlayer.getPlayer().rotationPitch += 30;
+				}
+				
 				//Corobot.dbg("state: " + state);
 			} else {
 				System.out.println("cant find block to mine");
+				return EnumBehaviorState.FAILURE;
 				//return fail();
 			}
 		}

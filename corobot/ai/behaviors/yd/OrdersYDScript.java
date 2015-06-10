@@ -2,9 +2,11 @@ package corobot.ai.behaviors.yd;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.vecmath.Vector3f;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -13,7 +15,11 @@ import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.tree.Sequence;
+import com.corosus.util.VecUtil;
 
+import corobot.Corobot;
+import corobot.ai.PlayerAI;
+import corobot.ai.behaviors.misc.JumpForBoredom;
 import corobot.ai.behaviors.misc.RightClickBlock;
 
 public class OrdersYDScript extends Sequence {
@@ -32,6 +38,10 @@ public class OrdersYDScript extends Sequence {
 	public static Vector3f posTeamRedChest = new Vector3f(12, 67, -3);
 	
 	public static Vector3f posOresMiddle = new Vector3f(-4, 79, -2);
+	
+	//max distance a player can get from the lobby spawn while still in the lobby
+	public double lobbyMaxDist = 32;
+	public boolean lobbyMode = true;
 	
 	
 	public OrdersYDScript(BehaviorNode parParent, Blackboard blackboard) {
@@ -57,26 +67,70 @@ public class OrdersYDScript extends Sequence {
 		
 		//what about pvp? scan for differently colored names?
 		
-		//add(new RightClickBlock(this, getBlackboard(), posKitArcher));
-		//add(new JumpForBoredom(this, getBlackboard()));
-		//add(new RightClickBlock(this, getBlackboard(), posTeamBlueJoin));
+		
 		//maybe add a 'sense teleport' behavior here? if it jumps right to RightClickBlock, its pathing will fail eventually, causing a FAILURE return
 		
 		//replace with basic moveto behavior
-		add(new PlanMoveToPos("moveTo", getBlackboard(), posOresMiddle));
-		PlanSearchMineBlock plan = new PlanSearchMineBlock("findDiamonds", getBlackboard(), new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.diamond_pickaxe));
-		plan.countNeeded = 5;
-		add(plan);
-		//add(new RightClickBlock(this, getBlackboard(), posTeamBlueChest));
-		List<ItemStack> listStacks = new ArrayList<ItemStack>();
-		listStacks.add(new ItemStack(Items.diamond, 5));
-		//add(new PlanTranferToAndFromChest("dropOffToChest", getBlackboard(), posTeamBlueChest, listStacks, listStacks));
-		add(new PlanTranferToAndFromChest("dropOffToChest", getBlackboard(), posTeamBlueChest, null, listStacks));
+		
+		initLobbyTree();
+		
 	}
 
 	@Override
 	public EnumBehaviorState tick() {
+		
+		PlayerAI playerAI = (PlayerAI) this.getBlackboard().getAgent().getActor();
+		EntityPlayer player = playerAI.bridgePlayer.getPlayer();
+		
+		double distFromLobby = VecUtil.getDistSqrd(posLobbySpawn, playerAI.getPos());
+		boolean lobbyModeDetected = false;
+		
+		if (distFromLobby < lobbyMaxDist) {
+			lobbyModeDetected = true;
+		}
+		
+		if (lobbyMode) {
+			if (!lobbyModeDetected) {
+				lobbyMode = false;
+				initArenaTree();
+			}
+		} else {
+			if (lobbyModeDetected) {
+				lobbyMode = true;
+				initLobbyTree();
+			}
+		}
+		
 		return super.tick();
+	}
+	
+	public void initLobbyTree() {
+		Corobot.dbg("switched to lobby mode");
+		getChildren().clear();
+		resetActiveBehavior();
+		
+		add(new RightClickBlock(this, getBlackboard(), posKitKnight));
+		Random rand = new Random();
+		if (rand.nextBoolean()) {
+			add(new RightClickBlock(this, getBlackboard(), posTeamBlueJoin));
+		} else {
+			add(new RightClickBlock(this, getBlackboard(), posTeamRedJoin));
+		}
+		add(new JumpForBoredom(this, getBlackboard(), 20*20));
+	}
+	
+	public void initArenaTree() {
+		Corobot.dbg("switched to arena mode");
+		getChildren().clear();
+		resetActiveBehavior();
+		
+		add(new PlanMoveToPos("moveTo", getBlackboard(), posOresMiddle));
+		PlanSearchMineBlock plan = new PlanSearchMineBlock("findDiamonds", getBlackboard(), new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.diamond_pickaxe));
+		plan.countNeeded = 5;
+		add(plan);
+		List<ItemStack> listStacks = new ArrayList<ItemStack>();
+		listStacks.add(new ItemStack(Items.diamond, 5));
+		add(new PlanTranferToAndFromChest("dropOffToChest", getBlackboard(), posTeamBlueChest, null, listStacks));
 	}
 	
 }
