@@ -97,7 +97,7 @@ public class RightClickBlock extends LeafNode {
 				state = State.PATHING;
 				if (world.getTicksTotal() % 20 == 0) {
 					System.out.println("path to " + loc);
-					player.setMoveTo(loc);
+					getBlackboard().setMoveToBest(loc);
 				}
 				
 				ticksPathing++;

@@ -47,7 +47,7 @@ public class TrackAndAttackEntity extends LeafNode {
 					if (VecUtil.getDistSqrd(player.getPos(), target.getPos()) > attackRange) {
 						if (targetEnt.onGround || targetEnt.isInWater()) {
 							HelperPath.pathed(Repaths.MAIN);
-							player.setMoveTo(target.getPos());
+							getBlackboard().setMoveToBest(target.getPos());
 						}
 					}
 				}

@@ -9,6 +9,11 @@ import corobot.ai.PlayerAI;
 public class Corobot {
 
 	/**
+	 * Terminology:
+	 * Plans: for GOAP, has dynamic data fed into it to be used, may contain sub tasks that it feeds data to
+	 * Tasks / SubTasks: Behaviors that are what make up some plans, uses blackboard as primary information
+	 * 
+	 * 
 	 * Ongoing bugs:
 	 * - NEED A DELAY BETWEEN GUI OPEN AND SLOT USE, OTHERWISE SLOT USAGE FAILS ON FIRST CLICK OR MORE
 	 * -- thread.sleep(50) helps this, but we should do a better latency friendly solution
@@ -45,6 +50,7 @@ public class Corobot {
 	 * - improve combat survival
 	 * -- avoidance
 	 * - behaviors have a lot of missing resets, like pathing resets on complete or fail, etc
+	 * -- working better, still needs more clean up i think
 	 * 
 	 * potential refactors:
 	 * - I think GOAP plans should be sequences that use non goap behaviors as subtasks

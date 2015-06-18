@@ -97,7 +97,7 @@ public class BuildHouse extends LeafNode {
 			} else {
 				state = State.PATHING;
 				if (world.getTicksTotal() % 20 == 0) {
-					player.setMoveTo(loc);
+					getBlackboard().setMoveToBest(loc);
 				}
 				
 				ticksPathing++;

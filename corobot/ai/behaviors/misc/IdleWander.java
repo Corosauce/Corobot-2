@@ -93,10 +93,10 @@ public class IdleWander extends LeafNode {
         		if (ent.onGround || ent.isInWater()) {
         			Block what = ent.worldObj.getBlock(gatherX, finalY, gatherZ);
         			if (what != Blocks.water) {
-        				player.setMoveTo(new Vector3f(gatherX, finalY+1, gatherZ));
+        				getBlackboard().setMoveToBest(new Vector3f(gatherX, finalY+1, gatherZ));
         				Block what2 = ent.worldObj.getBlock(gatherX, finalY+1, gatherZ);
         			} else {
-        				player.setMoveTo(new Vector3f(gatherX, finalY+1, gatherZ));
+        				getBlackboard().setMoveToBest(new Vector3f(gatherX, finalY+1, gatherZ));
         				Block what2 = ent.worldObj.getBlock(gatherX, finalY+1, gatherZ);
         				System.out.println("final flee block: " + what2);
         			}

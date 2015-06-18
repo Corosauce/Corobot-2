@@ -1,4 +1,4 @@
-package corobot.ai.behaviors.yd;
+package corobot.ai.behaviors.misc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import com.corosus.ai.AIBTAgent;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
+import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.minigoap.IWorldStateProperty;
 import com.corosus.ai.minigoap.PlanPiece;
 import com.corosus.entity.IEntity;
@@ -36,30 +37,22 @@ import corobot.util.UtilEnt;
 import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
 
-public class PlanMoveToPos extends PlanPiece {
+public class TaskMoveToPos extends BehaviorNode {
 	
-	public State state = State.PATHING;
+	//for less dynamic scripts
+	public Vector3f staticPos;
 	
-	public Vector3f pos;
 	public int ticksPathing = 0;
+	//should be more dynamic, based on distance, or detect if it stops making progress
 	public int ticksPathingMax = 300;
 	
-	public enum State {
-		PATHING, WAITING_ON_GUI, GUI_OPEN;
+	public TaskMoveToPos(BehaviorNode parParent, Blackboard blackboard) {
+		super(parParent, blackboard);
 	}
 	
-	public PlanMoveToPos(String planName, Blackboard blackboard, Vector3f pos) {
-		super(planName, blackboard);
-		
-		this.pos = pos;
-	}
-	
-	@Override
-	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement) {
-		super.initTask(piece, effectRequirement);
-		
-		
-		
+	public TaskMoveToPos(BehaviorNode parParent, Blackboard blackboard, Vector3f staticPos) {
+		super(parParent, blackboard);
+		this.staticPos = staticPos;
 	}
 
 	@Override
@@ -70,7 +63,15 @@ public class PlanMoveToPos extends PlanPiece {
 		IEntity player = Corobot.getPlayerAI();
 		EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
 		
+		Vector3f pos = staticPos;
+		if (staticPos == null) {
+			pos = getBlackboard().getMoveTo();
+		}
 		
+		if (pos == null) {
+			Corobot.dbg("CRITICAL: getBlackboard().getMoveTo() is null!");
+			return EnumBehaviorState.FAILURE;
+		}
 		
 		double dist = VecUtil.getDistSqrd(player.getPos(), pos);
 		if (dist < 3) {
@@ -78,10 +79,8 @@ public class PlanMoveToPos extends PlanPiece {
 			return EnumBehaviorState.SUCCESS;
 			
 		} else {
-			state = State.PATHING;
-			if (world.getTicksTotal() % 40 == 0) {
-				player.setMoveTo(pos);
-			}
+			//TODO: confirm this is ok, other logic should determine where to go, this just retries
+			getBlackboard().setMoveToBest(pos);
 			
 			boolean alwaysLook = true;
 			int lookSpeed = 5;

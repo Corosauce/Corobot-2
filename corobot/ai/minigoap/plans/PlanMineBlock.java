@@ -138,7 +138,7 @@ public class PlanMineBlock extends PlanPiece {
 			EntityItem closestItem = UtilEnt.getClosestItem(worldMC, player.getPos(), this.droppedItem.getItem());
 			if (closestItem != null) {
 				if (world.getTicksTotal() % 40 == 0) {
-					player.setMoveTo(new Vector3f((float)closestItem.posX, (float)closestItem.posY, (float)closestItem.posZ));
+					getBlackboard().setMoveToBest(new Vector3f((float)closestItem.posX, (float)closestItem.posY, (float)closestItem.posZ));
 				}
 				
 			} else {
@@ -205,7 +205,7 @@ public class PlanMineBlock extends PlanPiece {
 				} else {
 					state = State.PATHING;
 					if (world.getTicksTotal() % 40 == 0) {
-						player.setMoveTo(loc.getPos());
+						getBlackboard().setMoveToBest(loc.getPos());
 					}
 					ticksPathing++;
 					if (ticksPathing >= ticksPathingMax) {

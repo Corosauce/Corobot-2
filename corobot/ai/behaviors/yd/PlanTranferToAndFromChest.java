@@ -145,7 +145,7 @@ public class PlanTranferToAndFromChest extends PlanPiece {
 			} else {
 				state = State.PATHING;
 				if (world.getTicksTotal() % 40 == 0) {
-					player.setMoveTo(posChest);
+					getBlackboard().setMoveToBest(posChest);
 				}
 				
 				boolean alwaysLook = true;

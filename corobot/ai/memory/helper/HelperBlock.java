@@ -60,6 +60,10 @@ public class HelperBlock {
 	}
 	
 	public static void removeEntry(IWorldState memory, IWorldStateProperty prop) {
+		if (prop == null) {
+			Corobot.dbg("Warning! prop is null!");
+			return;
+		}
 		if (prop instanceof BlockLocation) {
 			int hash = makeHash((int)((BlockLocation) prop).getPos().x, (int)((BlockLocation) prop).getPos().y, (int)((BlockLocation) prop).getPos().z);
 			removeEntry(memory, hash, prop);

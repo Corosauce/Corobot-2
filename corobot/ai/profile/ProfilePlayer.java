@@ -7,11 +7,13 @@ import com.corosus.ai.profile.ProfileBase;
 import com.corosus.entity.IEntity;
 
 import corobot.Corobot;
+import corobot.ai.behaviors.MasterPlanSequence;
 import corobot.ai.behaviors.ScanEnvironmentForNeededBlocks;
 import corobot.ai.behaviors.StayAboveWater;
 import corobot.ai.behaviors.combat.AvoidClosestThreat;
 import corobot.ai.behaviors.combat.TrackAndAttackEntity;
 import corobot.ai.behaviors.misc.EventlessStateTracker;
+import corobot.ai.behaviors.misc.IdleWander;
 import corobot.ai.behaviors.misc.OpenGUIChatWhenNeeded;
 import corobot.ai.behaviors.misc.RespawnIfDead;
 import corobot.ai.behaviors.survival.EatWhenNeeded;
@@ -39,7 +41,7 @@ public class ProfilePlayer extends ProfileBase {
 		if (!ydMode) {
 			//BuildHouse will probably get moved to MasterPlanSequence
 			//but it also needs to be able to get called if house is detected broken, so it needs to interrupt the sequence chain... hmm
-			//getBtIdle().add(new IdleWander(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
+			getBtIdle().add(new IdleWander(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 			//getBtIdle().add(new BuildHouse(getAgent().getBtTemplate().btExtras, this.getAgent().getBlackboard()));
 			
 		}

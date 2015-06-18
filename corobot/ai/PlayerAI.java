@@ -23,7 +23,7 @@ import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.helper.HelperItemUsing;
 import corobot.ai.minigoap.plans.PlanCraftRecipe;
 import corobot.ai.minigoap.plans.PlanHarvestCrop;
-import corobot.ai.minigoap.plans.PlanMineBlock;
+import corobot.ai.minigoap.plans.PlanMineBlockNewSequence;
 import corobot.ai.minigoap.plans.PlanPlantCrop;
 import corobot.ai.minigoap.plans.PlanTillGrass;
 import corobot.ai.profile.ProfilePlayer;
@@ -70,7 +70,7 @@ public class PlayerAI implements IEntity {
 		
 		PlanRegistry.addPlanPiece(new PlanTillGrass("tillGrass", bb, new ItemStack(Blocks.farmland), new ItemStack(Items.wooden_hoe)));
 		
-		PlanRegistry.addPlanPiece(new PlanMineBlock("chopTallgrass", bb, new ItemStack(Items.wheat_seeds), Blocks.tallgrass, 0, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("chopTallgrass", bb, new ItemStack(Items.wheat_seeds), Blocks.tallgrass, 0, null));
 		
 		/*PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPickaxe", new ItemStack(Items.wooden_pickaxe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks, 3)));
 		PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodHoe", new ItemStack(Items.wooden_hoe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks, 2)));
@@ -80,16 +80,16 @@ public class PlayerAI implements IEntity {
 		
 		//NEEDS TO KNOW WHAT CAN MINE THEM!
 		//NEEDS TO KNOW THERE ARE 'OR' statements on what pickaxe can be used, like, minimum required
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog0", bb, Blocks.log, 0, null));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog1", bb, Blocks.log, 1, null));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog2", bb, Blocks.log, 2, null));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineLog3", bb, Blocks.log, 3, null));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCobble", bb, Blocks.cobblestone, 0, new ItemStack(Items.wooden_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineStone", bb, new ItemStack(Blocks.cobblestone), Blocks.stone, 0, new ItemStack(Items.wooden_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineCoal", bb, new ItemStack(Items.coal), Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineIron", bb, /*new ItemStack(Items.iron_ingot), */Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanMineBlock("mineDiamond", bb, new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
-		//PlanRegistry.addPlanPiece(new PlanMineBlock("minePalm", TCBlockRegistry.planks));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineLog0", bb, Blocks.log, 0, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineLog1", bb, Blocks.log, 1, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineLog2", bb, Blocks.log, 2, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineLog3", bb, Blocks.log, 3, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineCobble", bb, Blocks.cobblestone, 0, new ItemStack(Items.wooden_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineStone", bb, new ItemStack(Blocks.cobblestone), Blocks.stone, 0, new ItemStack(Items.wooden_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineCoal", bb, new ItemStack(Items.coal), Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineIron", bb, /*new ItemStack(Items.iron_ingot), */Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineDiamond", bb, new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
+		//PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("minePalm", TCBlockRegistry.planks));
 		//PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPlanks", new ItemStack(Blocks.planks), new ItemStack(Blocks.log)));
 		
 		UtilRecipe.addRecipePlans();
@@ -104,7 +104,9 @@ public class PlayerAI implements IEntity {
 		
 		needInit = false;
 		agent = new AIBTAgentImpl(this);
-		agent.setTickRate(1);
+		agent.setTickRateDelay(1);
+		//this is multiplied by tick rate
+		agent.getBlackboard().setDelayNewPathfind(40);
 
 		initGOAP();
 		
@@ -247,10 +249,16 @@ public class PlayerAI implements IEntity {
 		agent.getBlackboard().getPath().setPathNodes(bridgePlayer.computePath(moveTo));
 	}
 
+	/**
+	 * Supposed to be used for when pathless movment is done, but its not at the moment, its rewired to path computing
+	 */
 	@Override
 	public void setMoveTo(Vector3f parMoveTo) {
-		//this is called when a pathless movement is used
-		computePath(parMoveTo);
+		//TODO: refine movement decisions in future, using A* for now
+		if (agent.getActor().getLevel().getTicksTotal() % (agent.getTickRateDelay() * agent.getBlackboard().getDelayNewPathfind()) == 0) {
+			computePath(parMoveTo);
+		}
+		
 	}
 
 	@Override

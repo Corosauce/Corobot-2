@@ -212,7 +212,7 @@ public class PlanCraftRecipe extends PlanPiece {
 			} else {
 				state = State.PATHING;
 				if (world.getTicksTotal() % 40 == 0) {
-					player.setMoveTo(loc.getPos());
+					getBlackboard().setMoveToBest(loc.getPos());
 				}
 			}
 			//Corobot.dbg("state: " + state);

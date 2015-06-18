@@ -53,21 +53,30 @@ public class MasterPlanSequence extends Sequence {
 	 * 
 	 */
 	
+	public boolean planFullyMade = false;
+	
 	public MasterPlanSequence(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 		
 		this.getChildren().add(new BuildHouse(this, blackboard));
 		
-		GoapSequence goap = new GoapSequence(parParent, blackboard, "diamond pickaxe");
-		goap.createPlan();
-		goap.setCreatedPlan();
+		//GoapSequence goap = new GoapSequence(parParent, blackboard, "diamond pickaxe");
 		
-		this.getChildren().add(goap);
 		
 	}
 
 	@Override
 	public EnumBehaviorState tick() {
+		
+		if (!planFullyMade) {
+			GoapSequence goap = new GoapSequence(getParent(), getBlackboard(), "wooden pickaxe");
+			planFullyMade = goap.createPlan();
+			goap.setCreatedPlan();
+
+			this.getChildren().clear();
+			this.getChildren().add(goap);
+		}
+		
 		return super.tick();
 	}
 	

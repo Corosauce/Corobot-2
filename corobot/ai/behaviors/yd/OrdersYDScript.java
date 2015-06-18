@@ -20,6 +20,7 @@ import com.corosus.util.VecUtil;
 import corobot.Corobot;
 import corobot.ai.PlayerAI;
 import corobot.ai.behaviors.misc.JumpForBoredom;
+import corobot.ai.behaviors.misc.TaskMoveToPos;
 import corobot.ai.behaviors.misc.RightClickBlock;
 
 public class OrdersYDScript extends Sequence {
@@ -124,7 +125,7 @@ public class OrdersYDScript extends Sequence {
 		getChildren().clear();
 		resetActiveBehavior();
 		
-		add(new PlanMoveToPos("moveTo", getBlackboard(), posOresMiddle));
+		add(new TaskMoveToPos(this, getBlackboard(), posOresMiddle));
 		PlanSearchMineBlock plan = new PlanSearchMineBlock("findDiamonds", getBlackboard(), new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.diamond_pickaxe));
 		plan.countNeeded = 5;
 		add(plan);
