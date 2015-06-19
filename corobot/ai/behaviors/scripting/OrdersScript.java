@@ -1,4 +1,4 @@
-package corobot.ai.behaviors.yd;
+package corobot.ai.behaviors.scripting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import corobot.ai.behaviors.misc.JumpForBoredom;
 import corobot.ai.behaviors.misc.TaskMoveToPos;
 import corobot.ai.behaviors.misc.RightClickBlock;
 
-public class OrdersYDScript extends Sequence {
+public class OrdersScript extends Sequence {
 
 	public static Vector3f posLobbySpawn = new Vector3f(-98, 65, -1);
 	
@@ -45,7 +45,7 @@ public class OrdersYDScript extends Sequence {
 	public boolean lobbyMode = true;
 	
 	
-	public OrdersYDScript(BehaviorNode parParent, Blackboard blackboard) {
+	public OrdersScript(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 		
 		//use in idle state

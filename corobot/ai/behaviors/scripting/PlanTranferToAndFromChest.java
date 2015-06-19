@@ -1,4 +1,4 @@
-package corobot.ai.behaviors.yd;
+package corobot.ai.behaviors.scripting;
 
 import java.util.ArrayList;
 import java.util.List;

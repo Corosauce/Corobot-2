@@ -16,8 +16,8 @@ import corobot.ai.behaviors.misc.EventlessStateTracker;
 import corobot.ai.behaviors.misc.IdleWander;
 import corobot.ai.behaviors.misc.OpenGUIChatWhenNeeded;
 import corobot.ai.behaviors.misc.RespawnIfDead;
+import corobot.ai.behaviors.scripting.OrdersScript;
 import corobot.ai.behaviors.survival.EatWhenNeeded;
-import corobot.ai.behaviors.yd.OrdersYDScript;
 import corobot.ai.memory.helper.HelperItemUsing;
 import corobot.ai.memory.helper.HelperItemUsing.ItemUse;
 
@@ -60,7 +60,7 @@ public class ProfilePlayer extends ProfileBase {
 		//UNLESS goap use is a sub sequence within MasterPlanSequence
 		//i guess we should plan out more how MasterPlanSequence will work its magic first
 		if (ydMode) {
-			getAgent().getBtTemplate().ordersHandler.setOrders(new OrdersYDScript(getAgent().getBtTemplate().btExtras, getAgent().getBlackboard()));
+			getAgent().getBtTemplate().ordersHandler.setOrders(new OrdersScript(getAgent().getBtTemplate().btExtras, getAgent().getBlackboard()));
 		} else {
 			getAgent().getBtTemplate().ordersHandler.setOrders(new MasterPlanSequence(getAgent().getBtTemplate().btExtras, getAgent().getBlackboard()));
 		}
