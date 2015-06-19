@@ -1,6 +1,6 @@
 package corobot.ai;
 
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 
 import com.corosus.ai.AIBTAgent;
@@ -13,7 +13,25 @@ public class BlackboardImpl extends Blackboard {
 	
 	private ItemStack itemToPickup;
 	private BlockLocation blockLocation;
+	private Block blockToMine;
+	private int metaToMine;
 	
+	public Block getBlockToMine() {
+		return blockToMine;
+	}
+
+	public void setBlockToMine(Block blockToMine) {
+		this.blockToMine = blockToMine;
+	}
+
+	public int getMetaToMine() {
+		return metaToMine;
+	}
+
+	public void setMetaToMine(int metaToMine) {
+		this.metaToMine = metaToMine;
+	}
+
 	public BlockLocation getBlockLocation() {
 		return blockLocation;
 	}

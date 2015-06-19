@@ -66,8 +66,8 @@ public class PlanTranferToAndFromChest extends PlanPiece {
 	}
 	
 	@Override
-	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement) {
-		super.initTask(piece, effectRequirement);
+	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement, IWorldStateProperty preconditionRequirement) {
+		super.initTask(piece, effectRequirement, preconditionRequirement);
 		
 		
 		

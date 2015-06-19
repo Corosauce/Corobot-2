@@ -31,6 +31,7 @@ import corobot.ai.BlackboardImpl;
 import corobot.ai.behaviors.misc.TaskFindNearbyItem;
 import corobot.ai.behaviors.misc.TaskMineBlock;
 import corobot.ai.behaviors.misc.TaskMoveToPos;
+import corobot.ai.behaviors.misc.TaskSearchForResource;
 import corobot.ai.memory.helper.HelperBlock;
 import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
@@ -53,6 +54,12 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 	//- for now just do 1 and see where it goes, but some recipes will require more than 1.....
 	//- needs a sort of dynamic plan that can pass requirements along to other plans, fuzzy conditions ?
 	
+	//going to set the max stack size for this, since this plan can provide an unlimited amount of resources, just needs more time... not factoring in tool breaking etc
+	
+	//TODO: i messed up the implementation of searching for resources if they cant be found, clean this up
+	//i think best way would be a decorator that decides between to go memory block vs find one
+	//TODO: from class it was moved from: new search sequence needs to backtrack out of this task back to fresh start of PlanMineBlock once it actually finds something
+	
 	public Block block;
 	public ItemStack droppedItem = null;
 	public int meta;
@@ -60,7 +67,13 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 	public State state = State.PATHING;
 	public int countNeeded = 1;
 	
+	public int amountItCanProvide = 64;
+	
 	public Sequence sequenceTasks;
+
+	
+	//only used if we dont have resources in memory or nearby
+	public Sequence sequenceFindResources;
 	
 	public enum State {
 		PATHING, MINING, PICKINGUP;
@@ -71,31 +84,27 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 		this.block = block;
 		this.meta = meta;
 		this.neededTool = tool;
-		this.droppedItem = new ItemStack(block);
+		this.droppedItem = new ItemStack(block, amountItCanProvide);
 		
 		if (neededTool != null) {
 			this.getPreconditions().getProperties().add(new ItemEntry(neededTool, new InventorySourceSelf()));
 		}
 		
-		this.getEffects().getProperties().add(new ItemEntry(new ItemStack(block), new InventorySourceSelf()));
-		this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
+		this.getEffects().getProperties().add(new ItemEntry(new ItemStack(block, amountItCanProvide), new InventorySourceSelf()));
+		if (!HelperBlock.listResourcesToNotRemember.contains(block)) {
+			this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
+		}
 		
 		
 	}
 	
 	public PlanMineBlockNewSequence(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
-		super(planName, blackboard);
-		this.block = block;
-		this.meta = meta;
-		this.neededTool = tool;
+		this(planName, blackboard, block, meta, tool);
+		
 		this.droppedItem = itemReturned;
 		
-		if (neededTool != null) {
-			this.getPreconditions().getProperties().add(new ItemEntry(neededTool, new InventorySourceSelf()));
-		}
-		
-		this.getEffects().getProperties().add(new ItemEntry(itemReturned, new InventorySourceSelf()));
-		this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
+		//only adjust the item for world properties, not droppedItem
+		itemReturned.stackSize = amountItCanProvide;
 	}
 	
 	public PlanMineBlockNewSequence(PlanPiece obj) {
@@ -130,6 +139,29 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 		
 		//sometimes this one is never fully used if we are already super close to item to pickup, which is actually quite often
 		sequenceTasks.add(moveTo);
+		
+
+		
+		sequenceFindResources = new Sequence(this, getBlackboard());
+		sequenceFindResources.add(new TaskSearchForResource(this, getBlackboard()));
+		//unneeded since it moves on for now
+		//sequenceFindResources.add(new TaskMoveToPos(this, getBlackboard()));
+	}
+	
+	@Override
+	public void initTask(PlanPiece piece,
+			IWorldStateProperty effectRequirement,
+			IWorldStateProperty preconditionRequirement) {
+		super.initTask(piece, effectRequirement, preconditionRequirement);
+		
+		//TODO: verify this works - recipe crafting needs/has this too
+		if (preconditionRequirement instanceof ItemEntry) {
+			ItemEntry entry = (ItemEntry) preconditionRequirement;
+			
+			countNeeded = entry.getStack().stackSize;
+			System.out.println("SETTING COUNT: " + countNeeded);
+		}
+		
 	}
 	
 	@Override
@@ -149,16 +181,29 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 		//how does that moveto know when its done? just assume when its close enough?
 		//use the damn blackboard
 		
-		System.out.println("cur seq index for mining: " + sequenceTasks.getActiveBehaviorIndex());
+		//System.out.println("cur seq index for mining: " + sequenceTasks.getActiveBehaviorIndex());
 		
 		BlockLocation loc = null;
 		
 		//init stuff for sequence
 		if (sequenceTasks.getActiveBehaviorIndex() == -1) {
-			loc = UtilMemory.getClosestBlock(block, meta);
+			bb.setBlockToMine(block);
+			bb.setMetaToMine(meta);
+			if (HelperBlock.listResources.contains(block)) {
+				loc = UtilMemory.getClosestBlockFromMemory(block, meta);
+			} else {
+				Vector3f pos = UtilMemory.getClosestBlockFromArea(block, meta, player.getPos());
+				if (pos != null) {
+					loc = new BlockLocation(pos, block);
+				}
+			}
+
 			if (loc != null) {
 				bb.setBlockLocation(loc);
 				bb.setMoveToBest(loc.getPos());
+			} else {
+				Corobot.dbg("CRITICAL: cant find resource to mine!!: " + block);
+				return trySearch();
 			}
 			
 			bb.setItemToPickup(droppedItem);
@@ -172,6 +217,12 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 		} else {
 			return EnumBehaviorState.RUNNING;
 		}
+	}
+	
+	public EnumBehaviorState trySearch() {
+		Corobot.dbg("INFO: trying resource search!");
+		EnumBehaviorState result = sequenceFindResources.tick();
+		return result;
 	}
 	
 	public boolean isTaskComplete() {

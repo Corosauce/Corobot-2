@@ -14,6 +14,7 @@ import com.corosus.ai.AIBTAgent;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
+import com.corosus.ai.bt.nodes.tree.Sequence;
 import com.corosus.entity.IEntity;
 import com.corosus.util.VecUtil;
 import com.corosus.world.IWorld;
@@ -25,14 +26,12 @@ import corobot.util.UtilPlayer;
 
 public class TaskMineBlock extends BehaviorNode {
 	
+
+	
 	//need for sure
 	//public BlockLocation loc;
 	public int ticksMining = 0;
 	public int ticksMiningMax = 120;
-	
-	public enum State {
-		PATHING, MINING, PICKINGUP;
-	}
 	
 	public TaskMineBlock(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
@@ -52,8 +51,13 @@ public class TaskMineBlock extends BehaviorNode {
 		
 		//NEW
 		
+		if (bb.getBlockLocation() == null) {
+			Corobot.dbg("CRITICAL: block to mine not set");
+			return EnumBehaviorState.FAILURE;
+		}
+		
 		//get loc from pathto vec
-		Vector3f moveTo = bb.getMoveTo();
+		Vector3f moveTo = bb.getBlockLocation().getPos();//bb.getMoveTo();
 		
 		if (moveTo != null) {
 			double dist = VecUtil.getDistSqrd(player.getPos(), moveTo);
@@ -64,8 +68,12 @@ public class TaskMineBlock extends BehaviorNode {
 				Block block = worldMC.getBlock(x, y, z);
 				if (block == Blocks.air) {
 					HelperBlock.removeEntry(bb.getWorldMemory(), bb.getBlockLocation());
+					bb.setBlockLocation(null);
 					return EnumBehaviorState.SUCCESS;
 				} else {
+					
+					//new bug, he mined the crafting table, so previous pathing wasnt reset properly?
+					
 					//TODO: make this adapt to other tools
 					//TODO: something to transfer best tool to hotbar if its not in hotbar
 					int bestSlot = UtilPlayer.getBestToolSlot(ItemPickaxe.class, playerEnt, playerEnt.inventory);

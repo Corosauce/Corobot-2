@@ -4,12 +4,21 @@ import java.util.List;
 
 import javax.vecmath.Vector3f;
 
+import com.corosus.ai.AIBTAgent;
+import com.corosus.entity.IEntity;
+import com.corosus.world.IWorld;
+
+import corobot.Corobot;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 public class UtilEnt {
@@ -83,5 +92,28 @@ public class UtilEnt {
 
         return par1 + f3;
     }
+	
+	public static boolean canSeeCoord(Vector3f posFrom, Vector3f posTo) {
+		AIBTAgent agent = Corobot.getPlayerAI().agent;
+		IWorld world = Corobot.getPlayerAI().bridgeWorld;
+		IEntity player = Corobot.getPlayerAI();
+		EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
+		World worldMC = Minecraft.getMinecraft().theWorld;
+		
+		Vec3 vecFrom = Vec3.createVectorHelper(posFrom.x, posFrom.y, posFrom.z);
+		Vec3 vecTo = Vec3.createVectorHelper(posTo.x, posTo.y, posTo.z);
+		
+		MovingObjectPosition pos = worldMC.rayTraceBlocks(vecFrom, vecTo);
+		
+		//return true if no hit, or the hit was right infront of the block we are targetting
+		if (pos == null) {
+			return true;
+		} else if (pos.hitVec.distanceTo(vecTo) <= 1) {
+			System.out.println("canSee hit dist: " + pos.hitVec.distanceTo(vecTo));
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 }

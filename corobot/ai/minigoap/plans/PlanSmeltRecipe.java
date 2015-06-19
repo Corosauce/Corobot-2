@@ -59,6 +59,11 @@ public class PlanSmeltRecipe extends PlanPiece {
 	public static int slotInventoryMainStart = slotSmeltOut+1;
 	public static int slotInventoryHotbarStart = slotInventoryMainStart+sizeInventoryMain;
 	
+	public int amountItCanProvide = 64;
+
+	public int guiWait = 0;
+	public int guiWaitAmount = 10;
+	
 	public enum State {
 		PATHING, WAITING_ON_GUI, GUI_OPEN, WAITING_ON_SMELT;
 	}
@@ -67,7 +72,12 @@ public class PlanSmeltRecipe extends PlanPiece {
 		super(planName, blackboard);
 		this.itemFrom = itemFrom;
 		this.itemTo = itemTo;
-		this.getEffects().getProperties().add(new ItemEntry(itemTo, new InventorySourceSelf()));
+		
+		ItemStack fakeResult = ItemStack.copyItemStack(itemTo);
+		//TODO: possibly temp?
+		fakeResult.stackSize = amountItCanProvide;
+		
+		this.getEffects().getProperties().add(new ItemEntry(fakeResult, new InventorySourceSelf()));
 		//need 5 coal too
 		//stacksize of 5 broke precondition since mining coal only has effect of 1 stacksize
 		this.getPreconditions().getProperties().add(new ItemEntry(new ItemStack(Items.coal), new InventorySourceSelf()));
@@ -85,8 +95,8 @@ public class PlanSmeltRecipe extends PlanPiece {
 	}
 	
 	@Override
-	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement) {
-		super.initTask(piece, effectRequirement);
+	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement, IWorldStateProperty preconditionRequirement) {
+		super.initTask(piece, effectRequirement, preconditionRequirement);
 		
 		
 		
@@ -116,10 +126,10 @@ public class PlanSmeltRecipe extends PlanPiece {
 		IEntity player = Corobot.getPlayerAI();
 		EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
 		
-		BlockLocation loc = UtilMemory.getClosestBlock(Blocks.furnace, -1);
+		BlockLocation loc = UtilMemory.getClosestBlockFromMemory(Blocks.furnace, -1);
 		
 		if (loc == null) {
-			loc = UtilMemory.getClosestBlock(Blocks.lit_furnace, -1);
+			loc = UtilMemory.getClosestBlockFromMemory(Blocks.lit_furnace, -1);
 		}
 		
 		if (loc != null) {
@@ -135,6 +145,11 @@ public class PlanSmeltRecipe extends PlanPiece {
 				if (playerEnt.openContainer instanceof ContainerFurnace) {
 					//System.out.println("slot click");
 					ContainerFurnace furnaceContainer = (ContainerFurnace) playerEnt.openContainer;
+					
+					if (guiWait > 0) {
+						guiWait--;
+						return EnumBehaviorState.RUNNING;
+					}
 					
 					if (itemTo.getItem() == Items.wooden_hoe) {
 						int test = 0;
@@ -224,6 +239,7 @@ public class PlanSmeltRecipe extends PlanPiece {
 					System.out.println("open gui");
 					state = State.WAITING_ON_GUI;
 					UtilContainer.openContainer(x, y, z);
+					guiWait = guiWaitAmount;
 				}
 				
 			} else {

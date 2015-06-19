@@ -24,8 +24,10 @@ import com.corosus.world.IWorld;
 
 import corobot.Corobot;
 import corobot.ai.memory.helper.HelperBlock;
+import corobot.ai.memory.helper.HelperHouse;
 import corobot.ai.memory.pieces.MachineLocation;
 import corobot.ai.memory.pieces.ResourceLocation;
+import corobot.util.UtilEnt;
 
 public class ScanEnvironmentForNeededBlocks extends LeafNode {
 
@@ -56,17 +58,28 @@ public class ScanEnvironmentForNeededBlocks extends LeafNode {
 						Block block = worldMC.getBlock(xx, yy, zz);
 						int meta = worldMC.getBlockMetadata(zz, yy, zz);
 						
+						Vector3f vec = new Vector3f(xx, yy, zz);
+						
 						if (HelperBlock.listResources.contains(block)) {
+							
+							if (!HelperHouse.shouldMine(vec)) {
+								continue;
+							}
+							
+							if (!UtilEnt.canSeeCoord(player.getPos(), vec)) {
+								continue;
+							}
+							
 							int hash = HelperBlock.makeHash(xx, yy, zz);
 							if (!HelperBlock.lookupBlocks.containsKey(hash)) {
-								IWorldStateProperty prop = new ResourceLocation(new Vector3f(xx, yy, zz), block, meta);
+								IWorldStateProperty prop = new ResourceLocation(vec, block, meta);
 								HelperBlock.addEntry(this.getBlackboard().getWorldMemory(), hash, prop);
 								//System.out.println("adding " + block + " - " + HelperBlock.lookupBlocks.size());
 							}
 						} else if (HelperBlock.listMachines.contains(block)) {
 							int hash = HelperBlock.makeHash(xx, yy, zz);
 							if (!HelperBlock.lookupBlocks.containsKey(hash)) {
-								IWorldStateProperty prop = new MachineLocation(new Vector3f(xx, yy, zz), block);
+								IWorldStateProperty prop = new MachineLocation(vec, block);
 								HelperBlock.addEntry(this.getBlackboard().getWorldMemory(), hash, prop);
 								System.out.println("adding " + block + " - " + HelperBlock.lookupBlocks.size());
 							}

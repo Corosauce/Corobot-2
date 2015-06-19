@@ -5,7 +5,7 @@ import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.tree.Sequence;
 
-import corobot.ai.behaviors.misc.BuildHouse;
+import corobot.ai.behaviors.misc.TaskBuildHouse;
 import corobot.ai.minigoap.GoapSequence;
 
 public class MasterPlanSequence extends Sequence {
@@ -53,14 +53,12 @@ public class MasterPlanSequence extends Sequence {
 	 * 
 	 */
 	
-	public boolean planFullyMade = false;
+	public static boolean makePlan = true;
 	
 	public MasterPlanSequence(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 		
-		this.getChildren().add(new BuildHouse(this, blackboard));
-		
-		//GoapSequence goap = new GoapSequence(parParent, blackboard, "diamond pickaxe");
+		this.getChildren().add(new TaskBuildHouse(this, blackboard));
 		
 		
 	}
@@ -68,16 +66,25 @@ public class MasterPlanSequence extends Sequence {
 	@Override
 	public EnumBehaviorState tick() {
 		
-		if (!planFullyMade) {
-			GoapSequence goap = new GoapSequence(getParent(), getBlackboard(), "wooden pickaxe");
-			planFullyMade = goap.createPlan();
+		if (makePlan) {
+			reset();
+			resetActiveBehavior();
+			//GoapSequence goap = new GoapSequence(getParent(), getBlackboard(), "wooden pickaxe");
+			GoapSequence goap = new GoapSequence(getParent(), getBlackboard(), "diamond pickaxe");
+			makePlan = !goap.createPlan();
 			goap.setCreatedPlan();
 
 			this.getChildren().clear();
 			this.getChildren().add(goap);
 		}
 		
-		return super.tick();
+		EnumBehaviorState result = super.tick();
+		
+		if (result == EnumBehaviorState.FAILURE || result == EnumBehaviorState.INVALID || result == EnumBehaviorState.SUCCESS) {
+			makePlan = true;
+		}
+		
+		return result;
 	}
 	
 }

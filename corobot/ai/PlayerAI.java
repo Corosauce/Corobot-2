@@ -23,6 +23,7 @@ import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.helper.HelperItemUsing;
 import corobot.ai.minigoap.plans.PlanCraftRecipe;
 import corobot.ai.minigoap.plans.PlanHarvestCrop;
+import corobot.ai.minigoap.plans.PlanMaintainHouse;
 import corobot.ai.minigoap.plans.PlanMineBlockNewSequence;
 import corobot.ai.minigoap.plans.PlanPlantCrop;
 import corobot.ai.minigoap.plans.PlanTillGrass;
@@ -72,6 +73,8 @@ public class PlayerAI implements IEntity {
 		
 		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("chopTallgrass", bb, new ItemStack(Items.wheat_seeds), Blocks.tallgrass, 0, null));
 		
+		PlanRegistry.addPlanPiece(new PlanMaintainHouse("maintain house", bb));
+		
 		/*PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPickaxe", new ItemStack(Items.wooden_pickaxe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks, 3)));
 		PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodHoe", new ItemStack(Items.wooden_hoe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.planks, 2)));
 		PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftStonePickaxe", new ItemStack(Items.stone_pickaxe), new ItemStack(Items.stick, 2), new ItemStack(Blocks.cobblestone, 3)));
@@ -89,6 +92,8 @@ public class PlayerAI implements IEntity {
 		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineCoal", bb, new ItemStack(Items.coal), Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
 		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineIron", bb, /*new ItemStack(Items.iron_ingot), */Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
 		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineDiamond", bb, new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineGrass", bb, new ItemStack(Blocks.dirt), Blocks.grass, 0, null));
+		PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("mineDirt", bb, new ItemStack(Blocks.dirt), Blocks.dirt, 0, null));
 		//PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("minePalm", TCBlockRegistry.planks));
 		//PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPlanks", new ItemStack(Blocks.planks), new ItemStack(Blocks.log)));
 		
@@ -138,6 +143,8 @@ public class PlayerAI implements IEntity {
 		if (useGOAP) {
 			updateGOAP();
 		}
+		
+		HelperInventory.updateCache(agent.getBlackboard().getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
 	}
 	
 	public void updateGOAP() {
@@ -173,7 +180,7 @@ public class PlayerAI implements IEntity {
 		
 		precondition.listMachineLocations.add(new MachineLocation(new Vector3f(1, 2, 4), Blocks.crafting_table));*/
 		
-		HelperInventory.updateCache(agent.getBlackboard().getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
+		
 		
 		if (Minecraft.getMinecraft().theWorld.getTotalWorldTime() % 40 == 0) {
 			//planGoal.invalidatePlan();

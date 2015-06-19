@@ -2,6 +2,7 @@ package corobot.ai;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,7 +14,10 @@ import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
 import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.entity.IEntity;
+import com.corosus.world.IWorld;
 
+import corobot.Corobot;
+import corobot.ai.memory.helper.HelperHouse;
 import corobot.bridge.TargetBridge;
 
 public class SenseEnvironmentPlayer extends LeafNode {
@@ -53,6 +57,7 @@ public class SenseEnvironmentPlayer extends LeafNode {
     	
     	senseEnemiesToAttack();
     	senseThreatsToAvoid();
+    	senseHouseState();
     	
         //Safety checking
         if (!safetyCheck()) {
@@ -119,5 +124,26 @@ public class SenseEnvironmentPlayer extends LeafNode {
     
     public void senseThreatsToAvoid() {
     	
+    }
+    
+    public void senseHouseState() {
+    	AIBTAgent agent = Corobot.getPlayerAI().agent;
+		IWorld world = Corobot.getPlayerAI().bridgeWorld;
+		IEntity player = Corobot.getPlayerAI();
+		Blackboard bb = agent.getBlackboard();
+		World worldMC = Minecraft.getMinecraft().theWorld;
+		Minecraft mc = Minecraft.getMinecraft();
+    	
+    	if (worldMC.getTotalWorldTime() % 100 == 0) {
+    		if (HelperHouse.getBlockToBuild() == null) {
+    			if (!bb.getWorldMemory().getProperties().contains(HelperHouse.effectHouse)) {
+    				bb.getWorldMemory().getProperties().add(HelperHouse.effectHouse);
+    			}
+    		} else {
+    			if (bb.getWorldMemory().getProperties().contains(HelperHouse.effectHouse)) {
+    				bb.getWorldMemory().getProperties().remove(HelperHouse.effectHouse);
+    			}
+    		}
+    	}
     }
 }

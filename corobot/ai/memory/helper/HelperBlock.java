@@ -21,6 +21,9 @@ public class HelperBlock {
 	
 	public static List<Block> listMachines = new ArrayList<Block>();
 	
+	//because theyre everywhere and we dont want to store the whole world in memory
+	public static List<Block> listResourcesToNotRemember = new ArrayList<Block>(); 
+	
 	static {
 		listResources.add(Blocks.log);
 		listResources.add(Blocks.log2);
@@ -42,6 +45,10 @@ public class HelperBlock {
 		//TODO: NEED TO MERGE THIS WITH FURNACE
 		listMachines.add(Blocks.lit_furnace);
 		listMachines.add(Blocks.enchanting_table);
+		
+		listResourcesToNotRemember.add(Blocks.dirt);
+		listResourcesToNotRemember.add(Blocks.grass);
+		listResourcesToNotRemember.add(Blocks.sand);
 	}
 	
 	public static int makeHash(int p_75830_0_, int p_75830_1_, int p_75830_2_)

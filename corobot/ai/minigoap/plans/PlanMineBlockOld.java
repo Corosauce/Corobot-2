@@ -37,7 +37,7 @@ import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
 import corobot.util.UtilPlayer;
 
-public class PlanMineBlock extends PlanPiece {
+public class PlanMineBlockOld extends PlanPiece {
 
 	//should be close to location be a precondition?
 	
@@ -65,7 +65,7 @@ public class PlanMineBlock extends PlanPiece {
 		PATHING, MINING, PICKINGUP;
 	}
 	
-	public PlanMineBlock(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool) {
+	public PlanMineBlockOld(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool) {
 		super(planName, blackboard);
 		this.block = block;
 		this.meta = meta;
@@ -82,7 +82,7 @@ public class PlanMineBlock extends PlanPiece {
 		
 	}
 	
-	public PlanMineBlock(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
+	public PlanMineBlockOld(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
 		super(planName, blackboard);
 		this.block = block;
 		this.meta = meta;
@@ -97,13 +97,27 @@ public class PlanMineBlock extends PlanPiece {
 		this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
 	}
 	
-	public PlanMineBlock(PlanPiece obj) {
+	public PlanMineBlockOld(PlanPiece obj) {
 		super(obj, obj.getBlackboard());
-		block = ((PlanMineBlock)obj).block;
-		meta = ((PlanMineBlock)obj).meta;
-		neededTool = ((PlanMineBlock)obj).neededTool;
-		countNeeded = ((PlanMineBlock)obj).countNeeded;
-		droppedItem = ((PlanMineBlock)obj).droppedItem;
+		block = ((PlanMineBlockOld)obj).block;
+		meta = ((PlanMineBlockOld)obj).meta;
+		neededTool = ((PlanMineBlockOld)obj).neededTool;
+		countNeeded = ((PlanMineBlockOld)obj).countNeeded;
+		droppedItem = ((PlanMineBlockOld)obj).droppedItem;
+	}
+	
+	@Override
+	public void initTask(PlanPiece piece,
+			IWorldStateProperty effectRequirement,
+			IWorldStateProperty preconditionRequirement) {
+		super.initTask(piece, effectRequirement, preconditionRequirement);
+		
+		//TODO: verify this works - recipe crafting needs/has this too
+		if (preconditionRequirement instanceof ItemEntry) {
+			ItemEntry entry = (ItemEntry) preconditionRequirement;
+			countNeeded = entry.getStack().stackSize;
+		}
+		
 	}
 	
 	@Override
@@ -159,7 +173,7 @@ public class PlanMineBlock extends PlanPiece {
 			}
 		} else {
 		
-			BlockLocation loc = UtilMemory.getClosestBlock(block, meta);
+			BlockLocation loc = UtilMemory.getClosestBlockFromMemory(block, meta);
 			
 			if (loc != null) {
 				double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());

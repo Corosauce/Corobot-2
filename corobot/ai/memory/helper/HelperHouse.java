@@ -2,6 +2,12 @@ package corobot.ai.memory.helper;
 
 import javax.vecmath.Vector3f;
 
+import com.corosus.ai.AIBTAgent;
+import com.corosus.ai.Blackboard;
+import com.corosus.ai.minigoap.IWorldStateProperty;
+import com.corosus.entity.IEntity;
+import com.corosus.world.IWorld;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,6 +15,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import corobot.Corobot;
+import corobot.ai.memory.pieces.HouseLocation;
 
 public class HelperHouse {
 
@@ -28,6 +35,19 @@ public class HelperHouse {
 	public static int sizeRadiusHome = 5;
 	public static int sizeHeightHome = 5;
 	
+	private static Block blockHouseMaterial = Blocks.dirt;
+	
+	//this is used in sensing for updating if we need to maintain house or not, to helper goal planner know 
+	public static HouseLocation effectHouse = new HouseLocation(HelperHouse.posHome);
+	
+	public static Block getBlockHouseMaterial() {
+		return blockHouseMaterial;
+	}
+
+	public static void setBlockHouseMaterial(Block blockHouseMaterial) {
+		HelperHouse.blockHouseMaterial = blockHouseMaterial;
+	}
+
 	public static void init() {
 		
 		//temp
@@ -83,6 +103,11 @@ public class HelperHouse {
 		
 		//sizeHeightHome = 5;
 		
+		//TODO: account for door
+		
+		AIBTAgent agent = Corobot.getPlayerAI().agent;
+		Blackboard bb = agent.getBlackboard();
+		
 		Minecraft mc = Minecraft.getMinecraft();
 		World world = mc.theWorld;
 		EntityPlayer player = Corobot.playerAI.bridgePlayer.getPlayer();
@@ -95,12 +120,33 @@ public class HelperHouse {
 							z == MathHelper.floor_double(posHome.z + sizeRadiusHome)) {
 						Block block = world.getBlock(x, y, z);
 						if (!block.isBlockNormalCube()) {
-							return new Vector3f(x, y, z);
+							//account for door here
+							if (x == posHome.x + 5 && z == posHome.z + 0 && (y == posHome.y + 0 || y == posHome.y + 1)) {
+								
+							} else {
+								return new Vector3f(x, y, z);
+							}
 						}
 					}
 				}
 			}
 		}
+		if (!bb.getWorldMemory().getProperties().contains(HelperHouse.effectHouse)) {
+			bb.getWorldMemory().getProperties().add(HelperHouse.effectHouse);
+		}
 		return null;
+	}
+	
+	public static boolean shouldMine(Vector3f pos) {
+		
+		int buffer = 10;
+		
+		if (pos.x >= posHome.x - (sizeRadiusHome + buffer) && pos.x <= posHome.x + (sizeRadiusHome + buffer) && 
+				pos.z >= posHome.z - (sizeRadiusHome + buffer) && pos.z <= posHome.z + (sizeRadiusHome + buffer) && 
+				pos.y >= posHome.y - (sizeHeightHome + buffer) && pos.y <= posHome.y + (sizeHeightHome + buffer)) {
+			return false;
+		}
+		
+		return true;
 	}
 }

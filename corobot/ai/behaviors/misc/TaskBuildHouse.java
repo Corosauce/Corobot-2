@@ -26,7 +26,7 @@ import corobot.Corobot;
 import corobot.ai.memory.helper.HelperHouse;
 import corobot.util.UtilPlayer;
 
-public class BuildHouse extends LeafNode {
+public class TaskBuildHouse extends LeafNode {
 	
 	public Vector3f curBlockPos;
 
@@ -42,7 +42,7 @@ public class BuildHouse extends LeafNode {
 		PATHING, BUILDING, COMPLETE;
 	}
 	
-	public BuildHouse(BehaviorNode parParent, Blackboard blackboard) {
+	public TaskBuildHouse(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 		HelperHouse.init();
 	}
@@ -81,7 +81,7 @@ public class BuildHouse extends LeafNode {
 				Block block = worldMC.getBlock(x, y, z);
 				
 				EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
-				int bestSlot = UtilPlayer.getSlotForItem(new ItemStack(Blocks.dirt), playerEnt, playerEnt.inventory, true);
+				int bestSlot = UtilPlayer.getSlotForItem(new ItemStack(HelperHouse.getBlockHouseMaterial()), playerEnt, playerEnt.inventory, true);
 				if (bestSlot != -1) {
 					playerEnt.inventory.currentItem = bestSlot;
 					ItemStack stack = playerEnt.getCurrentEquippedItem();
@@ -96,12 +96,13 @@ public class BuildHouse extends LeafNode {
 				}
 			} else {
 				state = State.PATHING;
-				if (world.getTicksTotal() % 20 == 0) {
+				//if (world.getTicksTotal() % 20 == 0) {
 					getBlackboard().setMoveToBest(loc);
-				}
+				//}
 				
 				ticksPathing++;
 				if (ticksPathing >= ticksPathingMax) {
+					Corobot.dbg("WARNING: pathing taking too long");
 					return EnumBehaviorState.FAILURE;
 					//Corobot.getPlayerAI().planGoal.invalidatePlan();
 				}
@@ -118,6 +119,12 @@ public class BuildHouse extends LeafNode {
 		} else {
 			return EnumBehaviorState.RUNNING;
 		}
+	}
+	
+	@Override
+	public void reset() {
+		super.reset();
+		ticksPathing = 0;
 	}
 	
 	public boolean isTaskComplete() {

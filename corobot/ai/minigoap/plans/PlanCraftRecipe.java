@@ -28,9 +28,12 @@ import com.corosus.util.VecUtil;
 import com.corosus.world.IWorld;
 
 import corobot.Corobot;
+import corobot.ai.memory.helper.HelperHouse;
 import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
+import corobot.ai.memory.pieces.HouseLocation;
 import corobot.ai.memory.pieces.ItemEntry;
+import corobot.ai.memory.pieces.MachineLocation;
 import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
 import corobot.util.UtilContainer;
 import corobot.util.UtilInventory;
@@ -55,6 +58,11 @@ public class PlanCraftRecipe extends PlanPiece {
 	public static int slotInventoryMainStart = 1+sizeCraftGrid;
 	public static int slotInventoryHotbarStart = slotInventoryMainStart+sizeInventoryMain;
 	
+	public int amountItCanProvide = 64;
+
+	public int guiWait = 0;
+	public int guiWaitAmount = 10;
+	
 	public enum State {
 		PATHING, WAITING_ON_GUI, GUI_OPEN;
 	}
@@ -62,14 +70,64 @@ public class PlanCraftRecipe extends PlanPiece {
 	public PlanCraftRecipe(String planName, Blackboard blackboard, IRecipe recipe, List<ItemStack> recipeNeeds, int width, int height) {
 		super(planName, blackboard);
 		itemToCraft = recipe.getRecipeOutput();
+		
+		ItemStack fakeResult = ItemStack.copyItemStack(itemToCraft);
+		//TODO: possibly temp?
+		fakeResult.stackSize = amountItCanProvide;
+		
 		this.width = width;
 		this.height = height;
 		this.listRecipeShape = recipeNeeds;
-		this.getEffects().getProperties().add(new ItemEntry(itemToCraft, new InventorySourceSelf()));
-		for (ItemStack stack : recipeNeeds) {
+		this.getEffects().getProperties().add(new ItemEntry(fakeResult, new InventorySourceSelf()));
+		//uncomment if statement once he can use self crafting gui
+		//if (width > 2 || height > 2) {
+			this.getPreconditions().getProperties().add(new HouseLocation(HelperHouse.posHome));
+			this.getPreconditions().getProperties().add(new MachineLocation(null, Blocks.crafting_table));
+		//}
+			
+		boolean dbgOutput = false;
+		
+		if (planName.contains("ickaxe")) {
+			System.out.println("DEBUG");
+		}
+
+		//TODO: merge similar stacks together to help planner make sense of needs better
+		List<ItemStack> mergedStacks = new ArrayList<ItemStack>();
+		for (ItemStack stackRecipe : recipeNeeds) {
+			if (stackRecipe != null) {
+				if (mergedStacks.size() > 0) {
+					boolean foundMatch = false;
+					for (ItemStack stackMerge : mergedStacks) {
+						if (stackRecipe.getMaxStackSize() > 1) {
+							//this will match up different woods together, i hope this is ok, it should if other parts are intelligent enough as well
+							if (UtilInventory.isSame(stackRecipe, stackMerge)) {
+								//not sure if i should protect against stacksize overflow here, in theory it wont happen for recipes
+								stackMerge.stackSize += stackRecipe.stackSize;
+								foundMatch = true;
+								dbgOutput = true;
+							}
+						}
+					}
+					if (!foundMatch) {
+						mergedStacks.add(ItemStack.copyItemStack(stackRecipe));
+					}
+				} else {
+					mergedStacks.add(ItemStack.copyItemStack(stackRecipe));
+				}
+				
+				
+			}
+		}
+		
+		for (ItemStack stack : mergedStacks) {
 			if (stack != null) {
 				this.getPreconditions().getProperties().add(new ItemEntry(stack, new InventorySourceSelf()));
 			}
+		}
+		
+		if (dbgOutput) {
+			int whatr = 0;
+			Corobot.dbg("recipe has mergings: " + mergedStacks);
 		}
 	}
 	
@@ -93,10 +151,16 @@ public class PlanCraftRecipe extends PlanPiece {
 	}
 	
 	@Override
-	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement) {
-		super.initTask(piece, effectRequirement);
+	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement, IWorldStateProperty preconditionRequirement) {
+		super.initTask(piece, effectRequirement, preconditionRequirement);
 		
-		
+		//TODO: verify this works
+		if (preconditionRequirement instanceof ItemEntry) {
+			ItemEntry entry = (ItemEntry) preconditionRequirement;
+			amountToCraft = entry.getStack().stackSize;
+			
+			System.out.println("SETTING amountToCraft: " + amountToCraft);
+		}
 		
 	}
 	
@@ -125,14 +189,16 @@ public class PlanCraftRecipe extends PlanPiece {
 		//do gui slot work
 		
 		//trying to fix weird order of execution bug...
-		if (isTaskComplete()) return EnumBehaviorState.SUCCESS;
+		if (isTaskComplete()) {
+			return EnumBehaviorState.SUCCESS;
+		}
 		
 		AIBTAgent agent = Corobot.getPlayerAI().agent;
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
 		EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
 		
-		BlockLocation loc = UtilMemory.getClosestBlock(Blocks.crafting_table, -1);
+		BlockLocation loc = UtilMemory.getClosestBlockFromMemory(Blocks.crafting_table, -1);
 		
 		if (loc != null) {
 			double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());
@@ -146,6 +212,11 @@ public class PlanCraftRecipe extends PlanPiece {
 				
 				if (playerEnt.openContainer instanceof ContainerWorkbench) {
 					System.out.println("slot click");
+					
+					if (guiWait > 0) {
+						guiWait--;
+						return EnumBehaviorState.RUNNING;
+					}
 					
 					if (itemToCraft.getItem() == Items.wooden_hoe) {
 						int test = 0;
@@ -207,6 +278,7 @@ public class PlanCraftRecipe extends PlanPiece {
 				} else {
 					System.out.println("open gui");
 					UtilContainer.openContainer(x, y, z);
+					guiWait = guiWaitAmount;
 				}
 				
 			} else {
@@ -258,6 +330,7 @@ public class PlanCraftRecipe extends PlanPiece {
 	@Override
 	public void reset() {
 		super.reset();
+		guiWait = 0;
 		for (int i = 0; i < 9; i++) {
 			UtilContainer.clickSlot(slotCraftMatrixStart+i, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
 		}

@@ -20,16 +20,17 @@ import corobot.Corobot;
 import corobot.c_AIP;
 import corobot.bridge.TargetBridge;
 
-public class IdleWander extends LeafNode {
+public class TaskSearchForResource extends LeafNode {
 	
-	public IdleWander(BehaviorNode parParent, Blackboard blackboard) {
+	//this needs a lot of work, for now its basically a copy of IdleWander
+	
+	public TaskSearchForResource(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 	}
 
 	@Override
 	public EnumBehaviorState tick() {
 		
-		Corobot.dbg("wander!");
 		wander();
 		
 		return super.tick();
@@ -85,8 +86,6 @@ public class IdleWander extends LeafNode {
         }
         
         if (offset < 10) {
-        	//System.out.println("flee");
-        	//if (c_AIP.i.pathToEntity == null) {
         	if (ent.worldObj.getTotalWorldTime() % 10 == 0) {
         		if (ent.onGround || ent.isInWater()) {
         			Block what = ent.worldObj.getBlock(gatherX, finalY, gatherZ);
@@ -96,19 +95,12 @@ public class IdleWander extends LeafNode {
         			} else {
         				getBlackboard().setMoveToBest(new Vector3f(gatherX, finalY+1, gatherZ));
         				Block what2 = ent.worldObj.getBlock(gatherX, finalY+1, gatherZ);
-        				System.out.println("final flee block: " + what2);
         			}
         			
         			
         			
         		}
         	}
-        		//c_AIP.i.walkTo(ent, gatherX, finalY, gatherZ, maxPFRange , 600, -1);
-        	//}
-        	//this.walkTo(this, homeX, homeY, homeZ, maxPFRange, 600);
-        } else {
-        	//System.out.println("flee failed");
-        	//c_AIP.i.walkTo(ent, c_AIP.i.homeX, c_AIP.i.homeY, c_AIP.i.homeZ, maxPFRange, 600, -1);
         }
 	}
 

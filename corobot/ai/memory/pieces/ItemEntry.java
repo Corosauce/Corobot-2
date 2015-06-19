@@ -46,20 +46,22 @@ public class ItemEntry implements IWorldStateProperty {
 		//might only be needed to be considered after planning
 		if (precondition instanceof ItemEntry) {
 			ItemEntry precond = (ItemEntry) precondition;
-			if (ItemStack.areItemStacksEqual(stack, precond.stack)) {
+			/*if (ItemStack.areItemStacksEqual(stack, precond.stack)) {
 				System.out.println("old true");
-			}
+			}*/
 			/*if (ItemStack.areItemStacksEqual(stack, precond.stack)) {
 				return true;
 			} else {*/
 				//if (stack.isItemEqual(precond.stack)) {
 				//if (stack.getItem() == precond.stack.getItem() && (stack.getItemDamage() == precond.stack.getItemDamage() || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || precond.stack.getItemDamage() == OreDictionary.WILDCARD_VALUE)) {
 				if (UtilInventory.isSame(stack, precond.stack)) {
-					//if (stack.getMaxStackSize() > 1 && precond.stack.getMaxStackSize() > 1) {
-						//if (stack.stackSize >= precond.stack.stackSize) {
+					if (stack.getMaxStackSize() > 1 && precond.stack.getMaxStackSize() > 1) {
+						if (stack.stackSize >= precond.stack.stackSize) {
 							return true;
-						//}
-					//}
+						}
+					} else {
+						return true;
+					}
 				}
 			//}
 			return false;

@@ -163,7 +163,7 @@ public class PlanSearchMineBlock extends PlanPiece {
 			}
 		} else {
 		
-			BlockLocation loc = UtilMemory.getClosestBlock(block, meta);
+			BlockLocation loc = UtilMemory.getClosestBlockFromMemory(block, meta);
 			
 			if (loc != null) {
 				double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());

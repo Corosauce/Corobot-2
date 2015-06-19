@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 
 import corobot.ai.PlayerAI;
+import corobot.ai.behaviors.MasterPlanSequence;
 
 public class Corobot {
 
@@ -13,6 +14,8 @@ public class Corobot {
 	 * Plans: for GOAP, has dynamic data fed into it to be used, may contain sub tasks that it feeds data to
 	 * Tasks / SubTasks: Behaviors that are what make up some plans, uses blackboard as primary information
 	 * 
+	 * Wrap Plans around tasks for max reusability?
+	 * - eg: PlanMaintainHouse uses TaskMaintainHouse
 	 * 
 	 * Ongoing bugs:
 	 * - NEED A DELAY BETWEEN GUI OPEN AND SLOT USE, OTHERWISE SLOT USAGE FAILS ON FIRST CLICK OR MORE
@@ -29,6 +32,18 @@ public class Corobot {
 	 * - block of <ore> recipes causes infinate loops
 	 * -- vice versa is also annoying (ones that use block of iron, etc to make stuff)
 	 * -- so any recipes that has one making the other and vice versa will cause infinate loop or broken order
+	 * - need special exception for item meta, like damaged weapons, as goal "wooden pickaxe" wont recognize a damaged pickaxe already in inventory currently
+	 * 
+	 * - partial fixed for recipe needing multiple of things a mine plan can give
+	 * -- BUT now we have the bug for smelting only giving 1 of a thing we need multiple of since we've merged stacks for recipes
+	 * -- this also means this bug theoretically exists for crafting too now
+	 * --- force 64 for these too? lets try!
+	 * 
+	 * - smelting gui use has bugged out again somehow, needs fix!
+	 * 
+	 * 
+	 * 
+	 * 
 	 * 
 	 * Reasons to make preconditions parsable like OR and AND:
 	 * - furnace, need THIS ITEM and (this fuel or this fuel, etc)
@@ -80,6 +95,10 @@ public class Corobot {
 			if (Keyboard.isKeyDown(Keyboard.KEY_PAUSE)) {
 				if (!isKeyDownPause) {
 					isBotActive = !isBotActive;
+					if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+						System.out.println("forcing GOAP plan reset");
+						MasterPlanSequence.makePlan = true;
+					}
 					System.out.println("bot is " + (isBotActive ? "active" : "inactive"));
 				}
 				isKeyDownPause = true;
