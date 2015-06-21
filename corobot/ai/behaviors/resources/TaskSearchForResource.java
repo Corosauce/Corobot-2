@@ -1,4 +1,4 @@
-package corobot.ai.behaviors.misc;
+package corobot.ai.behaviors.resources;
 
 import javax.vecmath.Vector3f;
 

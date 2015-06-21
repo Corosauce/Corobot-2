@@ -29,9 +29,9 @@ import com.corosus.world.IWorld;
 import corobot.Corobot;
 import corobot.ai.BlackboardImpl;
 import corobot.ai.behaviors.misc.TaskFindNearbyItem;
-import corobot.ai.behaviors.misc.TaskMineBlock;
 import corobot.ai.behaviors.misc.TaskMoveToPos;
-import corobot.ai.behaviors.misc.TaskSearchForResource;
+import corobot.ai.behaviors.resources.TaskMineBlock;
+import corobot.ai.behaviors.resources.TaskSearchForResource;
 import corobot.ai.memory.helper.HelperBlock;
 import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
@@ -43,7 +43,7 @@ import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
 import corobot.util.UtilPlayer;
 
-public class PlanMineBlockNewSequence extends PlanPiece {
+public class PlanGetResource extends PlanPiece {
 
 	//should be close to location be a precondition?
 	
@@ -79,7 +79,7 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 		PATHING, MINING, PICKINGUP;
 	}
 	
-	public PlanMineBlockNewSequence(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool) {
+	public PlanGetResource(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool) {
 		super(planName, blackboard);
 		this.block = block;
 		this.meta = meta;
@@ -98,7 +98,7 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 		
 	}
 	
-	public PlanMineBlockNewSequence(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
+	public PlanGetResource(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
 		this(planName, blackboard, block, meta, tool);
 		
 		this.droppedItem = itemReturned;
@@ -107,13 +107,13 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 		itemReturned.stackSize = amountItCanProvide;
 	}
 	
-	public PlanMineBlockNewSequence(PlanPiece obj) {
+	public PlanGetResource(PlanPiece obj) {
 		super(obj, obj.getBlackboard());
-		block = ((PlanMineBlockNewSequence)obj).block;
-		meta = ((PlanMineBlockNewSequence)obj).meta;
-		neededTool = ((PlanMineBlockNewSequence)obj).neededTool;
-		countNeeded = ((PlanMineBlockNewSequence)obj).countNeeded;
-		droppedItem = ((PlanMineBlockNewSequence)obj).droppedItem;
+		block = ((PlanGetResource)obj).block;
+		meta = ((PlanGetResource)obj).meta;
+		neededTool = ((PlanGetResource)obj).neededTool;
+		countNeeded = ((PlanGetResource)obj).countNeeded;
+		droppedItem = ((PlanGetResource)obj).droppedItem;
 		
 		/*TOP TASK:
 		 * - find block to mine
@@ -189,6 +189,8 @@ public class PlanMineBlockNewSequence extends PlanPiece {
 		if (sequenceTasks.getActiveBehaviorIndex() == -1) {
 			bb.setBlockToMine(block);
 			bb.setMetaToMine(meta);
+			
+			//relocate to selectors
 			if (HelperBlock.listResources.contains(block)) {
 				loc = UtilMemory.getClosestBlockFromMemory(block, meta);
 			} else {

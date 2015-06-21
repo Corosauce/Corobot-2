@@ -58,7 +58,7 @@ public class MasterPlanSequence extends Sequence {
 	public MasterPlanSequence(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 		
-		this.getChildren().add(new TaskBuildHouse(this, blackboard));
+		//this.getChildren().add(new TaskBuildHouse(this, blackboard));
 		
 		
 	}
