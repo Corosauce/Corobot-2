@@ -1,5 +1,7 @@
 package corobot.ai;
 
+import javax.vecmath.Vector3f;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 
@@ -15,7 +17,16 @@ public class BlackboardImpl extends Blackboard {
 	private BlockLocation blockLocation;
 	private Block blockToMine;
 	private int metaToMine;
+	private Vector3f pathConstructEnd;
 	
+	public Vector3f getPathConstructEnd() {
+		return pathConstructEnd;
+	}
+
+	public void setPathConstructEnd(Vector3f pathConstructEnd) {
+		this.pathConstructEnd = pathConstructEnd;
+	}
+
 	public Block getBlockToMine() {
 		return blockToMine;
 	}
