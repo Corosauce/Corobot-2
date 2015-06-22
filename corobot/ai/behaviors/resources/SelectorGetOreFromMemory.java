@@ -24,6 +24,7 @@ public class SelectorGetOreFromMemory extends SelectorRoutine {
 			BlockLocation loc = UtilMemory.getClosestBlockFromMemory(bb.getBlockToMine(), bb.getMetaToMine());
 			if (loc != null) {
 				bb.setBlockLocation(loc);
+				bb.setMoveToBest(loc.getPos());
 				return true;
 			} else {
 				return false;

@@ -30,6 +30,8 @@ import corobot.Corobot;
 import corobot.ai.BlackboardImpl;
 import corobot.ai.behaviors.misc.TaskFindNearbyItem;
 import corobot.ai.behaviors.misc.TaskMoveToPos;
+import corobot.ai.behaviors.resources.SelectorGetOreFromArea;
+import corobot.ai.behaviors.resources.SelectorGetOreFromMemory;
 import corobot.ai.behaviors.resources.TaskMineBlock;
 import corobot.ai.behaviors.resources.TaskSearchForResource;
 import corobot.ai.memory.helper.HelperBlock;
@@ -68,6 +70,8 @@ public class PlanGetResource extends PlanPiece {
 	public int countNeeded = 1;
 	
 	public int amountItCanProvide = 64;
+	
+	public Sequence sequenceTasksNew;
 	
 	public Sequence sequenceTasks;
 
@@ -146,6 +150,24 @@ public class PlanGetResource extends PlanPiece {
 		sequenceFindResources.add(new TaskSearchForResource(this, getBlackboard()));
 		//unneeded since it moves on for now
 		//sequenceFindResources.add(new TaskMoveToPos(this, getBlackboard()));
+		
+		SelectorGetOreFromMemory seqMemory = new SelectorGetOreFromMemory(sequenceTasksNew, getBlackboard());
+		SelectorGetOreFromArea seqArea = new SelectorGetOreFromArea(seqMemory, getBlackboard());
+		seqMemory.add(seqArea);
+		
+		//TODO: add to seqArea
+		//some sort of generic profile based block mining task
+		
+		sequenceTasksNew = new Sequence(obj, getBlackboard());
+		sequenceTasksNew.add(seqMemory);
+		moveTo = new TaskMoveToPos(sequenceTasks, getBlackboard());
+		
+		sequenceTasksNew.add(moveTo);
+		sequenceTasksNew.add(new TaskMineBlock(sequenceTasks, getBlackboard()));
+		sequenceTasksNew.add(new TaskFindNearbyItem(sequenceTasks, getBlackboard()));
+		
+		//sometimes this one is never fully used if we are already super close to item to pickup, which is actually quite often
+		sequenceTasksNew.add(moveTo);
 	}
 	
 	@Override
@@ -186,12 +208,14 @@ public class PlanGetResource extends PlanPiece {
 		BlockLocation loc = null;
 		
 		//init stuff for sequence
-		if (sequenceTasks.getActiveBehaviorIndex() == -1) {
+		if (sequenceTasksNew.getActiveBehaviorIndex() == -1) {
 			bb.setBlockToMine(block);
 			bb.setMetaToMine(meta);
+			bb.setItemToPickup(droppedItem);
+			
 			
 			//relocate to selectors
-			if (HelperBlock.listResources.contains(block)) {
+			/*if (HelperBlock.listResources.contains(block)) {
 				loc = UtilMemory.getClosestBlockFromMemory(block, meta);
 			} else {
 				Vector3f pos = UtilMemory.getClosestBlockFromArea(block, meta, player.getPos());
@@ -206,12 +230,12 @@ public class PlanGetResource extends PlanPiece {
 			} else {
 				Corobot.dbg("CRITICAL: cant find resource to mine!!: " + block);
 				return trySearch();
-			}
+			}*/
 			
-			bb.setItemToPickup(droppedItem);
+			
 		}
 		
-		EnumBehaviorState result = sequenceTasks.tick();
+		EnumBehaviorState result = sequenceTasksNew.tick();
 		
 		
 		if (isTaskComplete()) {
@@ -221,11 +245,11 @@ public class PlanGetResource extends PlanPiece {
 		}
 	}
 	
-	public EnumBehaviorState trySearch() {
+	/*public EnumBehaviorState trySearch() {
 		Corobot.dbg("INFO: trying resource search!");
 		EnumBehaviorState result = sequenceFindResources.tick();
 		return result;
-	}
+	}*/
 	
 	public boolean isTaskComplete() {
 		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, droppedItem/*Item.getItemFromBlock(this.block)*/) >= this.countNeeded;
