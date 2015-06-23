@@ -51,13 +51,13 @@ public class TaskMineBlock extends BehaviorNode {
 		
 		//NEW
 		
-		if (bb.getBlockLocation() == null) {
+		if (bb.getBlockLocationToMine() == null) {
 			Corobot.dbg("CRITICAL: block to mine not set");
 			return EnumBehaviorState.FAILURE;
 		}
 		
 		//get loc from pathto vec
-		Vector3f moveTo = bb.getBlockLocation().getPos();//bb.getMoveTo();
+		Vector3f moveTo = bb.getBlockLocationToMine().getPos();//bb.getMoveTo();
 		
 		if (moveTo != null) {
 			double dist = VecUtil.getDistSqrd(player.getPos(), moveTo);
@@ -67,8 +67,8 @@ public class TaskMineBlock extends BehaviorNode {
 				int z = MathHelper.floor_double(moveTo.z);
 				Block block = worldMC.getBlock(x, y, z);
 				if (block == Blocks.air) {
-					HelperBlock.removeEntry(bb.getWorldMemory(), bb.getBlockLocation());
-					bb.setBlockLocation(null);
+					HelperBlock.removeEntry(bb.getWorldMemory(), bb.getBlockLocationToMine());
+					bb.setBlockLocationToMine(null);
 					return EnumBehaviorState.SUCCESS;
 				} else {
 					

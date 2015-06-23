@@ -7,8 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -23,26 +21,18 @@ import com.corosus.util.VecUtil;
 import com.corosus.world.IWorld;
 
 import corobot.Corobot;
+import corobot.ai.BlackboardImpl;
 import corobot.ai.memory.helper.HelperHouse;
+import corobot.ai.memory.pieces.BlockLocation;
 import corobot.util.UtilPlayer;
 
-public class TaskBuildHouse extends LeafNode {
-	
-	public Vector3f curBlockPos;
-
-	public State state = State.PATHING;
-	
-	public int ticksPathing = 0;
-	public int ticksPathingMax = 200;
-	
-	public Vector3f curPillarPos;
-	public int curPillarHeight = 0;
+public class TaskPlaceBlock extends LeafNode {
 	
 	public enum State {
 		PATHING, BUILDING, COMPLETE;
 	}
 	
-	public TaskBuildHouse(BehaviorNode parParent, Blackboard blackboard) {
+	public TaskPlaceBlock(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 	}
 	
@@ -61,22 +51,20 @@ public class TaskBuildHouse extends LeafNode {
 		AIBTAgent agent = Corobot.getPlayerAI().agent;
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
-		Blackboard bb = agent.getBlackboard();
+		BlackboardImpl bb = (BlackboardImpl) agent.getBlackboard();
 		World worldMC = Minecraft.getMinecraft().theWorld;
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		//BlockLocation loc = UtilMemory.getClosestBlock(block, meta);
-		Vector3f loc = HelperHouse.getBlockToBuild();
+		BlockLocation loc = bb.getBlockLocationToPlace();
 		
 		if (loc != null) {
-			double dist = VecUtil.getDistSqrd(player.getPos(), loc);
+			double dist = VecUtil.getDistSqrd(player.getPos(), loc.getPos());
 			if (dist < 5) {
 				
-				state = State.BUILDING;
-				
-				int x = MathHelper.floor_double(loc.x);
-				int y = MathHelper.floor_double(loc.y);
-				int z = MathHelper.floor_double(loc.z);
+				int x = MathHelper.floor_double(loc.getPos().x);
+				int y = MathHelper.floor_double(loc.getPos().y);
+				int z = MathHelper.floor_double(loc.getPos().z);
 				Block block = worldMC.getBlock(x, y, z);
 				
 				EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
@@ -90,44 +78,30 @@ public class TaskBuildHouse extends LeafNode {
 					}
 					
 					//stack.tryPlaceItemIntoWorld(playerEnt, worldMC, x, y, z, 0, 0, 0, 0);
+					System.out.println("block at coords we want to place something on: " + worldMC.getBlock(x, y, z));
 					mc.playerController.onPlayerRightClick(playerEnt, worldMC, stack, x, y, z, 0, Vec3.createVectorHelper(0, 0, 0));
 					playerEnt.swingItem();
+					
+					return EnumBehaviorState.SUCCESS;
+				} else {
+					Corobot.dbg("nothing to place block with!");
 				}
 			} else {
-				state = State.PATHING;
-				//if (world.getTicksTotal() % 20 == 0) {
-					getBlackboard().setMoveToBest(loc);
-				//}
-				
-				ticksPathing++;
-				if (ticksPathing >= ticksPathingMax) {
-					Corobot.dbg("WARNING: pathing taking too long");
-					return EnumBehaviorState.FAILURE;
-					//Corobot.getPlayerAI().planGoal.invalidatePlan();
-				}
+				Corobot.dbg("WARNING: too far from mining position, other task failed to get us in position or we were pushed back");
+				return EnumBehaviorState.FAILURE;
 			}
 			//Corobot.dbg("state: " + state);
 		} else {
-			Corobot.dbg("house complete!");
-			state = State.COMPLETE;
-			return EnumBehaviorState.SUCCESS;
+			Corobot.dbg("CRITICAL: getBlockLocationToPlace is null");
+			return EnumBehaviorState.FAILURE;
 		}
 		
-		if (isTaskComplete()) {
-			return EnumBehaviorState.SUCCESS;
-		} else {
-			return EnumBehaviorState.RUNNING;
-		}
+		return EnumBehaviorState.RUNNING;
 	}
 	
 	@Override
 	public void reset() {
 		super.reset();
-		ticksPathing = 0;
-	}
-	
-	public boolean isTaskComplete() {
-		return state == State.COMPLETE;
 	}
 
 }

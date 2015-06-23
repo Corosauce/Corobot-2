@@ -28,6 +28,10 @@ public class OrePattern {
 		return yMax;
 	}
 	
+	public int getYMiddle() {
+		return getYMin() + (getYMax() - getYMin())/2;
+	}
+	
 	public boolean isOnSurface() {
 		return isOnSurface;
 	}

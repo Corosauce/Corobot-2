@@ -26,7 +26,7 @@ public class SelectorGetOreFromArea extends SelectorRoutine {
 		Vector3f pos = UtilMemory.getClosestBlockFromArea(bb.getBlockToMine(), bb.getMetaToMine(), player.getPos());
 		if (pos != null) {
 			BlockLocation loc = new BlockLocation(pos, bb.getBlockToMine());
-			bb.setBlockLocation(loc);
+			bb.setBlockLocationToMine(loc);
 			bb.setMoveToBest(loc.getPos());
 			return true;
 		} else {

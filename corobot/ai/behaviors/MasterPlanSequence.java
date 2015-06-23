@@ -59,7 +59,7 @@ public class MasterPlanSequence extends Sequence {
 		super(parParent, blackboard);
 		
 		//this.getChildren().add(new TaskBuildHouse(this, blackboard));
-		
+		makePlan();
 		
 	}
 
@@ -67,15 +67,7 @@ public class MasterPlanSequence extends Sequence {
 	public EnumBehaviorState tick() {
 		
 		if (makePlan) {
-			reset();
-			resetActiveBehavior();
-			//GoapSequence goap = new GoapSequence(getParent(), getBlackboard(), "wooden pickaxe");
-			GoapSequence goap = new GoapSequence(getParent(), getBlackboard(), "diamond pickaxe");
-			makePlan = !goap.createPlan();
-			goap.setCreatedPlan();
-
-			this.getChildren().clear();
-			this.getChildren().add(goap);
+			makePlan();
 		}
 		
 		EnumBehaviorState result = super.tick();
@@ -85,6 +77,18 @@ public class MasterPlanSequence extends Sequence {
 		}
 		
 		return result;
+	}
+	
+	public void makePlan() {
+		reset();
+		resetActiveBehavior();
+		//GoapSequence goap = new GoapSequence(getParent(), getBlackboard(), "wooden pickaxe");
+		GoapSequence goap = new GoapSequence(getParent(), getBlackboard(), "diamond pickaxe");
+		makePlan = !goap.createPlan();
+		goap.setCreatedPlan();
+
+		this.getChildren().clear();
+		this.getChildren().add(goap);
 	}
 	
 }

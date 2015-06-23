@@ -51,6 +51,17 @@ public class HelperBlock {
 		listResourcesToNotRemember.add(Blocks.sand);
 	}
 	
+	public static boolean isResourceToTrack(Block block) {
+		if (listResources.contains(block)) return true;
+		return false;	
+	}
+	
+	public static boolean isMinableResource(Block block) {
+		if (listResources.contains(block)) return true;
+		if (listResourcesToNotRemember.contains(block)) return true;
+		return false;
+	}
+	
 	public static int makeHash(int p_75830_0_, int p_75830_1_, int p_75830_2_)
     {
         return p_75830_1_ & 255 | (p_75830_0_ & 32767) << 8 | (p_75830_2_ & 32767) << 24 | (p_75830_0_ < 0 ? Integer.MIN_VALUE : 0) | (p_75830_2_ < 0 ? 32768 : 0);

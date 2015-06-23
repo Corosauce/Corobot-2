@@ -47,6 +47,10 @@ public class HelperHouse {
 	public static void setBlockHouseMaterial(Block blockHouseMaterial) {
 		HelperHouse.blockHouseMaterial = blockHouseMaterial;
 	}
+	
+	static {
+		init();
+	}
 
 	public static void init() {
 		

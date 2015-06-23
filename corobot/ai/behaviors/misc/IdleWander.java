@@ -3,12 +3,8 @@ package corobot.ai.behaviors.misc;
 import javax.vecmath.Vector3f;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.MathHelper;
 
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
@@ -17,8 +13,6 @@ import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.entity.IEntity;
 
 import corobot.Corobot;
-import corobot.c_AIP;
-import corobot.bridge.TargetBridge;
 
 public class IdleWander extends LeafNode {
 	
@@ -29,7 +23,7 @@ public class IdleWander extends LeafNode {
 	@Override
 	public EnumBehaviorState tick() {
 		
-		Corobot.dbg("wander!");
+		//Corobot.dbg("wander!");
 		wander();
 		
 		return super.tick();

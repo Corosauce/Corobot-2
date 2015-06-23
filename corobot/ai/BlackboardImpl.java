@@ -14,11 +14,20 @@ import corobot.ai.memory.pieces.BlockLocation;
 public class BlackboardImpl extends Blackboard {
 	
 	private ItemStack itemToPickup;
-	private BlockLocation blockLocation;
+	private BlockLocation blockLocationToMine;
+	private BlockLocation blockLocationToPlace;
 	private Block blockToMine;
 	private int metaToMine;
 	private Vector3f pathConstructEnd;
 	
+	public BlockLocation getBlockLocationToPlace() {
+		return blockLocationToPlace;
+	}
+
+	public void setBlockLocationToPlace(BlockLocation blockLocationToPlace) {
+		this.blockLocationToPlace = blockLocationToPlace;
+	}
+
 	public Vector3f getPathConstructEnd() {
 		return pathConstructEnd;
 	}
@@ -43,12 +52,12 @@ public class BlackboardImpl extends Blackboard {
 		this.metaToMine = metaToMine;
 	}
 
-	public BlockLocation getBlockLocation() {
-		return blockLocation;
+	public BlockLocation getBlockLocationToMine() {
+		return blockLocationToMine;
 	}
 
-	public void setBlockLocation(BlockLocation blockLocation) {
-		this.blockLocation = blockLocation;
+	public void setBlockLocationToMine(BlockLocation blockLocation) {
+		this.blockLocationToMine = blockLocation;
 	}
 
 	public ItemStack getItemToPickup() {

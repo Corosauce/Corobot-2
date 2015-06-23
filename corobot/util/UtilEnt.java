@@ -109,7 +109,7 @@ public class UtilEnt {
 		if (pos == null) {
 			return true;
 		} else if (pos.hitVec.distanceTo(vecTo) <= 1) {
-			System.out.println("canSee hit dist: " + pos.hitVec.distanceTo(vecTo));
+			//System.out.println("canSee hit dist: " + pos.hitVec.distanceTo(vecTo));
 			return true;
 		} else {
 			return false;

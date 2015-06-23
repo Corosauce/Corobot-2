@@ -28,6 +28,7 @@ import com.corosus.world.IWorld;
 
 import corobot.Corobot;
 import corobot.ai.BlackboardImpl;
+import corobot.ai.behaviors.misc.TaskConstructPath;
 import corobot.ai.behaviors.misc.TaskFindNearbyItem;
 import corobot.ai.behaviors.misc.TaskMoveToPos;
 import corobot.ai.behaviors.resources.SelectorGetOreFromArea;
@@ -77,7 +78,7 @@ public class PlanGetResource extends PlanPiece {
 
 	
 	//only used if we dont have resources in memory or nearby
-	public Sequence sequenceFindResources;
+	//public Sequence sequenceFindResources;
 	
 	public enum State {
 		PATHING, MINING, PICKINGUP;
@@ -95,9 +96,11 @@ public class PlanGetResource extends PlanPiece {
 		}
 		
 		this.getEffects().getProperties().add(new ItemEntry(new ItemStack(block, amountItCanProvide), new InventorySourceSelf()));
-		if (!HelperBlock.listResourcesToNotRemember.contains(block)) {
+		
+		//remove knowing where resources are as a requirement
+		/*if (!HelperBlock.listResourcesToNotRemember.contains(block)) {
 			this.getPreconditions().getProperties().add(new ResourceLocation(null, block, meta));
-		}
+		}*/
 		
 		
 	}
@@ -146,8 +149,8 @@ public class PlanGetResource extends PlanPiece {
 		
 
 		
-		sequenceFindResources = new Sequence(this, getBlackboard());
-		sequenceFindResources.add(new TaskSearchForResource(this, getBlackboard()));
+		//sequenceFindResources = new Sequence(this, getBlackboard());
+		//sequenceFindResources.add(new TaskSearchForResource(this, getBlackboard()));
 		//unneeded since it moves on for now
 		//sequenceFindResources.add(new TaskMoveToPos(this, getBlackboard()));
 		
@@ -157,6 +160,8 @@ public class PlanGetResource extends PlanPiece {
 		
 		//TODO: add to seqArea
 		//some sort of generic profile based block mining task
+		//this is temp, a profiling class needs to invoke this taskconstructpath class
+		seqArea.add(new TaskConstructPath(seqArea, getBlackboard()));
 		
 		sequenceTasksNew = new Sequence(obj, getBlackboard());
 		sequenceTasksNew.add(seqMemory);

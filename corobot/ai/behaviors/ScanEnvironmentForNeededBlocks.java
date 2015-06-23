@@ -60,7 +60,7 @@ public class ScanEnvironmentForNeededBlocks extends LeafNode {
 						
 						Vector3f vec = new Vector3f(xx, yy, zz);
 						
-						if (HelperBlock.listResources.contains(block)) {
+						if (HelperBlock.isResourceToTrack(block)) {
 							
 							if (!HelperHouse.shouldMine(vec)) {
 								continue;

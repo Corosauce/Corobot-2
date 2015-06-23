@@ -23,14 +23,16 @@ public class SelectorGetOreFromMemory extends SelectorRoutine {
 		if (HelperBlock.listResources.contains(bb.getBlockToMine())) {
 			BlockLocation loc = UtilMemory.getClosestBlockFromMemory(bb.getBlockToMine(), bb.getMetaToMine());
 			if (loc != null) {
-				bb.setBlockLocation(loc);
+				bb.setBlockLocationToMine(loc);
 				bb.setMoveToBest(loc.getPos());
 				return true;
 			} else {
 				return false;
 			}
 		} else {
-			Corobot.dbg("resource is not listed as a mineable type!");
+			if (!HelperBlock.listResourcesToNotRemember.contains(bb.getBlockToMine())) {
+				Corobot.dbg("resource is not listed as a mineable type!");
+			}
 		}
 		return false;
 	}
