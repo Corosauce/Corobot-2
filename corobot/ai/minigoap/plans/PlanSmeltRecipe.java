@@ -98,7 +98,12 @@ public class PlanSmeltRecipe extends PlanPiece {
 	public void initTask(PlanPiece piece, IWorldStateProperty effectRequirement, IWorldStateProperty preconditionRequirement) {
 		super.initTask(piece, effectRequirement, preconditionRequirement);
 		
-		
+		if (preconditionRequirement instanceof ItemEntry) {
+			ItemEntry entry = (ItemEntry) preconditionRequirement;
+			amountToSmelt = entry.getStack().stackSize;
+			
+			System.out.println("SETTING amountToSmelt: " + amountToSmelt);
+		}
 		
 	}
 	
@@ -156,11 +161,21 @@ public class PlanSmeltRecipe extends PlanPiece {
 					}
 					
 					//clean out furnace incase its being used
-					if (state == State.WAITING_ON_GUI) {
+					if (state != State.WAITING_ON_SMELT) {
+						System.out.println("TAKE IN FROM FURNACE");
 						UtilContainer.clickSlot(slotSmeltIn, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
-						UtilContainer.clickSlot(slotSmeltFuel, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
-						UtilContainer.clickSlot(slotSmeltOut, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
+						//UtilContainer.clickSlot(slotSmeltFuel, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
+						
 					}
+					
+					System.out.println("TAKE OUT FROM FURNACE");
+					//TEMP FIX, MAKE FURNACE CODE NOT SUCK!
+					try {
+						Thread.sleep(150);
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					UtilContainer.clickSlot(slotSmeltOut, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
 					
 					if (state != State.WAITING_ON_SMELT) {
 						state = State.GUI_OPEN;
@@ -236,7 +251,7 @@ public class PlanSmeltRecipe extends PlanPiece {
 						}
 					}
 				} else {
-					System.out.println("open gui");
+					System.out.println("open gui smelting");
 					state = State.WAITING_ON_GUI;
 					UtilContainer.openContainer(x, y, z);
 					guiWait = guiWaitAmount;
@@ -250,7 +265,7 @@ public class PlanSmeltRecipe extends PlanPiece {
 			}
 			//Corobot.dbg("state: " + state);
 		} else {
-			System.out.println("cant find crafting table");
+			System.out.println("cant find furnace");
 			//Corobot.getPlayerAI().planGoal.invalidatePlan();
 			return EnumBehaviorState.FAILURE;
 		}

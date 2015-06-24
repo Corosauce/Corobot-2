@@ -5,6 +5,7 @@ import javax.vecmath.Vector3f;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -12,7 +13,6 @@ import com.corosus.ai.AIBTAgent;
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.EnumBehaviorState;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.bt.nodes.leaf.LeafNode;
 import com.corosus.ai.bt.nodes.tree.SelectorBoolean;
 import com.corosus.ai.bt.nodes.tree.Sequence;
 import com.corosus.entity.IEntity;
@@ -55,7 +55,13 @@ public class TaskConstructPath extends Sequence {
 		
 		if (getActiveBehaviorIndex() != -1) {
 			if (getState() == EnumBehaviorState.RUNNING) {
-				return super.tick();
+				EnumBehaviorState result = super.tick();
+				//to prevent it resetting everything once 1 dig happens, seems like a sketchy fix, might need better solution later
+				if (result == EnumBehaviorState.SUCCESS) {
+					return EnumBehaviorState.RUNNING;
+				} else {
+					return result;
+				}
 			}
 		}
 		
@@ -81,6 +87,7 @@ public class TaskConstructPath extends Sequence {
 		//startedBuilding = false;
 		
 		if (!startedBuilding) {
+			System.out.println("searching for: " + new ItemStack(bb.getBlockToMine()).getDisplayName());
 			curDist = 0;
 			startedBuilding = true;
 			posStart = new Vector3f(posPlayer);
@@ -146,7 +153,7 @@ public class TaskConstructPath extends Sequence {
 			return super.tick();
 		} else {
 			//TODO: bug, this doesnt increase x z enough, must guarantee new x z val for stairs
-			curDist += 1;
+			//curDist += 1;
 			
 			int xx = x;
 			int zz = z;
@@ -157,6 +164,13 @@ public class TaskConstructPath extends Sequence {
 			//lets stop and redo all this logic, we need to rethink this stuff, perhaps copy zombie miner code where usefull
 			while (x == xx && z == zz) {
 				Vector3f angleTest = VecUtil.getAngle(posStart, posEnd);
+				if (angle.y < -0.49F) {
+					angle.y = -0.49F;
+				}
+				
+				if (angle.y > 0.49F) {
+					angle.y = 0.49F;
+				}
 				
 				Vector3f posConstructTest = new Vector3f(angleTest);
 				posConstructTest.scaleAdd(curDist, posStart);
@@ -164,7 +178,7 @@ public class TaskConstructPath extends Sequence {
 				xx = MathHelper.floor_float(posConstructTest.x);
 				//int yy = MathHelper.floor_float(posConstructTest.y);
 				zz = MathHelper.floor_float(posConstructTest.z);
-				curDist += 1;
+				curDist += 0.5;
 			}
 			
 			System.out.println("increase distance of mine to " + curDist);

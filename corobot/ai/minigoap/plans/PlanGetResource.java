@@ -86,16 +86,10 @@ public class PlanGetResource extends PlanPiece {
 	
 	public PlanGetResource(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool) {
 		super(planName, blackboard);
-		this.block = block;
-		this.meta = meta;
-		this.neededTool = tool;
+
 		this.droppedItem = new ItemStack(block, amountItCanProvide);
 		
-		if (neededTool != null) {
-			this.getPreconditions().getProperties().add(new ItemEntry(neededTool, new InventorySourceSelf()));
-		}
-		
-		this.getEffects().getProperties().add(new ItemEntry(new ItemStack(block, amountItCanProvide), new InventorySourceSelf()));
+		setStates(planName, blackboard, block, meta, tool, droppedItem);
 		
 		//remove knowing where resources are as a requirement
 		/*if (!HelperBlock.listResourcesToNotRemember.contains(block)) {
@@ -106,12 +100,27 @@ public class PlanGetResource extends PlanPiece {
 	}
 	
 	public PlanGetResource(String planName, Blackboard blackboard, ItemStack itemReturned, Block block, int meta, ItemStack tool) {
-		this(planName, blackboard, block, meta, tool);
+		super(planName, blackboard);
 		
 		this.droppedItem = itemReturned;
 		
 		//only adjust the item for world properties, not droppedItem
 		itemReturned.stackSize = amountItCanProvide;
+		
+		setStates(planName, blackboard, block, meta, tool, itemReturned);
+	}
+	
+	public void setStates(String planName, Blackboard blackboard, Block block, int meta, ItemStack tool, ItemStack droppedItem) {
+		this.block = block;
+		this.meta = meta;
+		this.neededTool = tool;
+		
+		if (neededTool != null) {
+			this.getPreconditions().getProperties().add(new ItemEntry(neededTool, new InventorySourceSelf()));
+		}
+		
+		//this.getEffects().getProperties().add(new ItemEntry(new ItemStack(block, amountItCanProvide), new InventorySourceSelf()));
+		this.getEffects().getProperties().add(new ItemEntry(droppedItem, new InventorySourceSelf()));
 	}
 	
 	public PlanGetResource(PlanPiece obj) {

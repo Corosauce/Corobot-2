@@ -276,7 +276,7 @@ public class PlanCraftRecipe extends PlanPiece {
 					UtilContainer.clickSlot(slotInventoryHotbarStart+1);
 					UtilContainer.clickSlot(slotInventoryHotbarStart+2);*/
 				} else {
-					System.out.println("open gui");
+					System.out.println("open gui crafting");
 					UtilContainer.openContainer(x, y, z);
 					guiWait = guiWaitAmount;
 				}
