@@ -237,7 +237,7 @@ public class PlayerAI implements IEntity {
 
 	@Override
 	public Vector3f getMvtvec() {
-		return agent.getBlackboard().getPath().getCurMoveTo();
+		return agent.getBlackboard().getPath() != null ? agent.getBlackboard().getPath().getCurMoveTo() : null;
 	}
 
 	@Override

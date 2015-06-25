@@ -169,11 +169,11 @@ public class PlanSmeltRecipe extends PlanPiece {
 					}
 					
 					System.out.println("TAKE OUT FROM FURNACE");
-					//TEMP FIX, MAKE FURNACE CODE NOT SUCK!
+					//TODO: TEMP FIX, MAKE FURNACE CODE NOT SUCK!
 					try {
 						Thread.sleep(150);
 					} catch (Exception e) {
-						// TODO: handle exception
+
 					}
 					UtilContainer.clickSlot(slotSmeltOut, UtilContainer.mouseLeftClick, UtilContainer.mouseShiftClick);
 					
