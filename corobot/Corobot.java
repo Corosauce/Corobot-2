@@ -10,6 +10,9 @@ import corobot.ai.behaviors.MasterPlanSequence;
 public class Corobot {
 
 	/**
+	 * 
+	 * need quick things to work on? check out TODOs
+	 * 
 	 * Terminology:
 	 * Plans: for GOAP, has dynamic data fed into it to be used, may contain sub tasks that it feeds data to
 	 * Tasks / SubTasks: Behaviors that are what make up some plans, uses blackboard as primary information
@@ -24,20 +27,23 @@ public class Corobot {
 	 * -- maybe fixed
 	 * - cant mine without guichat open
 	 * - sometimes gets stuck in main menu
-	 * - keeps mining other tree types but doesnt realize he can use them for crafting
-	 * t !!!!!!!!new items missing from active memory!!!!!!
-	 * -- fixed i think
+	 * x keeps mining other tree types but doesnt realize he can use them for crafting
+	 * x !!!!!!!!new items missing from active memory!!!!!!
+	 * x- fixed i think
 	 * - needs furnace for iron ore to iron, etc
-	 * - he wouldnt pickup the cobblestone, why? he picks up logs
-	 * - block of <ore> recipes causes infinate loops
+	 * x he wouldnt pickup the cobblestone, why? he picks up logs
+	 * x block of <ore> recipes causes infinate loops
+	 * x- solved removing "block of " recipes
 	 * -- vice versa is also annoying (ones that use block of iron, etc to make stuff)
 	 * -- so any recipes that has one making the other and vice versa will cause infinate loop or broken order
-	 * - need special exception for item meta, like damaged weapons, as goal "wooden pickaxe" wont recognize a damaged pickaxe already in inventory currently
+	 * --- this is still an issue overall
+	 * x need special exception for item meta, like damaged weapons, as goal "wooden pickaxe" wont recognize a damaged pickaxe already in inventory currently
 	 * 
-	 * - partial fixed for recipe needing multiple of things a mine plan can give
-	 * -- BUT now we have the bug for smelting only giving 1 of a thing we need multiple of since we've merged stacks for recipes
-	 * -- this also means this bug theoretically exists for crafting too now
-	 * --- force 64 for these too? lets try!
+	 * x partial fixed for recipe needing multiple of things a mine plan can give
+	 * x- BUT now we have the bug for smelting only giving 1 of a thing we need multiple of since we've merged stacks for recipes
+	 * x- this also means this bug theoretically exists for crafting too now
+	 * x-- force 64 for these too? lets try!
+	 * x--- seems to work well so far...
 	 * 
 	 * - smelting gui use has bugged out again somehow, needs fix!
 	 * 
@@ -50,14 +56,14 @@ public class Corobot {
 	 * - there was another reason, what was it?
 	 * 
 	 * BIGGEST ISSUE ATM:
-	 * in planner, effect of 1 stacksize satisfies 3 separate items each with a stacksize of 1, this is an issue if those 3 items are same:
-	 * - 5 coal needed to smelt
-	 * - 3 wood needed to craft pickaxe, got into a broken state when he only had 2, planner only sees need for 1, crafting needs 3
-	 * -- i think this is issue because its 3 itemstacks of wood each with 1 stacksize,
-	 * - how to solve this?
-	 * -- when building plan, pass preconditions to plan
-	 * --- planmineblock will then find real amount needed from the block its to get, and set the needed amount to that
-	 * ---- mineblock then mines till it has that many
+	 * x in planner, effect of 1 stacksize satisfies 3 separate items each with a stacksize of 1, this is an issue if those 3 items are same:
+	 * x- 5 coal needed to smelt
+	 * x- 3 wood needed to craft pickaxe, got into a broken state when he only had 2, planner only sees need for 1, crafting needs 3
+	 * x-- i think this is issue because its 3 itemstacks of wood each with 1 stacksize,
+	 * x- how to solve this?
+	 * x-- when building plan, pass preconditions to plan
+	 * x--- planmineblock will then find real amount needed from the block its to get, and set the needed amount to that
+	 * x---- mineblock then mines till it has that many
 	 * 
 	 * 
 	 * 
@@ -74,10 +80,15 @@ public class Corobot {
 	 * --- GOAP plans and non GOAP plans need return value compatibility
 	 * ---- currently all GOAP plans just return SUCCESS which is not good
 	 * 
-	 * - why do GOAP plans use isComplete? why not use check for return value of SUCCESS?
-	 * -- would solve above compatibility issue if they did
-	 * -- additionally, replace 'Corobot.getPlayerAI().planGoal.invalidatePlan();' with FAILURE return, and make parent class then call invalidatePlan if FAILURE
+	 * x why do GOAP plans use isComplete? why not use check for return value of SUCCESS?
+	 * x- would solve above compatibility issue if they did
+	 * x- additionally, replace 'Corobot.getPlayerAI().planGoal.invalidatePlan();' with FAILURE return, and make parent class then call invalidatePlan if FAILURE
 	 * 
+	 * learning ideas:
+	 * - "if a user goes from a to b, and runs out of something one thr trip, to stalk up more next time"
+	 * - stalk up on more food if wasnt enough for a trip etc
+	 * - sense that a bridge at a location could save lots of time vs pathing around
+	 * - remembering how to get around large objects like mountains
 	 */
 	
 	public static PlayerAI playerAI;
