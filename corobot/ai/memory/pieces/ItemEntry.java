@@ -90,12 +90,16 @@ public class ItemEntry implements IWorldStateProperty {
 
 	@Override
 	public boolean isSame(IWorldStateProperty prop) {
-		// TODO Auto-generated method stub
+		if (prop instanceof ItemEntry) {
+			ItemEntry propEntry = (ItemEntry) prop;
+			return UtilInventory.isSame(getStack(), propEntry.getStack());
+		}
 		return false;
 	}
 
 	@Override
 	public void setAmount(int amount) {
+		//TODO: need better understanding of memory amounts vs real mc rules to adhere to
 		if (amount > 64) {
 			Corobot.dbg("WARNING: amount set beyond stacksize limit of 64");
 		}
@@ -115,6 +119,11 @@ public class ItemEntry implements IWorldStateProperty {
 	@Override
 	public void setReuseAmount(int amount) {
 		reUseAmount = amount;
+	}
+
+	@Override
+	public boolean canMergeWithSame() {
+		return true;
 	}
 	
 }

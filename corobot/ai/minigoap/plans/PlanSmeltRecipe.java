@@ -46,7 +46,7 @@ public class PlanSmeltRecipe extends PlanPiece {
 	 */
 	private ItemStack itemTo;
 	private ItemStack itemFrom;
-	private int amountToSmelt = 1;
+	//private int amountToSmelt = 1;
 	
 	public State state = State.PATHING;
 	
@@ -91,7 +91,8 @@ public class PlanSmeltRecipe extends PlanPiece {
 		
 		itemTo = src.itemTo;
 		itemFrom = src.itemFrom;
-		amountToSmelt = src.amountToSmelt;
+		setAquireAmount(src.getAquireAmount());
+		//amountToSmelt = src.amountToSmelt;
 	}
 	
 	@Override
@@ -100,19 +101,25 @@ public class PlanSmeltRecipe extends PlanPiece {
 		
 		if (preconditionRequirement instanceof ItemEntry) {
 			ItemEntry entry = (ItemEntry) preconditionRequirement;
-			amountToSmelt = entry.getStack().stackSize;
+			setAquireAmount(entry.getStack().stackSize);
 			
-			System.out.println("SETTING amountToSmelt: " + amountToSmelt);
+			System.out.println("SETTING amountToSmelt: " + getAquireAmount());
 		}
 		
 	}
 	
-	public int getAmountToCraft() {
-		return amountToSmelt;
-	}
-
-	public void setAmountToCraft(int amountToCraft) {
-		this.amountToSmelt = amountToCraft;
+	@Override
+	public void addToTask(PlanPiece piece,
+			IWorldStateProperty effectRequirement,
+			IWorldStateProperty preconditionRequirement) {
+		super.addToTask(piece, effectRequirement, preconditionRequirement);
+		
+		if (preconditionRequirement instanceof ItemEntry) {
+			ItemEntry entry = (ItemEntry) preconditionRequirement;
+			setAquireAmount(getAquireAmount() + entry.getStack().stackSize);
+			
+			System.out.println("INCREMENTING amountToSmelt: " + getAquireAmount());
+		}
 	}
 
 	public ItemStack getItemToCraft() {
@@ -274,7 +281,7 @@ public class PlanSmeltRecipe extends PlanPiece {
 	}
 	
 	public boolean isTaskComplete() {
-		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemTo) >= amountToSmelt;
+		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemTo) >= getAquireAmount();
 	}
 	
 	public static int getFirstSlotContainingItem(Container container, ItemStack itemStack, int findStart, int findEnd) {

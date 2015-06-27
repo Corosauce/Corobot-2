@@ -21,7 +21,7 @@ public class UtilInventory {
 		return curCount;
 	}
 	
-	//mainly for recipe use, since it uses wildcard
+	//mainly for recipe use, since it uses wildcard, doesnt compare stacksize if stacksize is actually used
 	public static boolean isSame(ItemStack stack1, ItemStack stack2) {
 		if (stack1 == null || stack2 == null) return false;
 		if (stack1.getItem() == null || stack2.getItem() == null) {

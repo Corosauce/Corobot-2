@@ -26,9 +26,15 @@ public class WorldLocation implements IWorldStateProperty {
 		return true;
 	}
 
+	/**
+	 * We probably dont need to overload this method on child classes, since no 2 locations can have same pos vec, so this comparison is enough i think
+	 */
 	@Override
 	public boolean isSame(IWorldStateProperty prop) {
-		// TODO Auto-generated method stub
+		if (prop instanceof WorldLocation) {
+			WorldLocation propLoc = (WorldLocation) prop;
+			return pos.equals(propLoc.pos);
+		}
 		return false;
 	}
 
@@ -52,6 +58,11 @@ public class WorldLocation implements IWorldStateProperty {
 	@Override
 	public void setReuseAmount(int amount) {
 		//no
+	}
+
+	@Override
+	public boolean canMergeWithSame() {
+		return false;
 	}
 	
 	

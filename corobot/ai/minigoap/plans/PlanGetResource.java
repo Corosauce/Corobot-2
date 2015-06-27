@@ -68,7 +68,7 @@ public class PlanGetResource extends PlanPiece {
 	public int meta;
 	public ItemStack neededTool = null;
 	public State state = State.PATHING;
-	public int countNeeded = 1;
+	//public int countNeeded = 1;
 	
 	public int amountItCanProvide = 64;
 	
@@ -128,7 +128,8 @@ public class PlanGetResource extends PlanPiece {
 		block = ((PlanGetResource)obj).block;
 		meta = ((PlanGetResource)obj).meta;
 		neededTool = ((PlanGetResource)obj).neededTool;
-		countNeeded = ((PlanGetResource)obj).countNeeded;
+		//countNeeded = ((PlanGetResource)obj).countNeeded;
+		setAquireAmount(((PlanGetResource)obj).getAquireAmount());
 		droppedItem = ((PlanGetResource)obj).droppedItem;
 		
 		/*TOP TASK:
@@ -190,13 +191,18 @@ public class PlanGetResource extends PlanPiece {
 			IWorldStateProperty preconditionRequirement) {
 		super.initTask(piece, effectRequirement, preconditionRequirement);
 		
-		//TODO: verify this works - recipe crafting needs/has this too
-		if (preconditionRequirement instanceof ItemEntry) {
-			ItemEntry entry = (ItemEntry) preconditionRequirement;
-			
-			//TODO: i feel like this should increment from the effect, not precondition, to be more accurate, but currently we set effect to be 64 stack size.... hmmmm
-			countNeeded = entry.getStack().stackSize;
-			System.out.println("SETTING COUNT: " + countNeeded);
+		if (piece.isRealInstance()) {
+			setAquireAmount(piece.getAquireAmount());
+			System.out.println("SETTING COUNT FROM REAL INSTANCE: " + getAquireAmount());
+		} else {
+			//TODO: verify this works - recipe crafting needs/has this too
+			if (preconditionRequirement instanceof ItemEntry) {
+				ItemEntry entry = (ItemEntry) preconditionRequirement;
+				
+				//TODO: i feel like this should increment from the effect, not precondition, to be more accurate, but currently we set effect to be 64 stack size.... hmmmm
+				setAquireAmount(entry.getStack().stackSize);
+				System.out.println("SETTING COUNT: " + getAquireAmount());
+			}
 		}
 		
 	}
@@ -210,8 +216,8 @@ public class PlanGetResource extends PlanPiece {
 		if (preconditionRequirement instanceof ItemEntry) {
 			ItemEntry entry = (ItemEntry) preconditionRequirement;
 			
-			countNeeded += entry.getStack().stackSize;
-			System.out.println("INCREMENTING COUNT: " + countNeeded);
+			setAquireAmount(getAquireAmount() + entry.getStack().stackSize);
+			System.out.println("INCREMENTING COUNT: " + getAquireAmount());
 		}
 	}
 	
@@ -281,7 +287,7 @@ public class PlanGetResource extends PlanPiece {
 	}*/
 	
 	public boolean isTaskComplete() {
-		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, droppedItem/*Item.getItemFromBlock(this.block)*/) >= this.countNeeded;
+		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, droppedItem/*Item.getItemFromBlock(this.block)*/) >= getAquireAmount();
 	}
 	
 	@Override

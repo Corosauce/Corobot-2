@@ -42,7 +42,7 @@ import corobot.util.UtilMemory;
 public class PlanCraftRecipe extends PlanPiece {
 
 	private ItemStack itemToCraft;
-	private int amountToCraft = 1;
+	//private int amountToCraft = 1;
 	
 	public State state = State.PATHING;
 	public int width = -1;
@@ -81,7 +81,7 @@ public class PlanCraftRecipe extends PlanPiece {
 		this.getEffects().getProperties().add(new ItemEntry(fakeResult, new InventorySourceSelf()));
 		//uncomment if statement once he can use self crafting gui
 		//if (width > 2 || height > 2) {
-			this.getPreconditions().getProperties().add(new HouseLocation(HelperHouse.posHome));
+			//this.getPreconditions().getProperties().add(new HouseLocation(HelperHouse.posHome));
 			this.getPreconditions().getProperties().add(new MachineLocation(null, Blocks.crafting_table));
 		//}
 			
@@ -137,7 +137,7 @@ public class PlanCraftRecipe extends PlanPiece {
 		PlanCraftRecipe src = (PlanCraftRecipe) obj;
 		
 		itemToCraft = src.itemToCraft;
-		amountToCraft = src.amountToCraft;
+		setAquireAmount(src.getAquireAmount());
 		width = src.width;
 		height = src.height;
 		listRecipeShape = new ArrayList(src.listRecipeShape);
@@ -157,19 +157,26 @@ public class PlanCraftRecipe extends PlanPiece {
 		//TODO: verify this works
 		if (preconditionRequirement instanceof ItemEntry) {
 			ItemEntry entry = (ItemEntry) preconditionRequirement;
-			amountToCraft = entry.getStack().stackSize;
+			setAquireAmount(entry.getStack().stackSize);
+			//amountToCraft = entry.getStack().stackSize;
 			
-			System.out.println("SETTING amountToCraft: " + amountToCraft);
+			System.out.println("SETTING amountToCraft: " + getAquireAmount());
 		}
 		
 	}
 	
-	public int getAmountToCraft() {
-		return amountToCraft;
-	}
-
-	public void setAmountToCraft(int amountToCraft) {
-		this.amountToCraft = amountToCraft;
+	@Override
+	public void addToTask(PlanPiece piece,
+			IWorldStateProperty effectRequirement,
+			IWorldStateProperty preconditionRequirement) {
+		super.addToTask(piece, effectRequirement, preconditionRequirement);
+		
+		if (preconditionRequirement instanceof ItemEntry) {
+			ItemEntry entry = (ItemEntry) preconditionRequirement;
+			setAquireAmount(getAquireAmount() + entry.getStack().stackSize);
+			
+			System.out.println("INCREMENTING amountToCraft: " + getAquireAmount());
+		}
 	}
 
 	public ItemStack getItemToCraft() {
@@ -302,7 +309,7 @@ public class PlanCraftRecipe extends PlanPiece {
 	}
 	
 	public boolean isTaskComplete() {
-		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemToCraft) >= amountToCraft;
+		return UtilInventory.getItemCount(Corobot.playerAI.bridgePlayer.getPlayer().inventory, itemToCraft) >= getAquireAmount();
 	}
 	
 	
