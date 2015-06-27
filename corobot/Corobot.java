@@ -94,7 +94,7 @@ public class Corobot {
 	public static PlayerAI playerAI;
 	
 	public static boolean isKeyDownPause = false;
-	public static boolean isBotActive = true;
+	public static boolean isBotActive = false;
 	
 	public static void init() {
 		playerAI = new PlayerAI();

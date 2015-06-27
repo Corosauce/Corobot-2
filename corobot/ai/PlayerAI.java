@@ -67,6 +67,10 @@ public class PlayerAI implements IEntity {
 		
 		PlanRegistry.addPlanPiece(new PlanHarvestCrop("harvestWheat", bb, new ItemStack(Items.wheat), new ItemStack(Blocks.wheat)));
 		
+		
+		
+		//TODO: this stack has issues, Blocks.wheat is weirdly null for its item, needs looking into
+		ItemStack stack = new ItemStack(Blocks.wheat);
 		PlanRegistry.addPlanPiece(new PlanPlantCrop("plantWheat", bb, Blocks.wheat, new ItemStack(Items.wheat_seeds)));
 		
 		PlanRegistry.addPlanPiece(new PlanTillGrass("tillGrass", bb, new ItemStack(Blocks.farmland), new ItemStack(Items.wooden_hoe)));
