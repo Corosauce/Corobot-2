@@ -194,10 +194,25 @@ public class PlanGetResource extends PlanPiece {
 		if (preconditionRequirement instanceof ItemEntry) {
 			ItemEntry entry = (ItemEntry) preconditionRequirement;
 			
+			//TODO: i feel like this should increment from the effect, not precondition, to be more accurate, but currently we set effect to be 64 stack size.... hmmmm
 			countNeeded = entry.getStack().stackSize;
 			System.out.println("SETTING COUNT: " + countNeeded);
 		}
 		
+	}
+	
+	@Override
+	public void addToTask(PlanPiece piece,
+			IWorldStateProperty effectRequirement,
+			IWorldStateProperty preconditionRequirement) {
+		super.addToTask(piece, effectRequirement, preconditionRequirement);
+		
+		if (preconditionRequirement instanceof ItemEntry) {
+			ItemEntry entry = (ItemEntry) preconditionRequirement;
+			
+			countNeeded += entry.getStack().stackSize;
+			System.out.println("INCREMENTING COUNT: " + countNeeded);
+		}
 	}
 	
 	@Override

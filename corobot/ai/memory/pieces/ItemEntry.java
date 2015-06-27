@@ -1,6 +1,8 @@
 package corobot.ai.memory.pieces;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
+import net.minecraft.item.ItemTool;
 
 import com.corosus.ai.minigoap.IWorldStateProperty;
 
@@ -16,12 +18,19 @@ public class ItemEntry implements IWorldStateProperty {
 	//- so far that seems to make sense, it shouldnt be a factor in preconditions UNTIL we start weighing our best choices for plans
 	private InventorySource source;
 	
+	private int reUseAmount = 0;
+	
 	public ItemEntry(ItemStack stack, InventorySource source) {
 		if (stack.getItem() == null) {
 			Corobot.dbg("warning! item null!");
 		}
 		this.stack = stack;
 		this.source = source;
+		
+		//TODO: shouldnt this be contextual? what if a tool is needed as part of a crafting recipe and not for mining?
+		if (stack.getItem() instanceof ItemTool || stack.getItem() instanceof ItemSword) {
+			reUseAmount = 50;
+		}
 	}
 	
 	public ItemStack getStack() {
@@ -77,6 +86,35 @@ public class ItemEntry implements IWorldStateProperty {
 		} else {
 			return "" + stack.getItem();///* + ":" + stack.stackSize + ":" + stack.getItemDamage()*/ + " from " + source;
 		}
+	}
+
+	@Override
+	public boolean isSame(IWorldStateProperty prop) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setAmount(int amount) {
+		if (amount > 64) {
+			Corobot.dbg("WARNING: amount set beyond stacksize limit of 64");
+		}
+		stack.stackSize = amount;
+	}
+
+	@Override
+	public int getAmount() {
+		return stack.stackSize;
+	}
+
+	@Override
+	public int getReuseAmount() {
+		return reUseAmount;
+	}
+
+	@Override
+	public void setReuseAmount(int amount) {
+		reUseAmount = amount;
 	}
 	
 }

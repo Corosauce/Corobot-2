@@ -48,7 +48,9 @@ public class ScanEnvironmentForNeededBlocks extends LeafNode {
 		int range = 10;
 		int rangeY = 2;
 		
-		if (worldMC.getTotalWorldTime() % 20 == 0) {
+		//TEMP!!!
+		if (true) {
+		//if (worldMC.getTotalWorldTime() % 20 == 0) {
 			for (int x = -range; x < range; x++) {
 				for (int z = -range; z < range; z++) {
 					for (int y = -rangeY; y < rangeY; y++) {

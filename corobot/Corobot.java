@@ -21,6 +21,7 @@ public class Corobot {
 	 * - eg: PlanMaintainHouse uses TaskMaintainHouse
 	 * 
 	 * Ongoing bugs:
+	 * - he tries to mine water, need special ways to handle some blocks that arent air, actually, count it as air
 	 * - NEED A DELAY BETWEEN GUI OPEN AND SLOT USE, OTHERWISE SLOT USAGE FAILS ON FIRST CLICK OR MORE
 	 * -- thread.sleep(50) helps this, but we should do a better latency friendly solution
 	 * t still drops workbench contents instead of shift clicking back into inv

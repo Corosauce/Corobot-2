@@ -6,11 +6,6 @@ import java.util.List;
 import com.corosus.ai.minigoap.IWorldState;
 import com.corosus.ai.minigoap.IWorldStateProperty;
 
-import net.minecraft.item.ItemStack;
-import corobot.ai.memory.pieces.InventoryCollection;
-import corobot.ai.memory.pieces.MachineLocation;
-import corobot.ai.memory.pieces.ResourceLocation;
-
 public class PlayerMemoryState implements IWorldState {
 
 	public List<IWorldStateProperty> listProperties = new ArrayList<IWorldStateProperty>();
