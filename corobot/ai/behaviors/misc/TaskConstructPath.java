@@ -1,5 +1,7 @@
 package corobot.ai.behaviors.misc;
 
+import java.util.Random;
+
 import javax.vecmath.Vector3f;
 
 import net.minecraft.block.Block;
@@ -76,17 +78,37 @@ public class TaskConstructPath extends Sequence {
 		posPlayer.y--;
 
 		
-		//TEMP FOR TESTING
+		//MORE TEMP
 		bb.setPathConstructEnd(new Vector3f(posPlayer));
 		bb.getPathConstructEnd().add(new Vector3f(50, 0, 0));
-		bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(Blocks.redstone_ore).getYMiddle();
+		if (HelperWorldPatterns.lookupBlockToPattern.containsKey(bb.getBlockToMine())) {
+			bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(bb.getBlockToMine()).getYMiddle();
+		} else {
+			Corobot.dbg("WARNING: missing ore pattern for " + bb.getBlockToMine());
+			bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(Blocks.redstone_ore).getYMiddle();
+		}
 		
-		
-		Vector3f posEnd = bb.getPathConstructEnd();
 		
 		//startedBuilding = false;
 		
 		if (!startedBuilding) {
+			
+			//TEMP FOR TESTING
+			bb.setPathConstructEnd(new Vector3f(posPlayer));
+			Random rand = new Random();
+			if (rand.nextBoolean()) {
+				bb.getPathConstructEnd().add(new Vector3f(50, 0, 0));
+			} else {
+				bb.getPathConstructEnd().add(new Vector3f(0, 0, 50));
+			}
+			
+			if (HelperWorldPatterns.lookupBlockToPattern.containsKey(bb.getBlockToMine())) {
+				bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(bb.getBlockToMine()).getYMiddle();
+			} else {
+				Corobot.dbg("WARNING: missing ore pattern for " + bb.getBlockToMine());
+				bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(Blocks.redstone_ore).getYMiddle();
+			}
+			
 			System.out.println("searching for: " + new ItemStack(bb.getBlockToMine()).getDisplayName());
 			curDist = 0;
 			startedBuilding = true;
@@ -94,6 +116,7 @@ public class TaskConstructPath extends Sequence {
 			posCur = new Vector3f(posPlayer);
 		}
 		
+		Vector3f posEnd = bb.getPathConstructEnd();
 		Vector3f angle = VecUtil.getAngle(posStart, posEnd);
 		//not too steep!
 		if (angle.y < -0.49F) {

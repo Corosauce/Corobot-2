@@ -345,7 +345,7 @@ public class PlanCraftRecipe extends PlanPiece {
 		if (Minecraft.getMinecraft().currentScreen instanceof GuiContainer) {
 			((GuiContainer)Minecraft.getMinecraft().currentScreen).inventorySlots.onContainerClosed(playerEnt);
 		}
-		Minecraft.getMinecraft().displayGuiScreen(new GuiChat(""));
+		Minecraft.getMinecraft().setIngameNotInFocus();
 		AIBTAgent agent = Corobot.getPlayerAI().agent;
 		HelperInventory.updateCache(agent.getBlackboard().getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
 	}

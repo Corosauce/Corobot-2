@@ -29,9 +29,10 @@ public class OpenGUIChatWhenNeeded extends LeafNode {
 		
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.currentScreen == null) {
-			if (mc.theWorld.getTotalWorldTime() % 5 == 0) {
+			//if (mc.theWorld.getTotalWorldTime() % 5 == 0) {
 				mc.displayGuiScreen(new GuiChat(""));
-			}
+				Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
+			//}
         }
 		
 		return super.tick();
