@@ -217,7 +217,7 @@ public class PlanGetResource extends PlanPiece {
 			ItemEntry entry = (ItemEntry) preconditionRequirement;
 			
 			setAquireAmount(getAquireAmount() + entry.getStack().stackSize);
-			System.out.println("INCREMENTING COUNT: " + getAquireAmount());
+			System.out.println("INCREMENTING COUNT by " + entry.getStack().stackSize + ": " + getAquireAmount());
 		}
 	}
 	
