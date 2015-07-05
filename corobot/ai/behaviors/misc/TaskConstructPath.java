@@ -5,6 +5,7 @@ import java.util.Random;
 import javax.vecmath.Vector3f;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -26,6 +27,7 @@ import corobot.Corobot;
 import corobot.ai.BlackboardImpl;
 import corobot.ai.behaviors.resources.TaskMineBlock;
 import corobot.ai.memory.helper.HelperWorldPatterns;
+import corobot.ai.memory.helper.OrePattern;
 import corobot.ai.memory.pieces.BlockLocation;
 
 public class TaskConstructPath extends Sequence {
@@ -37,19 +39,30 @@ public class TaskConstructPath extends Sequence {
 	
 	//public Sequence sequenceTasks;
 	public MutableBoolean boolShouldMine = new MutableBoolean();
+	public MutableBoolean boolShouldWanderSurface = new MutableBoolean();
 	
 	public TaskConstructPath(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
 		
 		//sequenceTasks = new Sequence(this, getBlackboard());
 		
+		IdleWander wander = new IdleWander(this, getBlackboard());
 		TaskMoveToPos moveTo = new TaskMoveToPos(this, getBlackboard());
-		SelectorBoolean selBool = new SelectorBoolean(this, getBlackboard(), boolShouldMine);
-		selBool.add(new TaskPlaceBlock(selBool, getBlackboard()));
-		selBool.add(new TaskMineBlock(selBool, getBlackboard()));
 		
-		add(moveTo);
-		add(selBool);
+		SelectorBoolean selBoolWander = new SelectorBoolean(this, getBlackboard(), boolShouldWanderSurface);
+		
+		SelectorBoolean selBoolMine = new SelectorBoolean(this, getBlackboard(), boolShouldMine);
+		selBoolMine.add(new TaskPlaceBlock(selBoolMine, getBlackboard()));
+		selBoolMine.add(new TaskMineBlock(selBoolMine, getBlackboard()));
+
+		Sequence seq = new Sequence(this, getBlackboard());
+		seq.add(moveTo);
+		seq.add(selBoolMine);
+		
+		selBoolWander.add(seq);
+		selBoolWander.add(wander);
+		
+		add(selBoolWander);
 	}
 
 	@Override
@@ -77,15 +90,26 @@ public class TaskConstructPath extends Sequence {
 		Vector3f posPlayer = player.getPos();
 		posPlayer.y--;
 
+		//TODO: surface block support, atm he goes to 128
+		//mostly implemented, reroutes to wandering
 		
 		//MORE TEMP
 		bb.setPathConstructEnd(new Vector3f(posPlayer));
 		bb.getPathConstructEnd().add(new Vector3f(50, 0, 0));
-		if (HelperWorldPatterns.lookupBlockToPattern.containsKey(bb.getBlockToMine())) {
-			bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(bb.getBlockToMine()).getYMiddle();
+		OrePattern orePattern = HelperWorldPatterns.lookupBlockToPattern.get(bb.getBlockToMine());
+		if (orePattern != null) {
+			
 		} else {
 			Corobot.dbg("WARNING: missing ore pattern for " + bb.getBlockToMine());
-			bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(Blocks.redstone_ore).getYMiddle();
+			orePattern = HelperWorldPatterns.lookupBlockToPattern.get(Blocks.redstone_ore);
+		}
+		
+		if (orePattern.isOnSurface()) {
+			boolShouldWanderSurface.set(true);
+			return super.tick();
+		} else {
+			boolShouldWanderSurface.set(false);
+			bb.getPathConstructEnd().y = orePattern.getYMiddle();
 		}
 		
 		
@@ -94,7 +118,7 @@ public class TaskConstructPath extends Sequence {
 		if (!startedBuilding) {
 			
 			//TEMP FOR TESTING
-			bb.setPathConstructEnd(new Vector3f(posPlayer));
+			/*bb.setPathConstructEnd(new Vector3f(posPlayer));
 			Random rand = new Random();
 			if (rand.nextBoolean()) {
 				bb.getPathConstructEnd().add(new Vector3f(50, 0, 0));
@@ -102,12 +126,11 @@ public class TaskConstructPath extends Sequence {
 				bb.getPathConstructEnd().add(new Vector3f(0, 0, 50));
 			}
 			
-			if (HelperWorldPatterns.lookupBlockToPattern.containsKey(bb.getBlockToMine())) {
-				bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(bb.getBlockToMine()).getYMiddle();
+			if (orePattern.isOnSurface()) {
+				
 			} else {
-				Corobot.dbg("WARNING: missing ore pattern for " + bb.getBlockToMine());
-				bb.getPathConstructEnd().y = HelperWorldPatterns.lookupBlockToPattern.get(Blocks.redstone_ore).getYMiddle();
-			}
+				bb.getPathConstructEnd().y = orePattern.getYMiddle();
+			}*/
 			
 			System.out.println("searching for: " + new ItemStack(bb.getBlockToMine()).getDisplayName());
 			curDist = 0;
@@ -146,28 +169,28 @@ public class TaskConstructPath extends Sequence {
 		
 		System.out.println("cur coord test: " + posConstruct + " - dist: " + VecUtil.getDistSqrd(posConstruct, posEnd));
 		
-		if (posAir3 != Blocks.air) {
+		if (canMine(posAir3)) {
 			//need to dig
 			boolShouldMine.set(true);
 			bb.setMoveToBest(new Vector3f(x, y + 3, z));
 			bb.setBlockLocationToMine(new BlockLocation(bb.getMoveTo(), posAir3));
 			System.out.println("need to dig 3");
 			return super.tick();
-		} else if (posAir2 != Blocks.air) {
+		} else if (canMine(posAir2)) {
 			//need to dig
 			boolShouldMine.set(true);
 			bb.setMoveToBest(new Vector3f(x, y + 2, z));
 			bb.setBlockLocationToMine(new BlockLocation(bb.getMoveTo(), posAir2));
 			System.out.println("need to dig 2");
 			return super.tick();
-		} else if (posAir1 != Blocks.air) {
+		} else if (canMine(posAir1)) {
 			//need to dig
 			boolShouldMine.set(true);
 			bb.setMoveToBest(new Vector3f(x, y + 1, z));
 			bb.setBlockLocationToMine(new BlockLocation(bb.getMoveTo(), posAir1));
 			System.out.println("need to dig 1");
 			return super.tick();
-		} else if (!posGround.getMaterial().isSolid()) {
+		} else if (!orePattern.isOnSurface() && !posGround.getMaterial().isSolid() && posGround.getMaterial() != Material.water) {
 			//need to place
 			boolShouldMine.set(false);
 			bb.setMoveToBest(new Vector3f(x, y + 0, z));
@@ -205,6 +228,9 @@ public class TaskConstructPath extends Sequence {
 			}
 			
 			System.out.println("increase distance of mine to " + curDist);
+			
+			//TODO: TEST!!!
+			//return super.tick();
 		}
 		
 		//TEMP TESTING, delete these if statements later
@@ -226,6 +252,10 @@ public class TaskConstructPath extends Sequence {
 		
 		
 		return EnumBehaviorState.RUNNING;
+	}
+	
+	public boolean canMine(Block block) {
+		return block != Blocks.air && block.getMaterial() != Material.water;
 	}
 	
 	@Override

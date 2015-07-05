@@ -21,6 +21,10 @@ public class Corobot {
 	 * - eg: PlanMaintainHouse uses TaskMaintainHouse
 	 * 
 	 * Ongoing bugs:
+	 * - confirm: he wont switch to fighting if orders is forcing RUNNING state always
+	 * - strip mining fails if hes infront of an open area at the right y level, make him pathfind to end point to continue! 
+	 * - he will mess with previously built entrances to caves, because he still lacks WP usage to the caves
+	 * - if his pickaxe breaks he doesnt realize and will keep mining with one that doesnt do the job
 	 * - he tries to mine water, need special ways to handle some blocks that arent air, actually, count it as air
 	 * - NEED A DELAY BETWEEN GUI OPEN AND SLOT USE, OTHERWISE SLOT USAGE FAILS ON FIRST CLICK OR MORE
 	 * -- thread.sleep(50) helps this, but we should do a better latency friendly solution
@@ -67,6 +71,17 @@ public class Corobot {
 	 * x---- mineblock then mines till it has that many
 	 * 
 	 * 
+	 * 
+	 * 
+	 * high level todo:
+	 * - saving/reloading memory
+	 * - remembering cave entrances
+	 * - getting to high up resources to mine
+	 * -- even akward angles to get to, needs to use construct path to get to resources
+	 * - construct path needs to be less retarded when placing foundation
+	 * - farming
+	 * - inventory clean up and chest management
+	 * - 
 	 * 
 	 * todo:
 	 * - improve combat survival

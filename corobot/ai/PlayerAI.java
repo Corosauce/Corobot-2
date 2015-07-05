@@ -10,8 +10,6 @@ import net.minecraft.item.ItemStack;
 
 import com.corosus.ai.Blackboard;
 import com.corosus.ai.bt.BehaviorNode;
-import com.corosus.ai.minigoap.PlanGoal;
-import com.corosus.ai.minigoap.PlanPiece;
 import com.corosus.ai.minigoap.PlanRegistry;
 import com.corosus.ai.path.Path;
 import com.corosus.entity.IEntity;
@@ -21,10 +19,10 @@ import corobot.Corobot;
 import corobot.ai.behaviors.OrdersTasks;
 import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.helper.HelperItemUsing;
-import corobot.ai.minigoap.plans.PlanCraftRecipe;
+import corobot.ai.memory.pieces.MachineLocation;
+import corobot.ai.minigoap.plans.PlanGetResource;
 import corobot.ai.minigoap.plans.PlanHarvestCrop;
 import corobot.ai.minigoap.plans.PlanMaintainHouse;
-import corobot.ai.minigoap.plans.PlanGetResource;
 import corobot.ai.minigoap.plans.PlanPlantCrop;
 import corobot.ai.minigoap.plans.PlanTillGrass;
 import corobot.ai.profile.ProfilePlayer;
@@ -91,12 +89,13 @@ public class PlayerAI implements IEntity {
 		PlanRegistry.addPlanPiece(new PlanGetResource("mineLog1", bb, Blocks.log, 1, null));
 		PlanRegistry.addPlanPiece(new PlanGetResource("mineLog2", bb, Blocks.log, 2, null));
 		PlanRegistry.addPlanPiece(new PlanGetResource("mineLog3", bb, Blocks.log, 3, null));
-		PlanRegistry.addPlanPiece(new PlanGetResource("mineCobble", bb, Blocks.cobblestone, 0, new ItemStack(Items.wooden_pickaxe)));
+		//lets just not mine cobble, i mean its not like its naturally occuring
+		//PlanRegistry.addPlanPiece(new PlanGetResource("mineCobble", bb, Blocks.cobblestone, 0, new ItemStack(Items.wooden_pickaxe)));
 		PlanRegistry.addPlanPiece(new PlanGetResource("mineStone", bb, new ItemStack(Blocks.cobblestone), Blocks.stone, 0, new ItemStack(Items.wooden_pickaxe)));
 		PlanRegistry.addPlanPiece(new PlanGetResource("mineCoal", bb, new ItemStack(Items.coal), Blocks.coal_ore, 0, new ItemStack(Items.stone_pickaxe)));
 		PlanRegistry.addPlanPiece(new PlanGetResource("mineIron", bb, /*new ItemStack(Items.iron_ingot), */Blocks.iron_ore, 0, new ItemStack(Items.stone_pickaxe)));
 		PlanRegistry.addPlanPiece(new PlanGetResource("mineDiamond", bb, new ItemStack(Items.diamond), Blocks.diamond_ore, 0, new ItemStack(Items.iron_pickaxe)));
-		PlanRegistry.addPlanPiece(new PlanGetResource("mineGrass", bb, new ItemStack(Blocks.dirt), Blocks.grass, 0, null));
+		//PlanRegistry.addPlanPiece(new PlanGetResource("mineGrass", bb, new ItemStack(Blocks.dirt), Blocks.grass, 0, null));
 		PlanRegistry.addPlanPiece(new PlanGetResource("mineDirt", bb, new ItemStack(Blocks.dirt), Blocks.dirt, 0, null));
 		//PlanRegistry.addPlanPiece(new PlanMineBlockNewSequence("minePalm", TCBlockRegistry.planks));
 		//PlanRegistry.addPlanPiece(new PlanCraftRecipeManual("craftWoodPlanks", new ItemStack(Blocks.planks), new ItemStack(Blocks.log)));
@@ -132,6 +131,8 @@ public class PlayerAI implements IEntity {
 		//temp - or not?
 		Path path = new Path(agent.getBlackboard());
 		agent.getBlackboard().setPath(path);
+		
+		((BlackboardImpl)agent.getBlackboard()).getPlayerMemory().getProperties().add(new MachineLocation(new Vector3f(138, 64, 252), Blocks.crafting_table));
 	}
 	
 	public void tickUpdate() {

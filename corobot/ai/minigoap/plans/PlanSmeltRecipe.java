@@ -34,6 +34,7 @@ import corobot.ai.memory.pieces.BlockLocation;
 import corobot.ai.memory.pieces.ItemEntry;
 import corobot.ai.memory.pieces.inventory.InventorySourceSelf;
 import corobot.util.UtilContainer;
+import corobot.util.UtilEnt;
 import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
 
@@ -266,8 +267,15 @@ public class PlanSmeltRecipe extends PlanPiece {
 				
 			} else {
 				state = State.PATHING;
-				if (world.getTicksTotal() % 40 == 0) {
+				//if (world.getTicksTotal() % 40 == 0) {
 					getBlackboard().setMoveToBest(loc.getPos());
+				//}
+					
+				boolean alwaysLook = true;
+				int lookSpeed = 5;
+				if (alwaysLook) {
+					UtilEnt.facePos(Corobot.playerAI.bridgePlayer.getPlayer(), loc.getPos(), lookSpeed, 90);
+					Corobot.playerAI.bridgePlayer.getPlayer().rotationPitch += 30;
 				}
 			}
 			//Corobot.dbg("state: " + state);

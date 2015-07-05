@@ -148,22 +148,22 @@ public class AvoidClosestThreat extends LeafNode {
         	//System.out.println("flee");
         	//if (c_AIP.i.pathToEntity == null) {
         	//if (ent.worldObj.getTotalWorldTime() % 10 == 0) {
-        	if (HelperPath.pathNow(Repaths.FLEE)) {
+        	//if (HelperPath.pathNow(Repaths.FLEE)) {
         		
         		if (ent.onGround || ent.isInWater()) {
         			Block what = ent.worldObj.getBlock(gatherX, finalY, gatherZ);
         			if (what != Blocks.water) {
         				getBlackboard().setMoveToBest(new Vector3f(gatherX, finalY+1, gatherZ));
-        				HelperPath.pathed(Repaths.FLEE);
+        				//HelperPath.pathed(Repaths.FLEE);
         				Block what2 = ent.worldObj.getBlock(gatherX, finalY+1, gatherZ);
         			} else {
         				getBlackboard().setMoveToBest(new Vector3f(gatherX, finalY+1, gatherZ));
-        				HelperPath.pathed(Repaths.FLEE);
+        				//HelperPath.pathed(Repaths.FLEE);
         				Block what2 = ent.worldObj.getBlock(gatherX, finalY+1, gatherZ);
         				System.out.println("final flee block: " + what2);
         			}
         		}
-        	}
+        	//}
         		//c_AIP.i.walkTo(ent, gatherX, finalY, gatherZ, maxPFRange , 600, -1);
         	//}
         	//this.walkTo(this, homeX, homeY, homeZ, maxPFRange, 600);

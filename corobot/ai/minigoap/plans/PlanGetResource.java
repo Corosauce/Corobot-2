@@ -36,6 +36,7 @@ import corobot.ai.behaviors.resources.SelectorGetOreFromMemory;
 import corobot.ai.behaviors.resources.TaskMineBlock;
 import corobot.ai.behaviors.resources.TaskSearchForResource;
 import corobot.ai.memory.helper.HelperBlock;
+import corobot.ai.memory.helper.HelperHouse;
 import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
 import corobot.ai.memory.pieces.ItemEntry;
@@ -121,6 +122,9 @@ public class PlanGetResource extends PlanPiece {
 		
 		//this.getEffects().getProperties().add(new ItemEntry(new ItemStack(block, amountItCanProvide), new InventorySourceSelf()));
 		this.getEffects().getProperties().add(new ItemEntry(droppedItem, new InventorySourceSelf()));
+		if (block != HelperHouse.getBlockHouseMaterial()) {
+			this.getPreconditions().getProperties().add(new ItemEntry(new ItemStack(HelperHouse.getBlockHouseMaterial(), 64), new InventorySourceSelf()));
+		}
 	}
 	
 	public PlanGetResource(PlanPiece obj) {
@@ -163,6 +167,12 @@ public class PlanGetResource extends PlanPiece {
 		//sequenceFindResources.add(new TaskSearchForResource(this, getBlackboard()));
 		//unneeded since it moves on for now
 		//sequenceFindResources.add(new TaskMoveToPos(this, getBlackboard()));
+		
+		/*
+		 * 
+		 * 
+		 * 
+		 */
 		
 		SelectorGetOreFromMemory seqMemory = new SelectorGetOreFromMemory(sequenceTasksNew, getBlackboard());
 		SelectorGetOreFromArea seqArea = new SelectorGetOreFromArea(seqMemory, getBlackboard());
@@ -226,6 +236,11 @@ public class PlanGetResource extends PlanPiece {
 		
 		//System.out.println("mine block plan");
 		
+		//TODO: fix this properly
+		if (getAquireAmount() > 64) {
+			setAquireAmount(64);
+		}
+		
 		AIBTAgent agent = Corobot.getPlayerAI().agent;
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
@@ -242,8 +257,10 @@ public class PlanGetResource extends PlanPiece {
 		
 		BlockLocation loc = null;
 		
+		//TEMP MAYBE, FORCE SO WHEN WE RESET with shift+pause it doesnt break state
+		
 		//init stuff for sequence
-		if (sequenceTasksNew.getActiveBehaviorIndex() == -1) {
+		if (this.sequenceTasksNew.getActiveBehaviorIndex() == -1) {
 			bb.setBlockToMine(block);
 			bb.setMetaToMine(meta);
 			bb.setItemToPickup(droppedItem);

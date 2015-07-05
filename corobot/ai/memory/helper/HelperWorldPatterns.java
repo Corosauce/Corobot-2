@@ -2,8 +2,18 @@ package corobot.ai.memory.helper;
 
 import java.util.HashMap;
 
+import javax.vecmath.Vector3f;
+
+import com.corosus.ai.AIBTAgent;
+import com.corosus.entity.IEntity;
+import com.corosus.world.IWorld;
+
+import corobot.Corobot;
+import corobot.ai.BlackboardImpl;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
+import net.minecraft.world.World;
 
 public class HelperWorldPatterns {
 
@@ -32,5 +42,42 @@ public class HelperWorldPatterns {
 		lookupBlockToPattern.put(Blocks.sand, new OrePattern(true));
 		lookupBlockToPattern.put(Blocks.log, new OrePattern(true));
 		lookupBlockToPattern.put(Blocks.log2, new OrePattern(true));
+		lookupBlockToPattern.put(Blocks.stone, new OrePattern(true));
+		lookupBlockToPattern.put(Blocks.cobblestone, new OrePattern(true));
+	}
+	
+	public static void setNewPathConstruct(Block ore) {
+
+		AIBTAgent agent = Corobot.getPlayerAI().agent;
+		BlackboardImpl bb = (BlackboardImpl) agent.getBlackboard();
+		IWorld world = Corobot.getPlayerAI().bridgeWorld;
+		IEntity player = Corobot.getPlayerAI();
+		World worldMC = Minecraft.getMinecraft().theWorld;
+		Minecraft mc = Minecraft.getMinecraft();
+		
+		Vector3f posPlayer = player.getPos();
+		posPlayer.y--;
+
+		//TODO: surface block support, atm he goes to 128
+		//mostly implemented, reroutes to wandering
+		
+		//MORE TEMP
+		bb.setPathConstructEnd(new Vector3f(posPlayer));
+		bb.getPathConstructEnd().add(new Vector3f(50, 0, 0));
+		OrePattern orePattern = HelperWorldPatterns.lookupBlockToPattern.get(bb.getBlockToMine());
+		if (orePattern != null) {
+			
+		} else {
+			Corobot.dbg("WARNING: missing ore pattern for " + bb.getBlockToMine());
+			orePattern = HelperWorldPatterns.lookupBlockToPattern.get(Blocks.redstone_ore);
+		}
+		
+		if (orePattern.isOnSurface()) {
+			boolShouldWanderSurface.set(true);
+			return super.tick();
+		} else {
+			boolShouldWanderSurface.set(false);
+			bb.getPathConstructEnd().y = orePattern.getYMiddle();
+		}
 	}
 }

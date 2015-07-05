@@ -90,7 +90,7 @@ public class IdleWander extends LeafNode {
         			} else {
         				getBlackboard().setMoveToBest(new Vector3f(gatherX, finalY+1, gatherZ));
         				Block what2 = ent.worldObj.getBlock(gatherX, finalY+1, gatherZ);
-        				System.out.println("final flee block: " + what2);
+        				//System.out.println("final flee block: " + what2);
         			}
         			
         			

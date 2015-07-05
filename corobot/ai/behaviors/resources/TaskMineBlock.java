@@ -52,7 +52,7 @@ public class TaskMineBlock extends BehaviorNode {
 		//NEW
 		
 		if (bb.getBlockLocationToMine() == null) {
-			Corobot.dbg("CRITICAL: block to mine not set");
+			Corobot.dbg("CRITICAL: block to mine location not set");
 			return EnumBehaviorState.FAILURE;
 		}
 		

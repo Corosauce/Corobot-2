@@ -43,14 +43,14 @@ public class TrackAndAttackEntity extends LeafNode {
 				Entity targetEnt = ((TargetBridge)target).target;
 				
 				//if (player.getLevel().getTicksTotal() % 20 == 0) {
-				if (HelperPath.pathNow(Repaths.MAIN)) {
+				//if (HelperPath.pathNow(Repaths.MAIN)) {
 					if (VecUtil.getDistSqrd(player.getPos(), target.getPos()) > attackRange) {
 						if (targetEnt.onGround || targetEnt.isInWater()) {
-							HelperPath.pathed(Repaths.MAIN);
+							//HelperPath.pathed(Repaths.MAIN);
 							getBlackboard().setMoveToBest(target.getPos());
 						}
 					}
-				}
+				//}
 				
 				if (VecUtil.getDistSqrd(player.getPos(), target.getPos()) <= attackRange) {
 					if (player.getLevel().getTicksTotal() % 5 == 0) {

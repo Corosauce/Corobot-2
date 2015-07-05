@@ -68,12 +68,13 @@ public class SenseEnvironmentPlayer extends LeafNode {
 
         boolean hasOrders = getBlackboard().getAgent().getBtTemplate().ordersHandler.hasOrders();
 
-        //Check for active orders
-        getBlackboard().shouldFollowOrders().set(hasOrders && getBlackboard().getAgent().getProfile().shouldFollowOrders());
-
         //Check if should be fighting state
         getBlackboard().isFighting().set(/*!getBlackboard().shouldTrySurvival().get() && */getBlackboard().getTargetAttack() != null);
         //getBlackboard().isFighting().set(false);
+
+        //Check for active orders
+        this.getBlackboard().shouldFollowOrders().set(hasOrders && getBlackboard().getAgent().getProfile().shouldFollowOrders());
+        //System.out.println("should follow orders: " + this.getBlackboard().shouldFollowOrders().get());
     }
 
     public boolean safetyCheck() {

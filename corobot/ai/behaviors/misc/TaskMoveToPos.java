@@ -74,13 +74,30 @@ public class TaskMoveToPos extends BehaviorNode {
 		}
 		
 		double dist = VecUtil.getDistSqrd(player.getPos(), pos);
-		if (dist < 3) {
+		if (dist < 2) {
 			
 			return EnumBehaviorState.SUCCESS;
 			
 		} else {
-			//TODO: confirm this is ok, other logic should determine where to go, this just retries
-			getBlackboard().setMoveToBest(pos);
+			boolean triedToPath = getBlackboard().setMoveToBest(pos);
+			
+			if (triedToPath) {
+				boolean pathFail = false;
+				//detect success of path setting
+				if (getBlackboard().getPath().listPathnodes.size() == 0) {
+					pathFail = true;
+				//verify we can compare like this
+				//for checking of path actually completed entirely
+				} else if (!getBlackboard().getPath().getLastMoveTo().equals(pos)) {
+					Corobot.dbg("path ended this far from target pos: " + VecUtil.getDistSqrd(pos, getBlackboard().getPath().getLastMoveTo()));
+					//hmm
+				}
+				
+				if (pathFail) {
+					Corobot.dbg("pathfind to " + pos + " failed to get any path!");
+					return EnumBehaviorState.FAILURE;
+				}
+			}
 			
 			boolean alwaysLook = true;
 			int lookSpeed = 5;

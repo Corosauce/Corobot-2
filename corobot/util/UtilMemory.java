@@ -6,6 +6,7 @@ import javax.vecmath.Vector3f;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -41,6 +42,13 @@ public class UtilMemory {
 			if (prop instanceof BlockLocation) {
 				
 				if (((BlockLocation)prop).getBlock() == block && (((BlockLocation)prop).getMeta() == meta || meta == -1)) {
+					
+					if (block == Blocks.log || block == Blocks.log2) {
+						if (((BlockLocation) prop).getPos().y > player.getPos().y+1) {
+							continue;
+						}
+					}
+					
 					double dist = VecUtil.getDistSqrd(player.getPos(), ((BlockLocation) prop).getPos());
 					if (dist < closestDist) {
 						closestDist = dist;
@@ -68,10 +76,13 @@ public class UtilMemory {
 		
 		int range = 10;
 		int rangeY = 3;
+		if (blockToFind == Blocks.log || blockToFind == Blocks.log2) {
+			rangeY = 1;
+		}
 		
 		for (int x = -range; x < range; x++) {
 			for (int z = -range; z < range; z++) {
-				for (int y = -rangeY; y < rangeY; y++) {
+				for (int y = rangeY; y > -rangeY; y--) {
 					int xx = MathHelper.floor_double(pos.x)+x;
 					int yy = MathHelper.floor_double(pos.y)+y;
 					int zz = MathHelper.floor_double(pos.z)+z;
