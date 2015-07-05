@@ -46,6 +46,7 @@ public class HelperWorldPatterns {
 		lookupBlockToPattern.put(Blocks.cobblestone, new OrePattern(true));
 	}
 	
+	//TODO: this will probably be an actual task, remove if so
 	public static void setNewPathConstruct(Block ore) {
 
 		AIBTAgent agent = Corobot.getPlayerAI().agent;

@@ -30,6 +30,7 @@ import corobot.Corobot;
 import corobot.ai.BlackboardImpl;
 import corobot.ai.behaviors.misc.TaskConstructPath;
 import corobot.ai.behaviors.misc.TaskFindNearbyItem;
+import corobot.ai.behaviors.misc.TaskGetResourceSeekLocation;
 import corobot.ai.behaviors.misc.TaskMoveToPos;
 import corobot.ai.behaviors.resources.SelectorGetOreFromArea;
 import corobot.ai.behaviors.resources.SelectorGetOreFromMemory;
@@ -181,7 +182,7 @@ public class PlanGetResource extends PlanPiece {
 		//TODO: add to seqArea
 		//some sort of generic profile based block mining task
 		//this is temp, a profiling class needs to invoke this taskconstructpath class
-		seqArea.add(new TaskConstructPath(seqArea, getBlackboard()));
+		seqArea.add(new TaskGetResourceSeekLocation(seqArea, getBlackboard()));
 		
 		sequenceTasksNew = new Sequence(obj, getBlackboard());
 		sequenceTasksNew.add(seqMemory);
@@ -287,13 +288,13 @@ public class PlanGetResource extends PlanPiece {
 			
 		}
 		
-		EnumBehaviorState result = sequenceTasksNew.tick();
+		//EnumBehaviorState result = sequenceTasksNew.tick();
 		
 		
 		if (isTaskComplete()) {
 			return EnumBehaviorState.SUCCESS;
 		} else {
-			return EnumBehaviorState.RUNNING;
+			return sequenceTasksNew.tick();//EnumBehaviorState.RUNNING;
 		}
 	}
 	

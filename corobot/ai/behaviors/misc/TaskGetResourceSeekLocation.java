@@ -47,19 +47,19 @@ public class TaskGetResourceSeekLocation extends Sequence {
 		//sequenceTasks = new Sequence(this, getBlackboard());
 		
 		IdleWander wander = new IdleWander(this, getBlackboard());
-		TaskMoveToPos moveTo = new TaskMoveToPos(this, getBlackboard());
+		//TaskMoveToPos moveTo = new TaskMoveToPos(this, getBlackboard());
 		
 		SelectorBoolean selBoolWander = new SelectorBoolean(this, getBlackboard(), boolShouldWanderSurface);
 		
-		SelectorBoolean selBoolMine = new SelectorBoolean(this, getBlackboard(), boolShouldMine);
-		selBoolMine.add(new TaskPlaceBlock(selBoolMine, getBlackboard()));
-		selBoolMine.add(new TaskMineBlock(selBoolMine, getBlackboard()));
+		//SelectorBoolean selBoolMine = new SelectorBoolean(this, getBlackboard(), boolShouldMine);
+		//selBoolMine.add(new TaskPlaceBlock(selBoolMine, getBlackboard()));
+		//selBoolMine.add(new TaskMineBlock(selBoolMine, getBlackboard()));
 
-		Sequence seq = new Sequence(this, getBlackboard());
-		seq.add(moveTo);
-		seq.add(selBoolMine);
+		//Sequence seq = new Sequence(this, getBlackboard());
+		//seq.add(moveTo);
+		//seq.add(selBoolMine);
 		
-		selBoolWander.add(seq);
+		selBoolWander.add(new TaskConstructPath(selBoolWander, getBlackboard()));
 		selBoolWander.add(wander);
 		
 		add(selBoolWander);
@@ -94,6 +94,7 @@ public class TaskGetResourceSeekLocation extends Sequence {
 		//mostly implemented, reroutes to wandering
 		
 		//MORE TEMP
+		
 		bb.setPathConstructEnd(new Vector3f(posPlayer));
 		bb.getPathConstructEnd().add(new Vector3f(50, 0, 0));
 		OrePattern orePattern = HelperWorldPatterns.lookupBlockToPattern.get(bb.getBlockToMine());
@@ -112,7 +113,9 @@ public class TaskGetResourceSeekLocation extends Sequence {
 			bb.getPathConstructEnd().y = orePattern.getYMiddle();
 		}
 		
-		return EnumBehaviorState.SUCCESS;
+		Corobot.dbg("set end contruct pos to: " + bb.getPathConstructEnd());
+		
+		return super.tick();
 	}
 	
 	public boolean canMine(Block block) {

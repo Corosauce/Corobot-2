@@ -81,6 +81,10 @@ public class TaskMineBlock extends BehaviorNode {
 						playerEnt.inventory.currentItem = bestSlot;
 					} else {
 						//TODO: fail if we cant mine with bare hands
+						if (block != Blocks.dirt && block != Blocks.grass && block != Blocks.log && block != Blocks.log2) {
+							Corobot.dbg("CRITCAL: CANT MINE THIS WITH BARE HANDS, DID MY TOOL BREAK?!");
+							return EnumBehaviorState.FAILURE;
+						}
 					}
 					Minecraft.getMinecraft().playerController.onPlayerDamageBlock(x, y, z, 2);
 					Corobot.getPlayerAI().bridgePlayer.getPlayer().swingItem();

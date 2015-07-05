@@ -46,10 +46,10 @@ public class TaskConstructPath extends Sequence {
 		
 		//sequenceTasks = new Sequence(this, getBlackboard());
 		
-		IdleWander wander = new IdleWander(this, getBlackboard());
+		//IdleWander wander = new IdleWander(this, getBlackboard());
 		TaskMoveToPos moveTo = new TaskMoveToPos(this, getBlackboard());
 		
-		SelectorBoolean selBoolWander = new SelectorBoolean(this, getBlackboard(), boolShouldWanderSurface);
+		//SelectorBoolean selBoolWander = new SelectorBoolean(this, getBlackboard(), boolShouldWanderSurface);
 		
 		SelectorBoolean selBoolMine = new SelectorBoolean(this, getBlackboard(), boolShouldMine);
 		selBoolMine.add(new TaskPlaceBlock(selBoolMine, getBlackboard()));
@@ -59,10 +59,10 @@ public class TaskConstructPath extends Sequence {
 		seq.add(moveTo);
 		seq.add(selBoolMine);
 		
-		selBoolWander.add(seq);
-		selBoolWander.add(wander);
+		//selBoolWander.add(seq);
+		//selBoolWander.add(wander);
 		
-		add(selBoolWander);
+		add(seq);
 	}
 
 	@Override
@@ -87,14 +87,14 @@ public class TaskConstructPath extends Sequence {
 		World worldMC = Minecraft.getMinecraft().theWorld;
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		Vector3f posPlayer = player.getPos();
+		Vector3f posPlayer = new Vector3f(player.getPos());
 		posPlayer.y--;
 
 		//TODO: surface block support, atm he goes to 128
 		//mostly implemented, reroutes to wandering
 		
 		//MORE TEMP
-		bb.setPathConstructEnd(new Vector3f(posPlayer));
+		/*bb.setPathConstructEnd(new Vector3f(posPlayer));
 		bb.getPathConstructEnd().add(new Vector3f(50, 0, 0));
 		OrePattern orePattern = HelperWorldPatterns.lookupBlockToPattern.get(bb.getBlockToMine());
 		if (orePattern != null) {
@@ -110,7 +110,7 @@ public class TaskConstructPath extends Sequence {
 		} else {
 			boolShouldWanderSurface.set(false);
 			bb.getPathConstructEnd().y = orePattern.getYMiddle();
-		}
+		}*/
 		
 		
 		//startedBuilding = false;
@@ -190,7 +190,7 @@ public class TaskConstructPath extends Sequence {
 			bb.setBlockLocationToMine(new BlockLocation(bb.getMoveTo(), posAir1));
 			System.out.println("need to dig 1");
 			return super.tick();
-		} else if (!orePattern.isOnSurface() && !posGround.getMaterial().isSolid() && posGround.getMaterial() != Material.water) {
+		} else if (/*!orePattern.isOnSurface() && */!posGround.getMaterial().isSolid() && posGround.getMaterial() != Material.water) {
 			//need to place
 			boolShouldMine.set(false);
 			bb.setMoveToBest(new Vector3f(x, y + 0, z));
