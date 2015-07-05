@@ -32,6 +32,7 @@ import corobot.ai.behaviors.misc.TaskConstructPath;
 import corobot.ai.behaviors.misc.TaskFindNearbyItem;
 import corobot.ai.behaviors.misc.TaskGetResourceSeekLocation;
 import corobot.ai.behaviors.misc.TaskMoveToPos;
+import corobot.ai.behaviors.misc.TaskMoveToPosOrConstructPath;
 import corobot.ai.behaviors.resources.SelectorGetOreFromArea;
 import corobot.ai.behaviors.resources.SelectorGetOreFromMemory;
 import corobot.ai.behaviors.resources.TaskMineBlock;
@@ -153,7 +154,7 @@ public class PlanGetResource extends PlanPiece {
 		
 		sequenceTasks = new Sequence(obj, getBlackboard());
 		
-		TaskMoveToPos moveTo = new TaskMoveToPos(sequenceTasks, getBlackboard());
+		TaskMoveToPosOrConstructPath moveTo = new TaskMoveToPosOrConstructPath(sequenceTasks, getBlackboard());
 		
 		sequenceTasks.add(moveTo);
 		sequenceTasks.add(new TaskMineBlock(sequenceTasks, getBlackboard()));
@@ -186,7 +187,7 @@ public class PlanGetResource extends PlanPiece {
 		
 		sequenceTasksNew = new Sequence(obj, getBlackboard());
 		sequenceTasksNew.add(seqMemory);
-		moveTo = new TaskMoveToPos(sequenceTasks, getBlackboard());
+		moveTo = new TaskMoveToPosOrConstructPath(sequenceTasks, getBlackboard());
 		
 		sequenceTasksNew.add(moveTo);
 		sequenceTasksNew.add(new TaskMineBlock(sequenceTasks, getBlackboard()));

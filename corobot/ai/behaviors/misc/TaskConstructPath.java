@@ -32,6 +32,9 @@ import corobot.ai.memory.pieces.BlockLocation;
 
 public class TaskConstructPath extends Sequence {
 
+	//TODO: now that this is being used for generic 'cant pathfind to pos, build to it' code, we need pillar and dig down logic for both extreme angles
+	//i think this is why corobot still cant mine blocks too high up
+	
 	public boolean startedBuilding = false;
 	public Vector3f posStart = null;
 	public Vector3f posCur = null;

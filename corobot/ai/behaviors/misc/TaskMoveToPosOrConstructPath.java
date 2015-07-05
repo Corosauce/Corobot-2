@@ -30,6 +30,7 @@ import com.corosus.util.VecUtil;
 import com.corosus.world.IWorld;
 
 import corobot.Corobot;
+import corobot.ai.BlackboardImpl;
 import corobot.ai.memory.helper.HelperInventory;
 import corobot.ai.memory.pieces.BlockLocation;
 import corobot.util.UtilContainer;
@@ -37,7 +38,7 @@ import corobot.util.UtilEnt;
 import corobot.util.UtilInventory;
 import corobot.util.UtilMemory;
 
-public class TaskMoveToPos extends BehaviorNode {
+public class TaskMoveToPosOrConstructPath extends BehaviorNode {
 	
 	//for less dynamic scripts
 	public Vector3f staticPos;
@@ -46,12 +47,15 @@ public class TaskMoveToPos extends BehaviorNode {
 	//should be more dynamic, based on distance, or detect if it stops making progress
 	public int ticksPathingMax = 300;
 	
-	public TaskMoveToPos(BehaviorNode parParent, Blackboard blackboard) {
+	public TaskConstructPath taskConstructPath = null;
+	
+	public TaskMoveToPosOrConstructPath(BehaviorNode parParent, Blackboard blackboard) {
 		super(parParent, blackboard);
+		taskConstructPath = new TaskConstructPath(this, getBlackboard());
 	}
 	
-	public TaskMoveToPos(BehaviorNode parParent, Blackboard blackboard, Vector3f staticPos) {
-		super(parParent, blackboard);
+	public TaskMoveToPosOrConstructPath(BehaviorNode parParent, Blackboard blackboard, Vector3f staticPos) {
+		this(parParent, blackboard);
 		this.staticPos = staticPos;
 	}
 
@@ -62,6 +66,7 @@ public class TaskMoveToPos extends BehaviorNode {
 		IWorld world = Corobot.getPlayerAI().bridgeWorld;
 		IEntity player = Corobot.getPlayerAI();
 		EntityPlayer playerEnt = Corobot.getPlayerAI().bridgePlayer.getPlayer();
+		BlackboardImpl bb = (BlackboardImpl) agent.getBlackboard();
 		
 		Vector3f pos = staticPos;
 		if (staticPos == null) {
@@ -89,13 +94,15 @@ public class TaskMoveToPos extends BehaviorNode {
 				//verify we can compare like this
 				//for checking of path actually completed entirely
 				} else if (!getBlackboard().getPath().getLastMoveTo().equals(pos)) {
-					Corobot.dbg("path ended this far from target pos: " + VecUtil.getDistSqrd(pos, player.getPos()));
+					Corobot.dbg("maybe not an issue, but, path ended this far from target pos: " + VecUtil.getDistSqrd(pos, getBlackboard().getPath().getLastMoveTo()));
 					//hmm
 				}
 				
 				if (pathFail) {
-					Corobot.dbg("pathfind to " + pos + " failed to get any path!");
-					return EnumBehaviorState.FAILURE;
+					Corobot.dbg("pathfind to " + pos + " failed to get any path! dist to dest: " + VecUtil.getDistSqrd(pos, player.getPos()));
+					bb.setPathConstructEnd(pos);
+					return taskConstructPath.tick();
+					//return EnumBehaviorState.FAILURE;
 				}
 			}
 			
