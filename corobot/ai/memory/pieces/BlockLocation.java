@@ -5,11 +5,33 @@ import javax.vecmath.Vector3f;
 import com.corosus.ai.minigoap.IWorldStateProperty;
 
 import net.minecraft.block.Block;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class BlockLocation extends WorldLocation {
 
 	private Block block;
 	private int meta = -1;
+	
+	public BlockLocation() {
+		super();
+	}
+	
+	@Override
+	public void write(Object obj) {
+		super.write(obj);
+		NBTTagCompound nbt = (NBTTagCompound) obj;
+		nbt.setString("blockName", Block.blockRegistry.getNameForObject(block));
+		nbt.setInteger("meta", meta);
+	}
+
+	@Override
+	public void read(Object obj) {
+		super.read(obj);
+		NBTTagCompound nbt = (NBTTagCompound) obj;
+		block = Block.getBlockFromName(nbt.getString("blockName"));
+		meta = nbt.getInteger("meta");
+		
+	}
 	
 	public BlockLocation(Vector3f pos, Block block) {
 		super(pos);

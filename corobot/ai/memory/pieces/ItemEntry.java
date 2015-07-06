@@ -20,6 +20,21 @@ public class ItemEntry implements IWorldStateProperty {
 	
 	private int reUseAmount = 0;
 	
+	public ItemEntry() {
+		
+	}
+	
+	@Override
+	public void write(Object obj) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void read(Object obj) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	public ItemEntry(ItemStack stack, InventorySource source) {
 		if (stack.getItem() == null) {
 			Corobot.dbg("warning! item null!");

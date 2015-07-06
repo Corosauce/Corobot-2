@@ -8,6 +8,10 @@ import net.minecraft.block.Block;
 
 public class MachineLocation extends BlockLocation {
 	
+	public MachineLocation() {
+		super();
+	}
+	
 	public MachineLocation(Vector3f pos, Block block) {
 		super(pos, block);
 	}

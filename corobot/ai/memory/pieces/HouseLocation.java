@@ -8,6 +8,10 @@ import net.minecraft.block.Block;
 
 public class HouseLocation extends WorldLocation {
 	
+	public HouseLocation() {
+		
+	}
+	
 	public HouseLocation(Vector3f pos) {
 		super(pos);
 	}

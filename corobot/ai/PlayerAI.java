@@ -32,6 +32,7 @@ import corobot.util.InventoryInfo;
 import corobot.util.UtilFurnace;
 import corobot.util.UtilPlayer;
 import corobot.util.UtilRecipe;
+import corobot.util.UtilSerialization;
 
 public class PlayerAI implements IEntity {
 
@@ -132,6 +133,8 @@ public class PlayerAI implements IEntity {
 		Path path = new Path(agent.getBlackboard());
 		agent.getBlackboard().setPath(path);
 		
+		//memory reloading and debug memory
+		UtilSerialization.loadNBTIntoMemory(((BlackboardImpl)agent.getBlackboard()).getPlayerMemory().getProperties());
 		((BlackboardImpl)agent.getBlackboard()).getPlayerMemory().getProperties().add(new MachineLocation(new Vector3f(138, 64, 252), Blocks.crafting_table));
 	}
 	
@@ -150,6 +153,9 @@ public class PlayerAI implements IEntity {
 		}
 		
 		HelperInventory.updateCache(agent.getBlackboard().getWorldMemory(), HelperInventory.selfInventory, Corobot.playerAI.bridgePlayer.getPlayer().inventory);
+		if (bridgePlayer.getPlayer().worldObj.getTotalWorldTime() % 20 == 0) {
+			UtilSerialization.exportMemoryToNBT(((BlackboardImpl)agent.getBlackboard()).getPlayerMemory().getProperties());
+		}
 	}
 	
 	public void updateGOAP() {
